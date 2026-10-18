@@ -25,7 +25,7 @@ history, keep the connected branch working).
 - Deployment: `Dockerfile` (bun build stage, Node runtime) on Coolify. The server listens on
   `PORT` (default 3000); `GET /api/health` is the healthcheck. Run the production build
   locally with `bun run build && bun run start`.
-- Tailwind CSS v4, theme in `src/styles.css` (`@theme inline` + CSS variables). shadcn/ui
+- Tailwind CSS v4, theme in `src/styles.css` (`@theme inline` + CSS variables).
 - Package manager: **bun** (`bun install`, `bun run build`, `bun run lint`, `bun run test`).
 - Prettier: printWidth 100, double quotes, trailing commas. Lint runs Prettier as an ESLint rule.
 
