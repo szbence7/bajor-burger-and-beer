@@ -1,10 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef } from "react";
 import { ArrowRight } from "lucide-react";
 import { images } from "@/data/images";
 import { burgers } from "@/data/menu";
 import { beers } from "@/data/beers";
-import { formatFt } from "@/data/info";
 import { Marquee } from "@/components/site/Marquee";
 import { Doodle } from "@/components/site/Doodle";
 import { Reveal } from "@/components/site/Reveal";
@@ -13,6 +12,9 @@ import { SectionHeader } from "@/components/site/SectionHeader";
 import { BeerCard } from "@/components/site/BeerCard";
 import { CtaLink } from "@/components/site/CtaButton";
 import { HoursCard, MapPlaceholder } from "@/components/site/HoursAndMap";
+import { Price } from "@/components/site/Price";
+import { PhotoCarousel } from "@/components/site/PhotoCarousel";
+import { RautenDivider } from "@/components/site/RautenPattern";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/")({
@@ -37,51 +39,96 @@ const cardTones = [
   "bg-card text-foreground border border-border",
 ];
 
-function Index() {
-  const [y, setY] = useState(0);
+const placePhotos = [
+  { src: images.placePeople, alt: "Baráti koccintás a hosszú asztalnál" },
+  { src: images.foodTable, alt: "Burgerek, perec és sör az asztalon" },
+  { src: images.placeInterior, alt: "Az étterem esti belső tere" },
+  { src: images.eventNight, alt: "Élőzenés est a Bajorban" },
+  { src: images.placeTap, alt: "Csapolás a pultnál" },
+];
+
+/** Slight upward parallax on the hero burger; disabled for reduced motion. */
+function useParallax<T extends HTMLElement>(factor: number) {
+  const ref = useRef<T>(null);
   useEffect(() => {
-    const f = () => setY(window.scrollY);
-    window.addEventListener("scroll", f, { passive: true });
-    return () => window.removeEventListener("scroll", f);
-  }, []);
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      if (ref.current) ref.current.style.translate = `0 ${window.scrollY * factor}px`;
+    };
+    const onScroll = () => {
+      if (!frame) frame = requestAnimationFrame(update);
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      cancelAnimationFrame(frame);
+    };
+  }, [factor]);
+  return ref;
+}
+
+function HeroBurger({ className }: { className?: string }) {
+  return (
+    <div className={cn("pointer-events-none", className)}>
+      <div className="glow-gold absolute inset-[-12%]" />
+      <img
+        src={images.burgerHero}
+        alt=""
+        width={1024}
+        height={1024}
+        fetchPriority="high"
+        className="relative w-full animate-float drop-shadow-2xl"
+      />
+    </div>
+  );
+}
+
+function Index() {
+  const parallaxRef = useParallax<HTMLSpanElement>(-0.08);
   const featured = burgers.filter((b) => b.featured);
   const houseBeers = beers.filter((b) => b.house);
 
   return (
     <>
-      {/* HERO */}
-      <section className="relative flex min-h-screen items-center overflow-hidden px-5 pb-20 pt-32">
-        <div className="rauten pointer-events-none absolute inset-0 text-primary opacity-[0.035]" />
-        <Doodle kind="mug" className="left-[4%] top-28 h-24 w-24 -rotate-12" />
-        <Doodle kind="pretzel" className="bottom-24 left-[8%] h-20 w-20" />
-        <Doodle kind="hop" className="right-[6%] top-36 h-20 w-20 rotate-12" />
-        <Doodle kind="fries" className="bottom-20 right-[30%] h-20 w-20 -rotate-6" />
+      {/* HERO — no pattern: dark base, golden glow behind the burger, global grain */}
+      <section className="relative flex min-h-[100svh] items-center overflow-hidden px-5 pb-16 pt-24 md:pb-20 md:pt-28">
+        <Doodle kind="mug" className="left-[3%] top-24 h-32 w-32 -rotate-12 md:h-44 md:w-44" />
+        <Doodle kind="pretzel" className="bottom-16 left-[6%] h-28 w-28 md:h-40 md:w-40" />
+        <Doodle kind="hop" className="right-[4%] top-[60%] hidden h-36 w-36 rotate-12 md:block" />
+        <Doodle
+          kind="fries"
+          className="bottom-10 right-[28%] h-28 w-28 -rotate-6 md:h-36 md:w-36"
+        />
 
         <div className="relative mx-auto w-full max-w-7xl">
-          <h1 className="relative z-0 font-display text-[19vw] md:text-[13vw] xl:text-[11.5rem]">
-            <span className="block">Csapolt sör.</span>
+          {/* Mobile: burger sits above the stacked headline and only kisses the first line. */}
+          <HeroBurger className="relative z-10 -mb-[9vw] ml-auto mr-[-4%] w-[74vw] max-w-sm md:hidden" />
+
+          {/* md+: the burger lives in a slot right after line one, sized in em of the
+              headline so it tracks the text at every width. The h1 reserves room above
+              itself, so the burger never reaches the fixed header. */}
+          <h1 className="relative font-display text-[19vw] md:pt-[1.05em] md:text-[12vw] xl:text-[10.5rem]">
+            <span className="flex items-end">
+              <span className="md:whitespace-nowrap">Csapolt sör.</span>
+              <span
+                ref={parallaxRef}
+                aria-hidden
+                className="relative hidden flex-1 self-stretch md:block"
+              >
+                <HeroBurger className="absolute -bottom-[0.3em] left-[0.08em] z-10 w-[2.6em] xl:w-[2.2em]" />
+                <RotatingBadge className="absolute -top-[1em] left-[1.85em] z-20 hidden h-[0.75em] w-[0.75em] lg:grid xl:left-[1.45em]" />
+              </span>
+            </span>
             <span className="block text-primary">Szaftos burger.</span>
           </h1>
-          <div
-            className="pointer-events-none absolute right-[-6%] top-1/2 z-10 w-[70vw] max-w-[640px] -translate-y-1/2 md:right-[-2%] md:w-[46vw]"
-            style={{ transform: `translateY(calc(-50% + ${y * 0.15}px))` }}
-          >
-            <div className="glow-gold absolute inset-[-10%]" />
-            <img
-              src={images.burgerHero}
-              alt="Bajor Dupla burger"
-              width={1024}
-              height={1024}
-              className="relative animate-float drop-shadow-2xl"
-            />
-          </div>
           <div className="relative z-20 mt-10 flex flex-wrap gap-4">
             <CtaLink to="/foglalas">Asztalfoglalás</CtaLink>
             <CtaLink to="/menu" variant="outline">
               Menü
             </CtaLink>
           </div>
-          <RotatingBadge className="absolute -top-10 right-0 z-20 hidden md:grid" />
         </div>
       </section>
 
@@ -89,7 +136,8 @@ function Index() {
 
       {/* FEATURED BURGERS */}
       <section className="relative mx-auto max-w-7xl px-5 py-28">
-        <Doodle kind="burger" className="-left-2 top-10 h-28 w-28" />
+        <Doodle kind="burger" className="-left-4 top-6 h-40 w-40 md:h-56 md:w-56" />
+        <Doodle kind="fries" className="bottom-6 right-0 h-36 w-36 rotate-6 md:h-48 md:w-48" />
         <Reveal>
           <SectionHeader
             eyebrow="A konyhából"
@@ -104,30 +152,33 @@ function Index() {
         </Reveal>
         <div className="grid gap-8 md:grid-cols-3">
           {featured.map((b, i) => (
-            <Reveal key={b.id} delay={i * 120}>
+            <Reveal key={b.id} delay={i * 120} className="h-full">
               <article
                 className={cn(
-                  "group lift relative flex h-full min-h-[34rem] flex-col overflow-hidden rounded-3xl p-7",
+                  "group lift relative flex h-full min-h-[30rem] flex-col overflow-hidden rounded-3xl p-7 md:min-h-[28rem] lg:min-h-[34rem]",
                   cardTones[i % 3],
                 )}
               >
-                <h3 className="font-display text-7xl opacity-95 lg:text-8xl">
+                {/* Title stays above the image layer so both words are always readable. */}
+                <h3 className="relative z-10 font-display text-7xl md:text-5xl lg:text-7xl xl:text-8xl">
                   {b.name.split(" ").map((w) => (
                     <span key={w} className="block">
                       {w}
                     </span>
                   ))}
                 </h3>
-                <img
-                  src={b.image}
-                  alt={b.name}
-                  loading="lazy"
-                  width={1024}
-                  height={1024}
-                  className="absolute -right-10 bottom-20 w-[85%] drop-shadow-2xl transition-transform duration-500 group-hover:-rotate-6 group-hover:scale-110"
-                />
-                <div className="relative mt-auto flex items-center justify-between">
-                  <span className="font-display text-3xl">{formatFt(b.price)}</span>
+                <div className="relative -mt-6 flex flex-1 items-end justify-end">
+                  <img
+                    src={b.image}
+                    alt={b.name}
+                    loading="lazy"
+                    width={1024}
+                    height={1024}
+                    className="-mr-12 w-[82%] max-w-[22rem] drop-shadow-2xl transition-transform duration-500 group-hover:-rotate-6 group-hover:scale-105 motion-reduce:transition-none"
+                  />
+                </div>
+                <div className="relative z-10 mt-4 flex flex-wrap items-center justify-between gap-3">
+                  <Price value={b.price} className="font-display text-3xl" />
                   <CtaLink to="/menu" variant={i === 2 ? "gold" : "dark"} className="px-5 py-3">
                     Megnézem <ArrowRight className="h-4 w-4" />
                   </CtaLink>
@@ -140,14 +191,13 @@ function Index() {
 
       {/* HOUSE BEERS — gold */}
       <section className="relative overflow-hidden bg-primary px-5 py-28 text-primary-foreground">
-        <div className="rauten pointer-events-none absolute inset-0 text-primary-foreground opacity-[0.06]" />
         <Doodle
           kind="foam"
-          className="right-[6%] top-12 h-28 w-28 text-primary-foreground opacity-30"
+          className="right-[6%] top-12 h-32 w-32 text-primary-foreground opacity-20 md:h-44 md:w-44"
         />
         <Doodle
           kind="hop"
-          className="bottom-10 left-[4%] h-24 w-24 text-primary-foreground opacity-30"
+          className="bottom-10 left-[4%] h-28 w-28 text-primary-foreground opacity-20 md:h-40 md:w-40"
         />
         <div className="relative mx-auto max-w-7xl">
           <Reveal>
@@ -157,7 +207,7 @@ function Index() {
           </Reveal>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {houseBeers.map((b, i) => (
-              <Reveal key={b.id} delay={i * 100}>
+              <Reveal key={b.id} delay={i * 100} className="h-full">
                 <BeerCard beer={b} tone="onGold" />
               </Reveal>
             ))}
@@ -167,9 +217,9 @@ function Index() {
 
       {/* ABOUT */}
       <section className="relative mx-auto grid max-w-7xl items-center gap-16 px-5 py-32 md:grid-cols-2">
-        <Doodle kind="pretzel" className="right-4 top-10 h-24 w-24" />
-        <Doodle kind="mug" className="bottom-6 left-[40%] h-24 w-24 opacity-20" />
-        <Reveal className="relative h-[28rem] md:h-[34rem]">
+        <Doodle kind="pretzel" className="right-2 top-8 h-36 w-36 md:h-48 md:w-48" />
+        <Doodle kind="mug" className="bottom-4 left-[42%] h-36 w-36 md:h-44 md:w-44" />
+        <Reveal className="relative h-[24rem] sm:h-[28rem] md:h-[34rem]">
           <img
             src={images.placeInterior}
             alt="Az étterem belső tere"
@@ -205,39 +255,23 @@ function Index() {
 
       <Marquee words={["Prost", "Egészségedre", "Hétvégén élőzene"]} tilt="right" variant="dark" />
 
-      {/* PLACE STRIP */}
-      <section className="py-28">
+      {/* PLACE CAROUSEL */}
+      <section className="relative py-28">
+        <Doodle kind="hop" className="right-[5%] top-16 h-36 w-36 rotate-12 md:h-48 md:w-48" />
         <div className="mx-auto max-w-7xl px-5">
           <Reveal>
-            <SectionHeader eyebrow="Galéria" title="A hely" />
+            <SectionHeader eyebrow="Galéria" title="A hely" className="mb-2" />
           </Reveal>
         </div>
-        <div className="flex snap-x gap-6 overflow-x-auto px-5 pb-8 pt-4 [scrollbar-width:none]">
-          {[
-            images.placePeople,
-            images.foodTable,
-            images.placeInterior,
-            images.eventNight,
-            images.placeTap,
-          ].map((src, i) => (
-            <img
-              key={i}
-              src={src}
-              alt="Hangulatkép a Bajorból"
-              loading="lazy"
-              className={cn(
-                "h-96 w-72 shrink-0 snap-center rounded-3xl object-cover shadow-xl transition-transform duration-500 hover:rotate-0 hover:scale-105 md:w-80",
-                i % 2 === 0 ? "-rotate-2" : "rotate-2",
-              )}
-            />
-          ))}
-        </div>
-        <div className="mt-4 text-center">
+        <PhotoCarousel photos={placePhotos} />
+        <div className="mt-10 text-center">
           <CtaLink to="/galeria" variant="outline">
             Teljes galéria
           </CtaLink>
         </div>
       </section>
+
+      <RautenDivider className="mx-auto mb-20 max-w-7xl" />
 
       {/* HOURS + MAP */}
       <section className="mx-auto grid max-w-7xl gap-8 px-5 pb-28 md:grid-cols-[1fr_1.4fr]">
@@ -253,15 +287,15 @@ function Index() {
       <section className="relative overflow-hidden bg-ember px-5 py-24 text-ember-foreground">
         <Doodle
           kind="burger"
-          className="left-[5%] top-10 h-28 w-28 text-ember-foreground opacity-30"
+          className="left-[5%] top-10 h-32 w-32 text-ember-foreground opacity-20 md:h-40 md:w-40"
         />
         <Doodle
           kind="mug"
-          className="bottom-8 right-[6%] h-28 w-28 text-ember-foreground opacity-30"
+          className="bottom-8 right-[6%] h-32 w-32 text-ember-foreground opacity-20 md:h-40 md:w-40"
         />
         <div className="relative mx-auto max-w-7xl text-center">
           <h2 className="font-display text-[16vw] md:text-[10rem]">Foglalj asztalt!</h2>
-          <p className="mx-auto mt-4 max-w-lg text-lg opacity-90">
+          <p className="mx-auto mt-4 max-w-lg text-lg">
             Péntek este telt ház szokott lenni. Ne maradj le a hosszú asztalról.
           </p>
           <CtaLink to="/foglalas" variant="dark" className="mt-10">
