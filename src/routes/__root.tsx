@@ -14,6 +14,7 @@ import appCss from "../styles.css?url";
 import antonLatin from "@fontsource/anton/files/anton-latin-400-normal.woff2?url";
 import manropeLatin from "@fontsource-variable/manrope/files/manrope-latin-wght-normal.woff2?url";
 import { SITE_NAME } from "@/lib/site";
+import { getIndexing } from "@/lib/indexing";
 import { restaurantJsonLd, toJsonLdScript } from "@/lib/structured-data";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
@@ -70,9 +71,13 @@ function ErrorComponent({ error, reset }: ErrorComponentProps) {
 }
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
-  head: () => ({
+  // NOINDEX is a runtime env flag; fetched once on the server and kept for the session.
+  loader: () => getIndexing(),
+  staleTime: Infinity,
+  head: ({ loaderData }) => ({
     meta: [
       { charSet: "utf-8" },
+      ...(loaderData?.noindex ? [{ name: "robots", content: "noindex" }] : []),
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { name: "theme-color", content: "#121110" },
       // Defaults; each route's seo() overrides title, description and URLs.
