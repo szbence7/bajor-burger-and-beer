@@ -82,8 +82,12 @@
   font-family: var(--font-display);
   text-transform: uppercase;
   letter-spacing: 0.005em;
-  /* 0.94 keeps Hungarian accents (É, Ü, Ő) from colliding with the line above */
-  line-height: 0.94;
+  /* Anton's accented capitals (É, Á, Ü) reach ~1.1em above the baseline, so stacked lines need
+     at least that much pitch or the accents hit the line above. Setting --tw-leading makes
+     this win over the line-height bundled in text-4xl…text-8xl; use an explicit leading-*
+     only for fixed copy known to be accent-safe (e.g. the hero). */
+  --tw-leading: 1.12;
+  line-height: 1.12;
 }
 
 @utility glow-gold {
