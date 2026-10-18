@@ -2,70 +2,153 @@
 
 Website for **Bajor Burger and Beer** (bajorburgerandbeer.hu), a modern burger and craft beer
 house in Budapest. The repo started as a Lovable design-first build; the design direction is
-approved and must be preserved. See also `AGENTS.md`: never rewrite pushed history. Since
-Phase 2 the Lovable build wrapper is gone, so the Lovable editor can no longer build this code;
-development continues outside Lovable.
+approved and must be preserved. Since Phase 2 the Lovable build wrapper is gone, so the Lovable
+editor can no longer build this code; development continues outside Lovable. `AGENTS.md` still
+applies: never rewrite pushed history.
+
+## Workflow
+
+- Work on branch `claude/redesign-fixes` (never directly on `main`), in phases.
+- After each phase: run the full verification (below), commit, **push the branch without
+  asking**, summarise, then **stop for the user's review** before the next phase.
+- Small, focused commits with clear English messages. Never force-push; never push to `main`
+  without asking.
+- Verification before every commit: `bun run lint` (0 errors), `bunx tsc --noEmit`,
+  `bun run test`, `bun run build`. For UI changes also check screenshots at 375 / 768 / 1280 /
+  1920 px (no horizontal scroll, no clipped headings) and compare against the previous look.
+  Verify a fix visually before reporting it as fixed.
 
 ## Language and content
 
 - All visible UI text is **Hungarian**. Code, comments and commit messages are **English**.
 - Prices in Ft with Hungarian formatting: `4 290 Ft`, `0,5 l`, `5,3%`. Render prices with
-  `<Price value={…} />` (keeps "Ft" mixed-case in display type); `formatFt()` /
-  `formatNumber()` in `src/lib/format.ts` for plain text. Decimals via `toLocaleString("hu-HU")`.
+  `<Price value={…} />` (always groups thousands with a non-breaking space, keeps "Ft"
+  mixed-case inside uppercase display type). For plain text use `formatFt()` /
+  `formatNumber()` from `src/lib/format.ts` (`toLocaleString("hu-HU")` does **not** group
+  4-digit numbers). Decimals via `toLocaleString("hu-HU")`.
 - `<html lang="hu">`.
 
-## Stack (current)
+## Placeholder content — replace before launch
 
-- React 19 + TypeScript (strict, `exactOptionalPropertyTypes`, `noUncheckedIndexedAccess`).
-- TanStack Start **with SSR** + TanStack Router file-based routes in `src/routes`, TanStack
+`NOINDEX=true` must stay on any public deploy until these are real:
+
+- `src/data/info.ts`: address (Kazinczy utca 12., 1075 Budapest), phone (+36 1 234 5678),
+  email (hello@bajorburger.hu), social links (bare network homepages, so they are left out of
+  JSON-LD `sameAs` until they are real profile URLs), booking `timeSlots`, opening hours.
+  These feed the footer, contact cards **and the Restaurant JSON-LD**.
+- `src/data/menu.ts`, `beers.ts`, `drinks.ts`, `gallery.ts`: mock menu, prices and gallery
+  (some photos reused). Phase 3 moves these to Supabase.
+- `src/assets/*`: AI-generated stand-in photos; `public/og-image.jpg` is rendered from the
+  hero burger. Regenerate the OG image once real photos exist.
+- `MapPlaceholder` ("Térkép helye") stands in for a real map embed.
+- JSON-LD `priceRange: "$$"` and `servesCuisine` in `src/lib/structured-data.ts`.
+
+## Stack and runtime
+
+- React 19 + TypeScript (strict, `exactOptionalPropertyTypes`, `noUncheckedIndexedAccess`,
+  `noPropertyAccessFromIndexSignature` → use `process.env["X"]`).
+- **TanStack Start with SSR** + TanStack Router file-based routes (`src/routes`) + TanStack
   Query. `src/routeTree.gen.ts` is generated — never edit it.
 - **Decision (Phase 2): keep SSR, do not convert to a static SPA.** Server-rendered HTML gives
-  search engines and link previews (Facebook, WhatsApp, Google) real titles, OG tags and
-  JSON-LD on every page, which matters for a restaurant site.
-- Plain Vite 8 config (`vite.config.ts`): tanstackStart, React, Tailwind, tsconfig paths, and
-  Nitro with the **`node-server` preset** (build only). No Lovable config wrapper.
-- Deployment: `Dockerfile` (bun build stage, Node runtime) on Coolify. The server listens on
-  `PORT` (default 3000); `GET /api/health` is the healthcheck. Run the production build
-  locally with `bun run build && bun run start`.
-- Tailwind CSS v4, theme in `src/styles.css` (`@theme inline` + CSS variables).
-- Fonts are self-hosted via Fontsource (`@fontsource/anton`, `@fontsource-variable/manrope`),
-  latin subsets preloaded in `__root.tsx`. Don't reintroduce Google Fonts links.
-- `src/start.ts`: request middleware for gzip (buffered; re-wrapping Start's live SSR stream
-  breaks the response), error fallback page and CSRF for server functions.
-- Package manager: **bun** (`bun install`, `bun run build`, `bun run lint`, `bun run test`).
-- Prettier: printWidth 100, double quotes, trailing commas. Lint runs Prettier as an ESLint rule.
+  search engines and link previews real titles, OG tags and JSON-LD on every page.
+- Plain Vite 8 config (`vite.config.ts`): tailwindcss, vite-imagetools, tsconfig paths,
+  tanstackStart (import protection: `**/server/**` and `server-only` blocked from the client),
+  React, and Nitro **`node-server` preset** (build only, `compressPublicAssets`). Dev server
+  runs on port 8080.
+- `bun run build` → self-contained `.output/` (no `node_modules` needed);
+  `bun run start` = `node .output/server/index.mjs`, listens on `PORT` (default 3000).
+- `src/start.ts` request middleware: gzip for dynamic text responses (the body is
+  **buffered** first — re-wrapping Start's live SSR stream drops the connection), a branded
+  Hungarian fallback error page (`src/lib/error-page.ts`), and CSRF protection for server
+  functions.
+- Server routes: `/api/health` (healthcheck), `/sitemap.xml`, `/robots.txt`.
+- Fonts are self-hosted via Fontsource (`@fontsource/anton`, `@fontsource-variable/manrope`);
+  latin subsets are preloaded in `__root.tsx`. Don't reintroduce Google Fonts links.
+- Tailwind CSS v4, theme tokens in `src/styles.css` (`@theme inline` + CSS variables).
+- No shadcn/ui (removed as unused in Phase 2, with its Radix etc. dependencies). Build UI from
+  the brand primitives; add a headless library only when a feature genuinely needs one (e.g.
+  admin dialogs). `zod` is installed for Phase 3.
+- Package manager: **bun** (`bun.lock`, `bunfig.toml` has a 24 h minimum-release-age guard).
+- Prettier: printWidth 100, double quotes, trailing commas. ESLint runs Prettier as a rule.
+
+## Environment variables
+
+| Variable        | When       | Purpose                                                                                                                                 |
+| --------------- | ---------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `VITE_SITE_URL` | build time | Canonical origin for canonical URLs, OG, JSON-LD, sitemap, robots. Defaults to `https://bajorburgerandbeer.hu`. Coolify: build variable |
+| `PORT`          | runtime    | Node server port (default 3000)                                                                                                         |
+| `NOINDEX`       | runtime    | `1`/`true`/`yes` → `<meta name="robots" content="noindex">` on every page and `Disallow: /` in robots.txt. For staging                  |
+
+`VITE_*` values are public (inlined into the client bundle). Secrets never go in `VITE_*` or
+in git; `.env` is gitignored, `.env.example` is the template. NOINDEX is read on the server
+(`src/lib/indexing.ts`) and passed to the client through the root route's loader
+(`staleTime: Infinity`), so the meta tag survives client-side navigation.
+
+## Deployment (Coolify on the user's VPS)
+
+- `Dockerfile`: `oven/bun:1.4` installs deps (`--frozen-lockfile`) and builds; the runtime
+  stage is `node:22-alpine` running as `node`, copying only `.output/`. `EXPOSE 3000`,
+  `HEALTHCHECK` on `/api/health` via `wget`. Image ≈ 240 MB. `.dockerignore` excludes
+  `node_modules`, `.output`, `.env*`.
+- Coolify: Dockerfile build pack, port 3000, `VITE_SITE_URL` as build variable, `NOINDEX=true`
+  on staging. Git push auto-deploys.
+- The Phase 2 image was verified locally: all pages 200, unknown routes 404, AVIF served,
+  container reports `healthy`, `PORT` and `NOINDEX` respected.
 
 ## Structure
 
-- `src/routes` — file-based routes: `index` (Főoldal), `menu`, `galeria`, `foglalas`, `rolunk`,
-  `api/health` (server route). `__root.tsx` holds the HTML shell, Header/Footer, 404 and error
-  pages. Routes stay thin: page layout + head; logic lives in features.
-- `src/components` — shared brand primitives (CtaButton, Doodle, Marquee, Reveal, PageHero,
-  SectionHeader, Tag, Price, RautenPattern, HoursAndMap, RotatingBadge…);
+- `src/routes` — `index` (Főoldal), `menu`, `galeria`, `foglalas`, `rolunk`, server routes
+  `api/health`, `sitemap[.]xml`, `robots[.]txt`. `__root.tsx` holds the HTML shell, root head
+  (fonts, icons, OG defaults, JSON-LD, NOINDEX), Header/Footer, 404 and error components.
+  Routes stay thin: layout + `head`; logic lives in features.
+- `src/components` — shared brand primitives: CtaButton (`CtaLink`), Doodle, Marquee, Reveal,
+  RotatingBadge, PageHero, SectionHeader, Tag, Price, Picture, RautenPattern
+  (+ `RautenDivider`), HoursAndMap (`HoursCard`, `MapPlaceholder`).
   `src/components/layout` — Header, Footer.
-- `src/features/<name>` — feature components: `menu` (MenuItemCard, BeerCard,
-  FeaturedBurgerCard), `booking` (BookingForm), `gallery` (GalleryGrid, PhotoCarousel).
+- `src/features/menu` — MenuItemCard, BeerCard, FeaturedBurgerCard.
+  `src/features/booking` — BookingForm (two steps + confirmation; currently client-only).
+  `src/features/gallery` — GalleryGrid (filters + lightbox), PhotoCarousel (Embla).
 - `src/lib` — `utils` (`cn`), `format` (`formatNumber`, `formatFt`, `formatHours`), `cta`
-  (`ctaClass`), `error-page`, `site` (SITE_URL from `VITE_SITE_URL`), `seo`, `structured-data`.
-- `src/data` — content and types (`menu`, `beers`, `drinks`, `gallery`, `info`) plus
-  `images.ts`. Phase 3 swaps the content for Supabase while keeping the types.
-- `src/assets` — images. **All image imports go through `src/data/images.ts`**, so the
-  restaurant's own photos can be swapped in one place. Never import from `@/assets` elsewhere.
-  Each import carries a `vite-imagetools` query (`?w=…&format=avif;webp&as=picture`); render
-  with `<Picture image={…} sizes="…" />` and give `sizes` that match the rendered width.
-  `ImageSource` also accepts plain URLs (future Supabase Storage images).
-- `public/` — favicons, `site.webmanifest`, `og-image.jpg` (1200×630), `robots.txt`.
+  (`ctaClass`, variants), `site` (`SITE_URL`, `SITE_NAME`, `DEFAULT_OG_IMAGE`, `absoluteUrl`),
+  `seo`, `structured-data`, `indexing`, `error-page`.
+- `src/data` — content + TypeScript types (`menu`, `beers`, `drinks`, `gallery`, `info`) and
+  `images.ts`. Phase 3 replaces the content with Supabase **keeping these types**.
+  `OpeningHour` is structured (`label`, `days: Weekday[]`, `opens`, `closes`; null = closed;
+  `closes < opens` = after midnight) because it drives both the UI and the JSON-LD.
+- `src/assets` — source images. `public/` — favicons (`favicon.svg/.ico`, `apple-touch-icon`,
+  `icon-192/512`), `site.webmanifest`, `og-image.jpg` (1200×630).
+- `src/env.d.ts` types `import.meta.env`; `src/imagetools.d.ts` types imagetools imports.
+
+## Image pipeline
+
+- **All images enter through `src/data/images.ts`** — never import from `@/assets` elsewhere.
+  Each import has a vite-imagetools query, e.g.
+  `@/assets/burger-hero.png?w=400;700;1024&format=avif;webp&as=picture`, which emits AVIF +
+  WebP at those widths at build time (no original PNG/JPG is published). Don't request widths
+  larger than the source.
+- Render with `<Picture image={…} alt="…" sizes="…" />`; give `sizes` matching the rendered
+  width. Default `loading="lazy"`; the hero burger uses `loading="eager"` +
+  `fetchPriority="high"`, and both hero instances share the same `sizes` so only one file
+  downloads.
+- `ImageSource = PictureData | string`: plain URLs (Supabase Storage in Phase 3/4) render as a
+  normal `<img>`.
+- To swap in the restaurant's photos, replace files in `src/assets` (same names) or edit the
+  imports in `images.ts`.
 
 ## SEO
 
-- Every route's `head` uses `seo({ path, title, description })` from `src/lib/seo.ts`
-  (title, description, canonical, og:_, twitter:_). Descriptions ~110–160 chars, Hungarian.
-- The root head adds site-wide OG defaults, icons, manifest and the schema.org `Restaurant`
-  JSON-LD from `src/lib/structured-data.ts`, built from `src/data/info.ts` — keep hours and
-  contact data there (Phase 3: from Supabase) so UI and JSON-LD never disagree.
-- New public pages must be added to `src/routes/sitemap[.]xml.ts`.
-- No shadcn/ui: it was removed as unused. Build new UI from the brand primitives; add a
-  headless library only when a feature genuinely needs one (e.g. admin dialogs).
+- Every route's `head` is `seo({ path, title, description })` from `src/lib/seo.ts` (title,
+  description, canonical, `og:*` incl. image size/alt, `twitter:*`). Descriptions ~110–160
+  characters, Hungarian.
+- Root head: charset, viewport, theme-color, `og:type/site_name/locale (hu_HU)`, twitter card,
+  icons, manifest, schema.org `Restaurant` JSON-LD (`restaurantJsonLd()`: address, phone,
+  email, opening hours, `hasMenu`, `acceptsReservations` → /foglalas). Data comes from
+  `src/data/info.ts` so UI and JSON-LD never disagree — keep it that way when moving to
+  Supabase.
+- New public pages must be added to the list in `src/routes/sitemap[.]xml.ts`. `/admin`
+  (Phase 4) must stay out of the sitemap and be noindexed.
+- Lighthouse (mobile, production build, end of Phase 2): performance 93–98, accessibility /
+  best practices / SEO 100 on all five pages. Don't regress it.
 
 ## Design system — keep it, enforce it everywhere
 
@@ -73,59 +156,107 @@ Feel: a moody evening burger and beer house crossed with a bold, playful, youthf
 brand. Dark, atmospheric base with loud graphic moments on top. Never a generic restaurant
 template.
 
-Colours are Tailwind theme tokens only — **no hardcoded hex in components**:
+Colours are Tailwind theme tokens only — **no hardcoded hex in components** (the
+self-contained `error-page.ts` and generated brand assets are the only exceptions):
 
-| Token                  | Hex     | Tailwind                                                                                                      |
-| ---------------------- | ------- | ------------------------------------------------------------------------------------------------------------- |
-| background             | #121110 | `bg-background`                                                                                               |
-| surface                | #1C1A18 | `bg-card`                                                                                                     |
-| border                 | #2E2A26 | `border-border`                                                                                               |
-| primary (cheddar gold) | #F2A900 | `bg-primary`, `text-primary`                                                                                  |
-| primary tint           | #FFC94A | `primary-glow`                                                                                                |
-| accent (ember red)     | #D9381E | `bg-ember` — **only main CTAs and badges**; text on it is white (AA) — never use ember as text colour on dark |
-| text                   | #F5EFE6 | `text-foreground`                                                                                             |
-| muted                  | #A89F94 | `text-muted-foreground`                                                                                       |
+| Token                  | Hex     | Tailwind                     |
+| ---------------------- | ------- | ---------------------------- |
+| background             | #121110 | `bg-background`              |
+| surface                | #1C1A18 | `bg-card`                    |
+| border                 | #2E2A26 | `border-border`              |
+| primary (cheddar gold) | #F2A900 | `bg-primary`, `text-primary` |
+| primary tint           | #FFC94A | `primary-glow`               |
+| accent (ember red)     | #D9381E | `bg-ember`                   |
+| text                   | #F5EFE6 | `text-foreground`            |
+| muted                  | #A89F94 | `text-muted-foreground`      |
 
-Typography: `font-display` (Anton, ultra-heavy condensed, uppercase) for oversized headlines;
-Manrope (`font-sans`) for body.
-`font-display` uses a 1.12 line pitch because Anton's accented capitals (É, Á, Ü, Ő) reach
-~1.1–1.17em above the baseline; tighter leading makes them hit the line above. Only use an
-explicit tighter `leading-*` for fixed copy known to be accent-safe (the hero uses 0.94).
+- Ember is **only for main CTAs and badges**. Text on ember is pure white
+  (`ember-foreground`, 4.6:1 AA); never use ember as a text colour on dark (3.6:1, fails).
+- Typography: `font-display` (Anton, ultra-heavy condensed, uppercase) for oversized
+  headlines; Manrope (`font-sans`) for body. `font-display` sets a 1.12 line pitch (via
+  `--tw-leading`, so it wins over `text-4xl…8xl`) because Anton's accented capitals (É, Á, Ü
+  reach ~1.10em, Ő/Ű ~1.17em above the baseline) otherwise hit the line above ("PQKOL").
+  Use a tighter explicit `leading-*` only for fixed, accent-safe copy (hero: 0.94).
 
 Signature elements:
 
-- Tilted infinite marquee strips (gold, dark uppercase text, small burger/beer icons) — `Marquee`.
+- Tilted infinite marquee strips (gold, dark uppercase text, small burger/beer icons) —
+  `Marquee`.
 - Cut-out burgers overlapping giant type with a warm golden glow (`glow-gold`). Overlap is a
-  stylistic touch only: **never hide whole words** of a headline or a card title, and never
-  cover the header.
-- Hand-drawn line doodles (burger, beer mug, pretzel, fries, hop cone) — `Doodle`, ~10% opacity.
+  stylistic touch only: **never hide whole words** and never cover the header.
+  - Home hero geometry: on md+ the burger sits in a flex slot right after "Csapolt sör.",
+    sized in `em` of the headline (`w-[2.6em]`, `xl:w-[2.2em]`, `-bottom-[0.3em]`); the h1
+    reserves `md:pt-[1.05em]` above itself so the burger never reaches the fixed header. On
+    mobile the burger sits above the stacked headline. Parallax is a rAF-throttled `translate`
+    on that slot. Re-check 375/768/1024/1280/1920 if you touch it.
+  - Featured burger cards: the title is `relative z-10` above the image layer; the image sits
+    lower in its own flex area.
+- Hand-drawn line doodles (burger, mug, foam, pretzel, fries, hop) — `Doodle`, default
+  **10% opacity, used large** (`h-28`–`h-56`) as texture in dark sections (user decision).
+  On gold/ember sections they use the section's foreground colour at ~20%.
 - One or two full-width gold sections per page.
 - Giant "BAJOR" wordmark in the footer.
-- Bavarian diamond (Rautenmuster) — `RautenPattern` (SVG, 45° diamonds, 3–5% opacity). Use
-  **only** in the footer, on the map card and as a thin divider strip. Never in the hero.
-- Hero: dark background, warm golden radial glow behind the burger, subtle grain (global
-  `body::after` noise).
+- Bavarian diamond (Rautenmuster) — `RautenPattern`: crisp 45° diamonds as an SVG mask in
+  currentColor, 4–5% opacity. **Only** in the footer, on the map card, and as
+  `RautenDivider` (16 px strip at 12% — user approved). Never in the hero or other sections.
+- Hero: no pattern; dark background, golden radial glow behind the burger, global grain
+  (`body::after` noise).
+- Photo carousel (home "A hely"): rounded-3xl cards alternating `-rotate-2` / `rotate-2`,
+  straightening and lifting on hover.
 
-Motion: scroll reveal (`Reveal`), marquee, hover lift with gold glow (`lift`), slight hero
-parallax. All motion must respect `prefers-reduced-motion`.
+Motion: scroll reveal (`Reveal`), marquee, hover lift with gold glow (`lift`), hero float and
+parallax. All motion respects `prefers-reduced-motion` (CSS block at the end of
+`styles.css`; parallax checks `matchMedia`).
 
 ## Quality bar
 
-- Responsive at 375 / 768 / 1280 / 1920 px: no horizontal scroll, no clipped headlines.
-- WCAG AA contrast; Lighthouse 90+ for performance, accessibility and SEO.
-- Lazy-load and size images (`width`/`height`, WebP/AVIF where possible).
-- Small, focused commits. Run `bun run build` and `bun run lint` before each commit.
+- Responsive at 375 / 768 / 1280 / 1920 px (also sanity-check 320 and 1024): no horizontal
+  scroll, no clipped headlines, readable marquees, usable forms.
+- WCAG AA contrast, labelled form fields, sequential heading order (footer column titles are
+  `h2`).
+- Lighthouse 90+ for performance, accessibility and SEO on the production build.
+- Images via the pipeline above.
 
 ## Roadmap
 
-Work happens on `claude/redesign-fixes`, in phases, stopping for review after each.
-Phases 1–2 are done:
+Phases 1–2 are done (design fixes; SSR on Node, Docker, cleanup, structure, images, SEO,
+NOINDEX). Next phases, as specified by the user:
 
-1. Design fixes (hero, cards, pattern, doodles, beer cards, gallery carousel, responsive pass).
-2. Keep TanStack Start SSR; plain Vite config, Nitro node-server, Dockerfile for Coolify,
-   drop Lovable leftovers and unused shadcn/ui, restructure into
-   `routes/components/features/lib/data`, server-rendered SEO + Restaurant JSON-LD,
-   optimised WebP/AVIF images.
-3. Supabase backend (self-hosted on Coolify): tables, migrations, seed, RLS, zod-validated
-   booking. Env vars in `.env.example`; never commit secrets.
-4. Protected `/admin` (Supabase Auth, admin role), Hungarian, mobile-first.
+### Phase 3 — Supabase backend
+
+The user self-hosts Supabase on Coolify. Use env vars for the URL and anon key (add them to
+`.env.example`; never commit secrets).
+
+- Replace the mock data in `src/data` with Supabase tables, keeping the same TypeScript types:
+  - `menu_categories`, `menu_items` (burgers, sides, other drinks: name, description,
+    ingredients, price, image, badges, sort order, is_active)
+  - `beers` (name, style, brewery, ABV, tap or bottle, size/price options, image, is_active)
+  - `gallery_images` (url, category: hely / ételek / sörök / események, sort order)
+  - `opening_hours`, `site_settings` (address, phone, email, socials)
+  - `reservations` (date, time slot, party size, name, phone, email, note,
+    status: pending / confirmed / cancelled, created_at)
+- SQL migrations and a seed script that loads the current mock content.
+- Row Level Security: public can read active menu, beers, gallery and settings; public can only
+  INSERT reservations (no reading other people's bookings); admin role has full access.
+- Booking: validate with zod; only offer time slots within opening hours; block past dates;
+  show a clear confirmation screen. Leave a clean hook point for email notifications (added
+  later).
+- Keep SSR working: load data in route loaders / TanStack Query so pages, JSON-LD and OG stay
+  server-rendered. Keep `opening_hours` compatible with the structured `OpeningHour` type.
+
+### Phase 4 — Admin panel
+
+A protected `/admin` area (Supabase Auth, email + password, admin role only) in the same
+design language but calmer and practical. Hungarian UI, mobile-friendly (staff use phones):
+
+- Reservations: list and calendar/day view, filter by date and status, confirm or cancel.
+- Menu and beers: create, edit, reorder, toggle active, upload images to Supabase Storage.
+- Gallery: upload, categorise, reorder, delete.
+- Opening hours and contact details editing.
+
+## Gotchas
+
+- In zsh, quote paths with brackets: `"src/routes/sitemap[.]xml.ts"`.
+- The SSR HTML is one long line; `grep -o`/`-c` on it is unreliable here — parse with Python.
+- Full-page screenshots show a horizontal band where the fixed grain overlay ends; it is a
+  capture artefact, not a bug.
