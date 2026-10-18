@@ -15,3 +15,6 @@ dist
 !.env.example
 Dockerfile
 .dockerignore
+
+# Database migrations and tests are not part of the app image
+supabase
