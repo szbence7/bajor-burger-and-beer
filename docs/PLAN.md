@@ -120,6 +120,39 @@ Agreed with the user during Phases 1–2. These override the original prompt whe
    - Opening hours stored as structured data (weekdays, opens, closes) so the UI and the
      JSON-LD share one source.
 
+### Phase 3 decisions (agreed 2026-10-18, before implementation)
+
+9. **Supabase instance**: a fresh self-hosted instance dedicated to Bajor; no separate staging
+   database. Migrations are numbered SQL files in `supabase/migrations` and are tested against
+   a local Supabase stack in Docker before they touch the real instance (either applied over
+   an SSH-tunnelled `SUPABASE_DB_URL` or pasted into Studio by the user).
+10. **Server-side data access.** `SUPABASE_URL` and `SUPABASE_ANON_KEY` are **runtime** env
+    vars read on the server (no rebuild to change them). Pages load data in route loaders via
+    server functions, so HTML, OG and JSON-LD stay server-rendered; the browser never talks to
+    Supabase in Phase 3. Phase 4 exposes URL + anon key to the client for Auth.
+11. **Admin role** = `app_metadata.role = 'admin'` on a Supabase Auth user, checked in RLS.
+12. **Images in the DB** are either a key of a bundled image in `src/data/images.ts` (keeps the
+    AVIF/WebP pipeline) or a plain URL (Supabase Storage uploads in Phase 4).
+13. **Placeholder contact data** moves into `site_settings` unchanged; `NOINDEX` stays on.
+14. **Booking rules** (all stored in `site_settings`, editable by the admin in Phase 4):
+    - slot length 30 min, starting at opening time; a booking must end by closing time;
+    - dining duration 90 min: a booking occupies its table for that long (snapshotted on the
+      reservation, so later setting changes don't move existing bookings);
+    - capacity 40 guests, counted over **overlapping** bookings: a new booking is accepted only
+      if every overlapping 30-minute window stays at or under 40 guests (pending + confirmed);
+    - party size 1–8 online; above 8 the form shows "call us" (fixes the old 1–10 vs "8 fő
+      felett" mismatch);
+    - bookable up to 60 days ahead, at least 2 hours' notice; all dates in Europe/Budapest.
+    - The rules are enforced in Postgres (trigger + availability function), so they hold for
+      every insert path; the UI only offers slots the database reports as available.
+15. **Email notifications**: `onReservationCreated()` hook, empty for now.
+16. **GDPR**: required consent checkbox linking to a placeholder `/adatkezeles` privacy page
+    (final text from the user); the consent timestamp is stored with the reservation;
+    reservations older than 12 months are deleted daily by pg_cron, or by a documented SQL
+    function when pg_cron is unavailable.
+17. **Spam protection**: honeypot field on the booking form and a rate limit of 5 booking
+    attempts per IP per hour on the booking server function.
+
 ## Status
 
 _Last updated: end of Phase 2 (2026-10-18)._
