@@ -1,5 +1,7 @@
 # Bajor Burger and Beer — project guide
 
+Always read docs/PLAN.md first. Update its Status section at the end of every phase.
+
 Website for **Bajor Burger and Beer** (bajorburgerandbeer.hu), a modern burger and craft beer
 house in Budapest. The repo started as a Lovable design-first build; the design direction is
 approved and must be preserved. Since Phase 2 the Lovable build wrapper is gone, so the Lovable
