@@ -1,6 +1,6 @@
 import type { Burger } from "@/data/menu";
-import { Price } from "./Price";
-import { Tag } from "./Tag";
+import { Price } from "@/components/Price";
+import { Tag } from "@/components/Tag";
 
 export function MenuItemCard({ item }: { item: Burger }) {
   return (

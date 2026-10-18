@@ -1,8 +1,8 @@
 import { Beer as BeerIcon } from "lucide-react";
 import type { Beer } from "@/data/beers";
 import { cn } from "@/lib/utils";
-import { Price } from "./Price";
-import { Tag } from "./Tag";
+import { Price } from "@/components/Price";
+import { Tag } from "@/components/Tag";
 
 export function BeerCard({ beer, tone = "dark" }: { beer: Beer; tone?: "dark" | "onGold" }) {
   const onGold = tone === "onGold";

@@ -2,7 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { Menu as MenuIcon, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
-import { ctaClass } from "./CtaButton";
+import { ctaClass } from "@/lib/cta";
 
 const nav = [
   { to: "/", label: "Főoldal" },

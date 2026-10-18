@@ -4,17 +4,17 @@ import { ArrowRight } from "lucide-react";
 import { images } from "@/data/images";
 import { burgers } from "@/data/menu";
 import { beers } from "@/data/beers";
-import { Marquee } from "@/components/site/Marquee";
-import { Doodle } from "@/components/site/Doodle";
-import { Reveal } from "@/components/site/Reveal";
-import { RotatingBadge } from "@/components/site/RotatingBadge";
-import { SectionHeader } from "@/components/site/SectionHeader";
-import { BeerCard } from "@/components/site/BeerCard";
-import { CtaLink } from "@/components/site/CtaButton";
-import { HoursCard, MapPlaceholder } from "@/components/site/HoursAndMap";
-import { Price } from "@/components/site/Price";
-import { PhotoCarousel } from "@/components/site/PhotoCarousel";
-import { RautenDivider } from "@/components/site/RautenPattern";
+import { Marquee } from "@/components/Marquee";
+import { Doodle } from "@/components/Doodle";
+import { Reveal } from "@/components/Reveal";
+import { RotatingBadge } from "@/components/RotatingBadge";
+import { SectionHeader } from "@/components/SectionHeader";
+import { BeerCard } from "@/features/menu/BeerCard";
+import { CtaLink } from "@/components/CtaButton";
+import { HoursCard, MapPlaceholder } from "@/components/HoursAndMap";
+import { FeaturedBurgerCard } from "@/features/menu/FeaturedBurgerCard";
+import { PhotoCarousel } from "@/features/gallery/PhotoCarousel";
+import { RautenDivider } from "@/components/RautenPattern";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/")({
@@ -32,12 +32,6 @@ export const Route = createFileRoute("/")({
   }),
   component: Index,
 });
-
-const cardTones = [
-  "bg-primary text-primary-foreground",
-  "bg-ember text-ember-foreground",
-  "bg-card text-foreground border border-border",
-];
 
 const placePhotos = [
   { src: images.placePeople, alt: "Baráti koccintás a hosszú asztalnál" },
@@ -153,37 +147,7 @@ function Index() {
         <div className="grid gap-8 md:grid-cols-3">
           {featured.map((b, i) => (
             <Reveal key={b.id} delay={i * 120} className="h-full">
-              <article
-                className={cn(
-                  "group lift relative flex h-full min-h-[30rem] flex-col overflow-hidden rounded-3xl p-7 md:min-h-[28rem] lg:min-h-[34rem]",
-                  cardTones[i % 3],
-                )}
-              >
-                {/* Title stays above the image layer so both words are always readable. */}
-                <h3 className="relative z-10 font-display text-7xl md:text-5xl lg:text-7xl xl:text-8xl">
-                  {b.name.split(" ").map((w) => (
-                    <span key={w} className="block">
-                      {w}
-                    </span>
-                  ))}
-                </h3>
-                <div className="relative -mt-6 flex flex-1 items-end justify-end">
-                  <img
-                    src={b.image}
-                    alt={b.name}
-                    loading="lazy"
-                    width={1024}
-                    height={1024}
-                    className="-mr-12 w-[82%] max-w-[22rem] drop-shadow-2xl transition-transform duration-500 group-hover:-rotate-6 group-hover:scale-105 motion-reduce:transition-none"
-                  />
-                </div>
-                <div className="relative z-10 mt-4 flex flex-wrap items-center justify-between gap-3">
-                  <Price value={b.price} className="font-display text-3xl" />
-                  <CtaLink to="/menu" variant={i === 2 ? "gold" : "dark"} className="px-5 py-3">
-                    Megnézem <ArrowRight className="h-4 w-4" />
-                  </CtaLink>
-                </div>
-              </article>
+              <FeaturedBurgerCard burger={b} index={i} />
             </Reveal>
           ))}
         </div>

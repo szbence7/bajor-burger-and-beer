@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { contact, openingHours } from "@/data/info";
-import { RautenPattern } from "./RautenPattern";
+import { RautenPattern } from "@/components/RautenPattern";
 
 export function Footer() {
   return (

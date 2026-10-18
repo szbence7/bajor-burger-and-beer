@@ -11,10 +11,10 @@ import {
 import type { ReactNode } from "react";
 
 import appCss from "../styles.css?url";
-import { Header } from "@/components/site/Header";
-import { Footer } from "@/components/site/Footer";
-import { Doodle } from "@/components/site/Doodle";
-import { ctaClass } from "@/components/site/CtaButton";
+import { Header } from "@/components/layout/Header";
+import { Footer } from "@/components/layout/Footer";
+import { Doodle } from "@/components/Doodle";
+import { ctaClass } from "@/lib/cta";
 
 function NotFoundComponent() {
   return (

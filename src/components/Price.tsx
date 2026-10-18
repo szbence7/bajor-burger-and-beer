@@ -1,4 +1,4 @@
-import { formatNumber } from "@/data/info";
+import { formatNumber } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 /** Price as "4 290 Ft"; keeps "Ft" mixed-case even inside uppercase display type. */

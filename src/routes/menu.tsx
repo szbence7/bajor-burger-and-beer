@@ -3,14 +3,14 @@ import { useEffect, useState } from "react";
 import { burgers, sides } from "@/data/menu";
 import { beers } from "@/data/beers";
 import { drinks } from "@/data/drinks";
-import { PageHero } from "@/components/site/PageHero";
-import { MenuItemCard } from "@/components/site/MenuItemCard";
-import { BeerCard } from "@/components/site/BeerCard";
-import { Marquee } from "@/components/site/Marquee";
-import { Reveal } from "@/components/site/Reveal";
-import { Tag } from "@/components/site/Tag";
-import { Price } from "@/components/site/Price";
-import { Doodle } from "@/components/site/Doodle";
+import { PageHero } from "@/components/PageHero";
+import { MenuItemCard } from "@/features/menu/MenuItemCard";
+import { BeerCard } from "@/features/menu/BeerCard";
+import { Marquee } from "@/components/Marquee";
+import { Reveal } from "@/components/Reveal";
+import { Tag } from "@/components/Tag";
+import { Price } from "@/components/Price";
+import { Doodle } from "@/components/Doodle";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/menu")({

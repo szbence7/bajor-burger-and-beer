@@ -2,12 +2,12 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Beer, Flame, Users } from "lucide-react";
 import { images } from "@/data/images";
 import { contact } from "@/data/info";
-import { PageHero } from "@/components/site/PageHero";
-import { Reveal } from "@/components/site/Reveal";
-import { Doodle } from "@/components/site/Doodle";
-import { Marquee } from "@/components/site/Marquee";
-import { HoursCard, MapPlaceholder } from "@/components/site/HoursAndMap";
-import { SectionHeader } from "@/components/site/SectionHeader";
+import { PageHero } from "@/components/PageHero";
+import { Reveal } from "@/components/Reveal";
+import { Doodle } from "@/components/Doodle";
+import { Marquee } from "@/components/Marquee";
+import { HoursCard, MapPlaceholder } from "@/components/HoursAndMap";
+import { SectionHeader } from "@/components/SectionHeader";
 
 export const Route = createFileRoute("/rolunk")({
   head: () => ({

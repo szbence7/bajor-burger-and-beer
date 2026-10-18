@@ -26,20 +26,27 @@ history, keep the connected branch working).
   `PORT` (default 3000); `GET /api/health` is the healthcheck. Run the production build
   locally with `bun run build && bun run start`.
 - Tailwind CSS v4, theme in `src/styles.css` (`@theme inline` + CSS variables). shadcn/ui
-  primitives in `src/components/ui` (mostly unused by the site).
 - Package manager: **bun** (`bun install`, `bun run build`, `bun run lint`, `bun run test`).
 - Prettier: printWidth 100, double quotes, trailing commas. Lint runs Prettier as an ESLint rule.
 
 ## Structure
 
-- `src/routes` — pages: `index` (Főoldal), `menu`, `galeria`, `foglalas`, `rolunk`;
-  `__root.tsx` holds the shell, Header/Footer, 404 and error pages.
-- `src/components/site` — brand components (Header, Footer, Marquee, Doodle, Reveal,
-  BeerCard, MenuItemCard, PageHero, SectionHeader, CtaButton, Tag, RotatingBadge,
-  HoursAndMap, RautenPattern).
-- `src/data` — mock content (`menu`, `beers`, `drinks`, `gallery`, `info`) and `images.ts`.
+- `src/routes` — file-based routes: `index` (Főoldal), `menu`, `galeria`, `foglalas`, `rolunk`,
+  `api/health` (server route). `__root.tsx` holds the HTML shell, Header/Footer, 404 and error
+  pages. Routes stay thin: page layout + head; logic lives in features.
+- `src/components` — shared brand primitives (CtaButton, Doodle, Marquee, Reveal, PageHero,
+  SectionHeader, Tag, Price, RautenPattern, HoursAndMap, RotatingBadge…);
+  `src/components/layout` — Header, Footer.
+- `src/features/<name>` — feature components: `menu` (MenuItemCard, BeerCard,
+  FeaturedBurgerCard), `booking` (BookingForm), `gallery` (GalleryGrid, PhotoCarousel).
+- `src/lib` — `utils` (`cn`), `format` (`formatNumber`, `formatFt`), `cta` (`ctaClass`),
+  `error-page`, SEO helpers.
+- `src/data` — content and types (`menu`, `beers`, `drinks`, `gallery`, `info`) plus
+  `images.ts`. Phase 3 swaps the content for Supabase while keeping the types.
 - `src/assets` — images. **All image imports go through `src/data/images.ts`**, so the
   restaurant's own photos can be swapped in one place. Never import from `@/assets` elsewhere.
+- No shadcn/ui: it was removed as unused. Build new UI from the brand primitives; add a
+  headless library only when a feature genuinely needs one (e.g. admin dialogs).
 
 ## Design system — keep it, enforce it everywhere
 
