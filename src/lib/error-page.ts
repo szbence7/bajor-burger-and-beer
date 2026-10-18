@@ -1,30 +1,32 @@
+// Last-resort HTML for errors thrown outside React rendering (see src/start.ts).
+// Self-contained on purpose: it must work even when the app bundle or CSS fails.
+// Colours mirror the theme tokens in src/styles.css.
 export function renderErrorPage(): string {
   return `<!doctype html>
-<html lang="en">
+<html lang="hu">
   <head>
     <meta charset="utf-8" />
-    <title>This page didn't load</title>
+    <title>Hoppá, valami félrecsúszott — Bajor Burger &amp; Beer</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
     <style>
-      body { font: 15px/1.5 system-ui, -apple-system, sans-serif; background: #fafafa; color: #111; display: grid; place-items: center; min-height: 100vh; margin: 0; padding: 1.5rem; }
-      .card { max-width: 28rem; width: 100%; text-align: center; padding: 2rem; }
-      h1 { font-size: 1.25rem; margin: 0 0 0.5rem; }
-      p { color: #4b5563; margin: 0 0 1.5rem; }
-      .actions { display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap; }
-      a, button { padding: 0.5rem 1rem; border-radius: 0.375rem; font: inherit; cursor: pointer; text-decoration: none; border: 1px solid transparent; }
-      .primary { background: #111; color: #fff; }
-      .secondary { background: #fff; color: #111; border-color: #d1d5db; }
+      body { margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 1.5rem;
+        background: #121110; color: #f5efe6; font: 16px/1.5 system-ui, -apple-system, sans-serif; text-align: center; }
+      h1 { font: 900 2.5rem/1 Impact, "Arial Narrow", sans-serif; text-transform: uppercase; color: #f2a900; margin: 0 0 1rem; }
+      p { color: #a89f94; margin: 0 0 1.5rem; }
+      a, button { display: inline-block; margin: 0.25rem; padding: 0.85rem 1.5rem; border-radius: 999px; border: 2px solid #f2a900;
+        font: 800 0.85rem/1 system-ui, sans-serif; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; text-decoration: none; }
+      button { background: #f2a900; color: #121110; }
+      a { background: transparent; color: #f2a900; }
     </style>
   </head>
   <body>
-    <div class="card">
-      <h1>This page didn't load</h1>
-      <p>Something went wrong on our end. You can try refreshing or head back home.</p>
-      <div class="actions">
-        <button class="primary" onclick="location.reload()">Try again</button>
-        <a class="secondary" href="/">Go home</a>
-      </div>
-    </div>
+    <main>
+      <h1>Hoppá, valami félrecsúszott</h1>
+      <p>Az oldal most nem töltött be. Próbáld újra, vagy térj vissza a főoldalra.</p>
+      <button onclick="location.reload()">Újra</button>
+      <a href="/">Főoldal</a>
+    </main>
   </body>
 </html>`;
 }

@@ -14,6 +14,7 @@ import { Route as FoglalasRouteImport } from './routes/foglalas'
 import { Route as GaleriaRouteImport } from './routes/galeria'
 import { Route as MenuRouteImport } from './routes/menu'
 import { Route as RolunkRouteImport } from './routes/rolunk'
+import { Route as ApiHealthRouteImport } from './routes/api/health'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -40,6 +41,11 @@ const RolunkRoute = RolunkRouteImport.update({
   path: '/rolunk',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiHealthRoute = ApiHealthRouteImport.update({
+  id: '/api/health',
+  path: '/api/health',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -47,6 +53,7 @@ export interface FileRoutesByFullPath {
   '/galeria': typeof GaleriaRoute
   '/menu': typeof MenuRoute
   '/rolunk': typeof RolunkRoute
+  '/api/health': typeof ApiHealthRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -54,6 +61,7 @@ export interface FileRoutesByTo {
   '/galeria': typeof GaleriaRoute
   '/menu': typeof MenuRoute
   '/rolunk': typeof RolunkRoute
+  '/api/health': typeof ApiHealthRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -62,13 +70,22 @@ export interface FileRoutesById {
   '/galeria': typeof GaleriaRoute
   '/menu': typeof MenuRoute
   '/rolunk': typeof RolunkRoute
+  '/api/health': typeof ApiHealthRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/foglalas' | '/galeria' | '/menu' | '/rolunk'
+  fullPaths:
+    '/' | '/foglalas' | '/galeria' | '/menu' | '/rolunk' | '/api/health'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/foglalas' | '/galeria' | '/menu' | '/rolunk'
-  id: '__root__' | '/' | '/foglalas' | '/galeria' | '/menu' | '/rolunk'
+  to: '/' | '/foglalas' | '/galeria' | '/menu' | '/rolunk' | '/api/health'
+  id:
+    | '__root__'
+    | '/'
+    | '/foglalas'
+    | '/galeria'
+    | '/menu'
+    | '/rolunk'
+    | '/api/health'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -77,6 +94,7 @@ export interface RootRouteChildren {
   GaleriaRoute: typeof GaleriaRoute
   MenuRoute: typeof MenuRoute
   RolunkRoute: typeof RolunkRoute
+  ApiHealthRoute: typeof ApiHealthRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -116,6 +134,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RolunkRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/health': {
+      id: '/api/health'
+      path: '/api/health'
+      fullPath: '/api/health'
+      preLoaderRoute: typeof ApiHealthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -125,6 +150,7 @@ const rootRouteChildren: RootRouteChildren = {
   GaleriaRoute: GaleriaRoute,
   MenuRoute: MenuRoute,
   RolunkRoute: RolunkRoute,
+  ApiHealthRoute: ApiHealthRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
