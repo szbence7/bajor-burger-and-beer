@@ -47,7 +47,7 @@ function AboutPage() {
       />
 
       <section className="relative mx-auto grid max-w-7xl items-center gap-16 px-5 pb-28 md:grid-cols-2">
-        <Doodle kind="pretzel" className="left-[48%] top-0 h-24 w-24" />
+        <Doodle kind="pretzel" className="left-[46%] top-0 h-32 w-32 md:h-44 md:w-44" />
         <Reveal>
           <img
             src={images.placePeople}
@@ -72,13 +72,20 @@ function AboutPage() {
       </section>
 
       <section className="relative overflow-hidden bg-primary px-5 py-24 text-primary-foreground">
-        <div className="rauten pointer-events-none absolute inset-0 text-primary-foreground opacity-[0.06]" />
+        <Doodle
+          kind="hop"
+          className="right-[5%] top-10 h-32 w-32 rotate-12 text-primary-foreground opacity-20 md:h-44 md:w-44"
+        />
+        <Doodle
+          kind="pretzel"
+          className="bottom-8 left-[3%] h-28 w-28 text-primary-foreground opacity-20 md:h-40 md:w-40"
+        />
         <div className="relative mx-auto max-w-7xl">
           <SectionHeader tone="gold" eyebrow="Amiben hiszünk" title="Értékeink" />
           <div className="grid gap-6 md:grid-cols-3">
             {values.map((v, i) => (
-              <Reveal key={v.title} delay={i * 100}>
-                <div className="lift rounded-3xl bg-background p-8 text-foreground">
+              <Reveal key={v.title} delay={i * 100} className="h-full">
+                <div className="lift h-full rounded-3xl bg-background p-8 text-foreground">
                   <v.icon className="mb-6 h-10 w-10 text-primary" />
                   <h3 className="font-display text-4xl">{v.title}</h3>
                   <p className="mt-3 text-muted-foreground">{v.text}</p>
@@ -96,7 +103,8 @@ function AboutPage() {
         className="mt-10"
       />
 
-      <section className="mx-auto max-w-7xl px-5 py-28">
+      <section className="relative mx-auto max-w-7xl px-5 py-28">
+        <Doodle kind="mug" className="right-2 top-16 h-36 w-36 rotate-6 md:h-48 md:w-48" />
         <SectionHeader
           eyebrow="Kapcsolat"
           title={

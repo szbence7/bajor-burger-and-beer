@@ -3,13 +3,14 @@ import { useEffect, useState } from "react";
 import { burgers, sides } from "@/data/menu";
 import { beers } from "@/data/beers";
 import { drinks } from "@/data/drinks";
-import { formatFt } from "@/data/info";
 import { PageHero } from "@/components/site/PageHero";
 import { MenuItemCard } from "@/components/site/MenuItemCard";
 import { BeerCard } from "@/components/site/BeerCard";
 import { Marquee } from "@/components/site/Marquee";
 import { Reveal } from "@/components/site/Reveal";
 import { Tag } from "@/components/site/Tag";
+import { Price } from "@/components/site/Price";
+import { Doodle } from "@/components/site/Doodle";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/menu")({
@@ -80,7 +81,8 @@ function MenuPage() {
         </div>
       </div>
 
-      <section id="burgerek" className="mx-auto max-w-7xl scroll-mt-40 px-5 py-20">
+      <section id="burgerek" className="relative mx-auto max-w-7xl scroll-mt-40 px-5 py-20">
+        <Doodle kind="burger" className="right-0 top-10 h-40 w-40 rotate-6 md:h-56 md:w-56" />
         <h2 className="mb-12 font-display text-6xl md:text-8xl">Burgerek</h2>
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
           {burgers.map((b, i) => (
@@ -91,7 +93,8 @@ function MenuPage() {
         </div>
       </section>
 
-      <section id="koretek" className="mx-auto max-w-7xl scroll-mt-40 px-5 py-20">
+      <section id="koretek" className="relative mx-auto max-w-7xl scroll-mt-40 px-5 py-20">
+        <Doodle kind="fries" className="right-4 top-8 h-36 w-36 -rotate-6 md:h-48 md:w-48" />
         <h2 className="mb-12 font-display text-6xl md:text-8xl">Köretek</h2>
         <div className="grid gap-6 md:grid-cols-2">
           {sides.map((s) => (
@@ -106,9 +109,7 @@ function MenuPage() {
                   </div>
                   <p className="mt-2 text-muted-foreground">{s.description}</p>
                 </div>
-                <span className="shrink-0 font-display text-2xl text-primary">
-                  {formatFt(s.price)}
-                </span>
+                <Price value={s.price} className="shrink-0 font-display text-2xl text-primary" />
               </div>
             </Reveal>
           ))}
@@ -117,26 +118,30 @@ function MenuPage() {
 
       <Marquee words={["Csapolt", "Palackos", "Prost"]} />
 
-      <section id="sorok" className="mx-auto max-w-7xl scroll-mt-40 px-5 py-20">
+      <section id="sorok" className="relative mx-auto max-w-7xl scroll-mt-40 px-5 py-20">
+        <Doodle kind="hop" className="right-2 top-8 h-36 w-36 rotate-12 md:h-48 md:w-48" />
         <h2 className="mb-12 font-display text-6xl md:text-8xl">Sörök</h2>
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {beers.map((b, i) => (
-            <Reveal key={b.id} delay={(i % 4) * 80}>
+            <Reveal key={b.id} delay={(i % 4) * 80} className="h-full">
               <BeerCard beer={b} />
             </Reveal>
           ))}
         </div>
       </section>
 
-      <section id="italok" className="mx-auto max-w-4xl scroll-mt-40 px-5 py-20">
+      <section id="italok" className="relative mx-auto max-w-4xl scroll-mt-40 px-5 py-20">
+        <Doodle kind="mug" className="-right-10 top-6 h-36 w-36 -rotate-6 md:h-48 md:w-48" />
         <h2 className="mb-10 font-display text-6xl md:text-8xl">Egyéb italok</h2>
         <ul className="divide-y divide-border rounded-3xl border border-border bg-card px-6">
           {drinks.map((d) => (
             <li key={d.id} className="flex items-baseline gap-4 py-4">
-              <span className="font-bold">{d.name}</span>
-              <span className="text-sm text-muted-foreground">{d.detail}</span>
-              <span className="flex-1 border-b border-dashed border-border" />
-              <span className="font-display text-xl text-primary">{formatFt(d.price)}</span>
+              <span className="flex min-w-0 flex-col sm:flex-row sm:items-baseline sm:gap-3">
+                <span className="font-bold">{d.name}</span>
+                <span className="text-sm text-muted-foreground">{d.detail}</span>
+              </span>
+              <span className="min-w-4 flex-1 border-b border-dashed border-border" />
+              <Price value={d.price} className="shrink-0 font-display text-xl text-primary" />
             </li>
           ))}
         </ul>
