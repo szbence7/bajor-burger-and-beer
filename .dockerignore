@@ -1,0 +1,17 @@
+node_modules
+.output
+.nitro
+.tanstack
+.wrangler
+dist
+.git
+.github
+.vscode
+.idea
+.DS_Store
+*.log
+.env
+.env.*
+!.env.example
+Dockerfile
+.dockerignore
