@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as FoglalasRouteImport } from './routes/foglalas'
 import { Route as GaleriaRouteImport } from './routes/galeria'
 import { Route as MenuRouteImport } from './routes/menu'
 import { Route as RolunkRouteImport } from './routes/rolunk'
@@ -17,6 +18,11 @@ import { Route as RolunkRouteImport } from './routes/rolunk'
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FoglalasRoute = FoglalasRouteImport.update({
+  id: '/foglalas',
+  path: '/foglalas',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GaleriaRoute = GaleriaRouteImport.update({
@@ -37,12 +43,14 @@ const RolunkRoute = RolunkRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/foglalas': typeof FoglalasRoute
   '/galeria': typeof GaleriaRoute
   '/menu': typeof MenuRoute
   '/rolunk': typeof RolunkRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/foglalas': typeof FoglalasRoute
   '/galeria': typeof GaleriaRoute
   '/menu': typeof MenuRoute
   '/rolunk': typeof RolunkRoute
@@ -50,20 +58,22 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/foglalas': typeof FoglalasRoute
   '/galeria': typeof GaleriaRoute
   '/menu': typeof MenuRoute
   '/rolunk': typeof RolunkRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/galeria' | '/menu' | '/rolunk'
+  fullPaths: '/' | '/foglalas' | '/galeria' | '/menu' | '/rolunk'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/galeria' | '/menu' | '/rolunk'
-  id: '__root__' | '/' | '/galeria' | '/menu' | '/rolunk'
+  to: '/' | '/foglalas' | '/galeria' | '/menu' | '/rolunk'
+  id: '__root__' | '/' | '/foglalas' | '/galeria' | '/menu' | '/rolunk'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  FoglalasRoute: typeof FoglalasRoute
   GaleriaRoute: typeof GaleriaRoute
   MenuRoute: typeof MenuRoute
   RolunkRoute: typeof RolunkRoute
@@ -76,6 +86,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/foglalas': {
+      id: '/foglalas'
+      path: '/foglalas'
+      fullPath: '/foglalas'
+      preLoaderRoute: typeof FoglalasRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/galeria': {
@@ -104,6 +121,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  FoglalasRoute: FoglalasRoute,
   GaleriaRoute: GaleriaRoute,
   MenuRoute: MenuRoute,
   RolunkRoute: RolunkRoute,
