@@ -25,11 +25,17 @@ export function Header() {
     <header
       className={cn(
         "fixed inset-x-0 top-0 z-50 transition-all duration-300",
-        scrolled || open ? "border-b border-border bg-background/95 backdrop-blur" : "bg-transparent",
+        scrolled || open
+          ? "border-b border-border bg-background/95 backdrop-blur"
+          : "bg-transparent",
       )}
     >
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-5">
-        <Link to="/" className="font-display text-2xl leading-none text-primary md:text-3xl" onClick={() => setOpen(false)}>
+        <Link
+          to="/"
+          className="font-display text-2xl leading-none text-primary md:text-3xl"
+          onClick={() => setOpen(false)}
+        >
           Bajor <span className="text-foreground">Burger</span> &amp; Beer
         </Link>
         <nav className="hidden items-center gap-8 lg:flex">
@@ -48,14 +54,23 @@ export function Header() {
             Asztalfoglalás
           </Link>
         </nav>
-        <button className="text-foreground lg:hidden" onClick={() => setOpen((o) => !o)} aria-label="Menü megnyitása">
+        <button
+          className="text-foreground lg:hidden"
+          onClick={() => setOpen((o) => !o)}
+          aria-label="Menü megnyitása"
+        >
           {open ? <X className="h-8 w-8" /> : <MenuIcon className="h-8 w-8" />}
         </button>
       </div>
       {open && (
         <nav className="flex flex-col gap-2 px-5 pb-8 lg:hidden">
           {nav.map((n) => (
-            <Link key={n.to} to={n.to} onClick={() => setOpen(false)} className="font-display text-5xl text-foreground hover:text-primary">
+            <Link
+              key={n.to}
+              to={n.to}
+              onClick={() => setOpen(false)}
+              className="font-display text-5xl text-foreground hover:text-primary"
+            >
               {n.label}
             </Link>
           ))}

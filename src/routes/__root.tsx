@@ -25,7 +25,9 @@ function NotFoundComponent() {
       <div className="text-center">
         <p className="font-display text-[40vw] leading-none text-primary md:text-[18rem]">404</p>
         <h1 className="font-display text-5xl md:text-7xl">Ez a burger elfogyott</h1>
-        <p className="mx-auto mt-4 max-w-md text-muted-foreground">A keresett oldal nem létezik, vagy elköltözött. Gyere vissza a pulthoz!</p>
+        <p className="mx-auto mt-4 max-w-md text-muted-foreground">
+          A keresett oldal nem létezik, vagy elköltözött. Gyere vissza a pulthoz!
+        </p>
         <Link to="/" className={ctaClass("ember", "mt-8")}>
           Vissza a főoldalra
         </Link>
@@ -45,7 +47,9 @@ function ErrorComponent({ error, reset }: ErrorComponentProps) {
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
         <h1 className="font-display text-5xl text-foreground">Hoppá, valami félrecsúszott</h1>
-        <p className="mt-2 text-sm text-muted-foreground">Próbáld újra, vagy térj vissza a főoldalra.</p>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Próbáld újra, vagy térj vissza a főoldalra.
+        </p>
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           <button
             onClick={() => {
@@ -78,7 +82,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     links: [
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Anton&family=Manrope:wght@400;500;700;800&display=swap" },
+      {
+        rel: "stylesheet",
+        href: "https://fonts.googleapis.com/css2?family=Anton&family=Manrope:wght@400;500;700;800&display=swap",
+      },
       { rel: "stylesheet", href: appCss },
       { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
     ],

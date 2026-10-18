@@ -15,7 +15,12 @@ export const galleryCategories: GalleryCategory[] = ["Hely", "Ételek", "Sörök
 export const gallery: GalleryItem[] = [
   { id: "g1", src: images.placeInterior, alt: "Az étterem esti belső tere", category: "Hely" },
   { id: "g2", src: images.placePeople, alt: "Baráti koccintás", category: "Események", tall: true },
-  { id: "g3", src: images.foodTable, alt: "Burgerek, perec és sör az asztalon", category: "Ételek" },
+  {
+    id: "g3",
+    src: images.foodTable,
+    alt: "Burgerek, perec és sör az asztalon",
+    category: "Ételek",
+  },
   { id: "g4", src: images.placeTap, alt: "Csapolás a pultnál", category: "Sörök", tall: true },
   { id: "g5", src: images.eventNight, alt: "Élőzenés est", category: "Események" },
   { id: "g6", src: images.burgerHero, alt: "Bajor Dupla burger", category: "Ételek" },

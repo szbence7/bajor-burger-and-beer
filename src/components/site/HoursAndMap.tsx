@@ -31,9 +31,18 @@ export function HoursCard() {
         ))}
       </ul>
       <div className="mt-8 space-y-3 text-sm">
-        <p className="flex items-center gap-3"><MapPin className="h-4 w-4 text-primary" />{contact.address}</p>
-        <p className="flex items-center gap-3"><Phone className="h-4 w-4 text-primary" />{contact.phone}</p>
-        <p className="flex items-center gap-3"><Mail className="h-4 w-4 text-primary" />{contact.email}</p>
+        <p className="flex items-center gap-3">
+          <MapPin className="h-4 w-4 text-primary" />
+          {contact.address}
+        </p>
+        <p className="flex items-center gap-3">
+          <Phone className="h-4 w-4 text-primary" />
+          {contact.phone}
+        </p>
+        <p className="flex items-center gap-3">
+          <Mail className="h-4 w-4 text-primary" />
+          {contact.email}
+        </p>
       </div>
     </div>
   );

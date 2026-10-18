@@ -25,8 +25,16 @@ export const burgers: Burger[] = [
   {
     id: "bajor-dupla",
     name: "Bajor Dupla",
-    description: "Két smash-elt marhapogácsa, dupla cheddar, karamellizált hagyma és házi mustáros szósz.",
-    ingredients: ["2× 90 g marha", "cheddar", "karamellizált hagyma", "savanyú uborka", "mustáros majonéz", "brióskifli"],
+    description:
+      "Két smash-elt marhapogácsa, dupla cheddar, karamellizált hagyma és házi mustáros szósz.",
+    ingredients: [
+      "2× 90 g marha",
+      "cheddar",
+      "karamellizált hagyma",
+      "savanyú uborka",
+      "mustáros majonéz",
+      "brióskifli",
+    ],
     price: 4290,
     image: images.burgerHero,
     badges: ["A ház kedvence"],
@@ -45,8 +53,16 @@ export const burgers: Burger[] = [
   {
     id: "zold-perec",
     name: "Zöld Perec",
-    description: "Grillezett halloumi és házi babpogácsa perecbuciban, rukkolával és fokhagymás szósszal.",
-    ingredients: ["babpogácsa", "halloumi", "paradicsom", "rukkola", "fokhagymás krém", "perecbuci"],
+    description:
+      "Grillezett halloumi és házi babpogácsa perecbuciban, rukkolával és fokhagymás szósszal.",
+    ingredients: [
+      "babpogácsa",
+      "halloumi",
+      "paradicsom",
+      "rukkola",
+      "fokhagymás krém",
+      "perecbuci",
+    ],
     price: 3890,
     image: images.burgerVeggie,
     badges: ["Vega"],
@@ -82,8 +98,30 @@ export const burgers: Burger[] = [
 ];
 
 export const sides: Side[] = [
-  { id: "hasabburgonya", name: "Hasábburgonya", description: "Kétszer sütve, tengeri sóval, házi ketchuppal.", price: 1190 },
-  { id: "truffel", name: "Szarvasgombás krumpli", description: "Parmezánnal, petrezselyemmel és szarvasgombaolajjal.", price: 1690, badges: ["A ház kedvence"] },
-  { id: "perec", name: "Óriás bajor perec", description: "Frissen sütve, Obatzda sajtkrémmel és mustárral.", price: 1490, badges: ["Vega"] },
-  { id: "hagymakarika", name: "Sörtésztás hagymakarika", description: "Ropogós, füstös paprikás mártogatóssal.", price: 1390 },
+  {
+    id: "hasabburgonya",
+    name: "Hasábburgonya",
+    description: "Kétszer sütve, tengeri sóval, házi ketchuppal.",
+    price: 1190,
+  },
+  {
+    id: "truffel",
+    name: "Szarvasgombás krumpli",
+    description: "Parmezánnal, petrezselyemmel és szarvasgombaolajjal.",
+    price: 1690,
+    badges: ["A ház kedvence"],
+  },
+  {
+    id: "perec",
+    name: "Óriás bajor perec",
+    description: "Frissen sütve, Obatzda sajtkrémmel és mustárral.",
+    price: 1490,
+    badges: ["Vega"],
+  },
+  {
+    id: "hagymakarika",
+    name: "Sörtésztás hagymakarika",
+    description: "Ropogós, füstös paprikás mártogatóssal.",
+    price: 1390,
+  },
 ];

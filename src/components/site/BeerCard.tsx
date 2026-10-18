@@ -30,7 +30,8 @@ export function BeerCard({ beer, tone = "dark" }: { beer: Beer; tone?: "dark" | 
         <div className="space-y-1 text-right text-sm">
           {beer.sizes.map((s) => (
             <div key={s.label}>
-              <span className="text-muted-foreground">{s.label}</span> <span className="font-bold">{formatFt(s.price)}</span>
+              <span className="text-muted-foreground">{s.label}</span>{" "}
+              <span className="font-bold">{formatFt(s.price)}</span>
             </div>
           ))}
         </div>

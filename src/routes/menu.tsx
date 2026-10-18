@@ -16,7 +16,10 @@ export const Route = createFileRoute("/menu")({
   head: () => ({
     meta: [
       { title: "Menü — Bajor Burger & Beer" },
-      { name: "description", content: "Burgerek, köretek, csapolt és palackos sörök, egyéb italok árakkal." },
+      {
+        name: "description",
+        content: "Burgerek, köretek, csapolt és palackos sörök, egyéb italok árakkal.",
+      },
       { property: "og:title", content: "Menü — Bajor Burger & Beer" },
       { property: "og:description", content: "Smash burgerek, bajor perec és nyolc sör a csapon." },
     ],
@@ -47,7 +50,14 @@ function MenuPage() {
 
   return (
     <>
-      <PageHero eyebrow="Étlap & itallap" title={<>A <span className="text-primary">menü</span></>}>
+      <PageHero
+        eyebrow="Étlap & itallap"
+        title={
+          <>
+            A <span className="text-primary">menü</span>
+          </>
+        }
+      >
         Minden burger mellé kérhetsz köretet — és persze egy korsót.
       </PageHero>
 
@@ -59,7 +69,9 @@ function MenuPage() {
               href={`#${t.id}`}
               className={cn(
                 "shrink-0 rounded-full px-5 py-2 text-sm font-extrabold uppercase tracking-widest transition-colors",
-                active === t.id ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-primary",
+                active === t.id
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:text-primary",
               )}
             >
               {t.label}
@@ -72,7 +84,9 @@ function MenuPage() {
         <h2 className="mb-12 font-display text-6xl md:text-8xl">Burgerek</h2>
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
           {burgers.map((b, i) => (
-            <Reveal key={b.id} delay={(i % 3) * 100}><MenuItemCard item={b} /></Reveal>
+            <Reveal key={b.id} delay={(i % 3) * 100}>
+              <MenuItemCard item={b} />
+            </Reveal>
           ))}
         </div>
       </section>
@@ -86,11 +100,15 @@ function MenuPage() {
                 <div>
                   <div className="flex flex-wrap items-center gap-3">
                     <h3 className="font-display text-3xl">{s.name}</h3>
-                    {s.badges?.map((b) => <Tag key={b} label={b} />)}
+                    {s.badges?.map((b) => (
+                      <Tag key={b} label={b} />
+                    ))}
                   </div>
                   <p className="mt-2 text-muted-foreground">{s.description}</p>
                 </div>
-                <span className="shrink-0 font-display text-2xl text-primary">{formatFt(s.price)}</span>
+                <span className="shrink-0 font-display text-2xl text-primary">
+                  {formatFt(s.price)}
+                </span>
               </div>
             </Reveal>
           ))}
@@ -103,7 +121,9 @@ function MenuPage() {
         <h2 className="mb-12 font-display text-6xl md:text-8xl">Sörök</h2>
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {beers.map((b, i) => (
-            <Reveal key={b.id} delay={(i % 4) * 80}><BeerCard beer={b} /></Reveal>
+            <Reveal key={b.id} delay={(i % 4) * 80}>
+              <BeerCard beer={b} />
+            </Reveal>
           ))}
         </div>
       </section>

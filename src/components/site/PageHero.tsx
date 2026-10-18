@@ -1,7 +1,15 @@
 import type { ReactNode } from "react";
 import { Doodle } from "./Doodle";
 
-export function PageHero({ eyebrow, title, children }: { eyebrow: string; title: ReactNode; children?: ReactNode }) {
+export function PageHero({
+  eyebrow,
+  title,
+  children,
+}: {
+  eyebrow: string;
+  title: ReactNode;
+  children?: ReactNode;
+}) {
   return (
     <section className="relative overflow-hidden px-5 pb-16 pt-36 md:pt-44">
       <div className="rauten pointer-events-none absolute inset-y-0 right-0 w-1/3 text-primary opacity-[0.05]" />

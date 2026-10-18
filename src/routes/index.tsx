@@ -19,7 +19,11 @@ export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "Bajor Burger & Beer — Csapolt sör, szaftos burger | Budapest" },
-      { name: "description", content: "Kézműves csapolt sörök és smash burgerek Budapest szívében. Foglalj asztalt a Bajor Burger & Beer-be!" },
+      {
+        name: "description",
+        content:
+          "Kézműves csapolt sörök és smash burgerek Budapest szívében. Foglalj asztalt a Bajor Burger & Beer-be!",
+      },
       { property: "og:title", content: "Bajor Burger & Beer — Budapest" },
       { property: "og:description", content: "Csapolt sör. Szaftos burger. Jó társaság." },
     ],
@@ -63,11 +67,19 @@ function Index() {
             style={{ transform: `translateY(calc(-50% + ${y * 0.15}px))` }}
           >
             <div className="glow-gold absolute inset-[-10%]" />
-            <img src={images.burgerHero} alt="Bajor Dupla burger" width={1024} height={1024} className="relative animate-float drop-shadow-2xl" />
+            <img
+              src={images.burgerHero}
+              alt="Bajor Dupla burger"
+              width={1024}
+              height={1024}
+              className="relative animate-float drop-shadow-2xl"
+            />
           </div>
           <div className="relative z-20 mt-10 flex flex-wrap gap-4">
             <CtaLink to="/foglalas">Asztalfoglalás</CtaLink>
-            <CtaLink to="/menu" variant="outline">Menü</CtaLink>
+            <CtaLink to="/menu" variant="outline">
+              Menü
+            </CtaLink>
           </div>
           <RotatingBadge className="absolute -top-10 right-0 z-20 hidden md:grid" />
         </div>
@@ -79,17 +91,31 @@ function Index() {
       <section className="relative mx-auto max-w-7xl px-5 py-28">
         <Doodle kind="burger" className="-left-2 top-10 h-28 w-28" />
         <Reveal>
-          <SectionHeader eyebrow="A konyhából" title={<>Kedvenc <span className="text-primary">burgereink</span></>}>
+          <SectionHeader
+            eyebrow="A konyhából"
+            title={
+              <>
+                Kedvenc <span className="text-primary">burgereink</span>
+              </>
+            }
+          >
             Friss, napi darálású marha, házi szószok és puha buci. Ennyi a titok.
           </SectionHeader>
         </Reveal>
         <div className="grid gap-8 md:grid-cols-3">
           {featured.map((b, i) => (
             <Reveal key={b.id} delay={i * 120}>
-              <article className={cn("group lift relative flex h-full min-h-[34rem] flex-col overflow-hidden rounded-3xl p-7", cardTones[i % 3])}>
+              <article
+                className={cn(
+                  "group lift relative flex h-full min-h-[34rem] flex-col overflow-hidden rounded-3xl p-7",
+                  cardTones[i % 3],
+                )}
+              >
                 <h3 className="font-display text-7xl opacity-95 lg:text-8xl">
                   {b.name.split(" ").map((w) => (
-                    <span key={w} className="block">{w}</span>
+                    <span key={w} className="block">
+                      {w}
+                    </span>
                   ))}
                 </h3>
                 <img
@@ -115,8 +141,14 @@ function Index() {
       {/* HOUSE BEERS — gold */}
       <section className="relative overflow-hidden bg-primary px-5 py-28 text-primary-foreground">
         <div className="rauten pointer-events-none absolute inset-0 text-primary-foreground opacity-[0.06]" />
-        <Doodle kind="foam" className="right-[6%] top-12 h-28 w-28 text-primary-foreground opacity-30" />
-        <Doodle kind="hop" className="bottom-10 left-[4%] h-24 w-24 text-primary-foreground opacity-30" />
+        <Doodle
+          kind="foam"
+          className="right-[6%] top-12 h-28 w-28 text-primary-foreground opacity-30"
+        />
+        <Doodle
+          kind="hop"
+          className="bottom-10 left-[4%] h-24 w-24 text-primary-foreground opacity-30"
+        />
         <div className="relative mx-auto max-w-7xl">
           <Reveal>
             <SectionHeader tone="gold" eyebrow="Saját főzésű" title="A ház sörei">
@@ -138,13 +170,32 @@ function Index() {
         <Doodle kind="pretzel" className="right-4 top-10 h-24 w-24" />
         <Doodle kind="mug" className="bottom-6 left-[40%] h-24 w-24 opacity-20" />
         <Reveal className="relative h-[28rem] md:h-[34rem]">
-          <img src={images.placeInterior} alt="Az étterem belső tere" loading="lazy" className="absolute left-0 top-0 h-[70%] w-[78%] -rotate-3 rounded-3xl object-cover shadow-2xl" />
-          <img src={images.placeTap} alt="Csapolás" loading="lazy" className="absolute bottom-0 right-0 h-[62%] w-[52%] rotate-3 rounded-3xl border-4 border-background object-cover shadow-2xl" />
+          <img
+            src={images.placeInterior}
+            alt="Az étterem belső tere"
+            loading="lazy"
+            className="absolute left-0 top-0 h-[70%] w-[78%] -rotate-3 rounded-3xl object-cover shadow-2xl"
+          />
+          <img
+            src={images.placeTap}
+            alt="Csapolás"
+            loading="lazy"
+            className="absolute bottom-0 right-0 h-[62%] w-[52%] rotate-3 rounded-3xl border-4 border-background object-cover shadow-2xl"
+          />
         </Reveal>
         <Reveal delay={150}>
-          <SectionHeader eyebrow="Rólunk" title={<>Bajor szív, <span className="text-primary">pesti</span> lélek</>} />
+          <SectionHeader
+            eyebrow="Rólunk"
+            title={
+              <>
+                Bajor szív, <span className="text-primary">pesti</span> lélek
+              </>
+            }
+          />
           <p className="text-lg text-muted-foreground">
-            A Bajor Burger &amp; Beer egy hosszú müncheni éjszakán született: sör, perec, és a kérdés, hogy miért nincs ilyen hely otthon. Most van. Hosszú asztalok, hangos nevetés, és a legjobb burger, amit sör mellé ehetsz.
+            A Bajor Burger &amp; Beer egy hosszú müncheni éjszakán született: sör, perec, és a
+            kérdés, hogy miért nincs ilyen hely otthon. Most van. Hosszú asztalok, hangos nevetés,
+            és a legjobb burger, amit sör mellé ehetsz.
           </p>
           <CtaLink to="/rolunk" variant="outline" className="mt-8">
             A történetünk <ArrowRight className="h-4 w-4" />
@@ -162,7 +213,13 @@ function Index() {
           </Reveal>
         </div>
         <div className="flex snap-x gap-6 overflow-x-auto px-5 pb-8 pt-4 [scrollbar-width:none]">
-          {[images.placePeople, images.foodTable, images.placeInterior, images.eventNight, images.placeTap].map((src, i) => (
+          {[
+            images.placePeople,
+            images.foodTable,
+            images.placeInterior,
+            images.eventNight,
+            images.placeTap,
+          ].map((src, i) => (
             <img
               key={i}
               src={src}
@@ -176,23 +233,37 @@ function Index() {
           ))}
         </div>
         <div className="mt-4 text-center">
-          <CtaLink to="/galeria" variant="outline">Teljes galéria</CtaLink>
+          <CtaLink to="/galeria" variant="outline">
+            Teljes galéria
+          </CtaLink>
         </div>
       </section>
 
       {/* HOURS + MAP */}
       <section className="mx-auto grid max-w-7xl gap-8 px-5 pb-28 md:grid-cols-[1fr_1.4fr]">
-        <Reveal><HoursCard /></Reveal>
-        <Reveal delay={120} className="h-full"><MapPlaceholder /></Reveal>
+        <Reveal>
+          <HoursCard />
+        </Reveal>
+        <Reveal delay={120} className="h-full">
+          <MapPlaceholder />
+        </Reveal>
       </section>
 
       {/* BOOKING CTA */}
       <section className="relative overflow-hidden bg-ember px-5 py-24 text-ember-foreground">
-        <Doodle kind="burger" className="left-[5%] top-10 h-28 w-28 text-ember-foreground opacity-30" />
-        <Doodle kind="mug" className="bottom-8 right-[6%] h-28 w-28 text-ember-foreground opacity-30" />
+        <Doodle
+          kind="burger"
+          className="left-[5%] top-10 h-28 w-28 text-ember-foreground opacity-30"
+        />
+        <Doodle
+          kind="mug"
+          className="bottom-8 right-[6%] h-28 w-28 text-ember-foreground opacity-30"
+        />
         <div className="relative mx-auto max-w-7xl text-center">
           <h2 className="font-display text-[16vw] md:text-[10rem]">Foglalj asztalt!</h2>
-          <p className="mx-auto mt-4 max-w-lg text-lg opacity-90">Péntek este telt ház szokott lenni. Ne maradj le a hosszú asztalról.</p>
+          <p className="mx-auto mt-4 max-w-lg text-lg opacity-90">
+            Péntek este telt ház szokott lenni. Ne maradj le a hosszú asztalról.
+          </p>
           <CtaLink to="/foglalas" variant="dark" className="mt-10">
             Asztalfoglalás <ArrowRight className="h-4 w-4" />
           </CtaLink>
