@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { contact, openingHours } from "@/data/info";
 import { formatHours } from "@/lib/format";
+import { ctaClass } from "@/lib/cta";
 import { RautenPattern } from "@/components/RautenPattern";
 
 export function Footer() {
@@ -15,9 +16,9 @@ export function Footer() {
           </p>
         </div>
         <div>
-          <h4 className="mb-4 text-sm font-extrabold uppercase tracking-widest text-primary">
+          <h2 className="mb-4 text-sm font-extrabold uppercase tracking-widest text-primary">
             Nyitvatartás
-          </h4>
+          </h2>
           <ul className="space-y-1 text-sm">
             {openingHours.map((h) => (
               <li key={h.label} className="flex justify-between gap-4">
@@ -28,17 +29,17 @@ export function Footer() {
           </ul>
         </div>
         <div>
-          <h4 className="mb-4 text-sm font-extrabold uppercase tracking-widest text-primary">
+          <h2 className="mb-4 text-sm font-extrabold uppercase tracking-widest text-primary">
             Kapcsolat
-          </h4>
+          </h2>
           <p className="text-sm">{contact.address}</p>
           <p className="mt-2 text-sm">{contact.phone}</p>
           <p className="mt-2 text-sm">{contact.email}</p>
         </div>
         <div>
-          <h4 className="mb-4 text-sm font-extrabold uppercase tracking-widest text-primary">
+          <h2 className="mb-4 text-sm font-extrabold uppercase tracking-widest text-primary">
             Kövess minket
-          </h4>
+          </h2>
           <ul className="space-y-2 text-sm">
             {contact.socials.map((s) => (
               <li key={s.label}>
@@ -48,8 +49,8 @@ export function Footer() {
               </li>
             ))}
             <li className="pt-2">
-              <Link to="/foglalas" className="font-bold text-ember hover:underline">
-                Asztalfoglalás →
+              <Link to="/foglalas" className={ctaClass("ember", "mt-2 px-5 py-3")}>
+                Asztalfoglalás
               </Link>
             </li>
           </ul>

@@ -24,7 +24,7 @@ export default defineConfig(({ command }) => ({
       },
     }),
     // Nitro produces the production Node server (.output/server/index.mjs); dev uses Vite's SSR.
-    command === "build" && nitro({ preset: "node-server" }),
+    command === "build" && nitro({ preset: "node-server", compressPublicAssets: true }),
     viteReact(),
   ],
 }));

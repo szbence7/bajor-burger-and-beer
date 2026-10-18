@@ -1,9 +1,12 @@
 @import "tailwindcss" source(none);
 @source "../src";
+/* Self-hosted fonts (no third-party request on the critical path). */
+@import "@fontsource/anton";
+@import "@fontsource-variable/manrope";
 
 @theme inline {
   --font-display: "Anton", "Archivo Black", Impact, sans-serif;
-  --font-sans: "Manrope", system-ui, sans-serif;
+  --font-sans: "Manrope Variable", "Manrope", system-ui, sans-serif;
 
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -40,7 +43,8 @@
   --muted-foreground: oklch(0.7 0.018 70);
   /* ember #D9381E */
   --ember: oklch(0.59 0.2 33);
-  --ember-foreground: oklch(0.97 0.01 78);
+  /* pure white: cream on ember is only 4.1:1, white reaches AA (4.6:1) */
+  --ember-foreground: oklch(1 0 0);
   --border: oklch(0.29 0.01 67);
   --ring: oklch(0.79 0.165 76);
 

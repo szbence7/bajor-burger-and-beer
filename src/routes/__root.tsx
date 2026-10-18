@@ -11,6 +11,8 @@ import {
 import type { ReactNode } from "react";
 
 import appCss from "../styles.css?url";
+import antonLatin from "@fontsource/anton/files/anton-latin-400-normal.woff2?url";
+import manropeLatin from "@fontsource-variable/manrope/files/manrope-latin-wght-normal.woff2?url";
 import { SITE_NAME } from "@/lib/site";
 import { restaurantJsonLd, toJsonLdScript } from "@/lib/structured-data";
 import { Header } from "@/components/layout/Header";
@@ -81,11 +83,21 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [
-      { rel: "preconnect", href: "https://fonts.googleapis.com" },
-      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
+      // Latin subsets are needed for first paint (Anton is the LCP headline); latin-ext
+      // (ő, ű) loads on demand through unicode-range.
       {
-        rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Anton&family=Manrope:wght@400;500;700;800&display=swap",
+        rel: "preload",
+        href: antonLatin,
+        as: "font",
+        type: "font/woff2",
+        crossOrigin: "anonymous",
+      },
+      {
+        rel: "preload",
+        href: manropeLatin,
+        as: "font",
+        type: "font/woff2",
+        crossOrigin: "anonymous",
       },
       { rel: "stylesheet", href: appCss },
       { rel: "icon", href: "/favicon.ico", sizes: "48x48" },
