@@ -2,14 +2,16 @@
 
 Website for **Bajor Burger and Beer** (bajorburgerandbeer.hu), a modern burger and craft beer
 house in Budapest. The repo started as a Lovable design-first build; the design direction is
-approved and must be preserved. See also `AGENTS.md` (Lovable sync rules: never rewrite pushed
-history, keep the connected branch working).
+approved and must be preserved. See also `AGENTS.md`: never rewrite pushed history. Since
+Phase 2 the Lovable build wrapper is gone, so the Lovable editor can no longer build this code;
+development continues outside Lovable.
 
 ## Language and content
 
 - All visible UI text is **Hungarian**. Code, comments and commit messages are **English**.
-- Prices in Ft with Hungarian formatting: `4 290 Ft`, `0,5 l`, `5,3%`. Use `formatFt()` from
-  `src/data/info.ts`; decimals via `toLocaleString("hu-HU")`.
+- Prices in Ft with Hungarian formatting: `4 290 Ft`, `0,5 l`, `5,3%`. Render prices with
+  `<Price value={…} />` (keeps "Ft" mixed-case in display type); `formatFt()` /
+  `formatNumber()` in `src/lib/format.ts` for plain text. Decimals via `toLocaleString("hu-HU")`.
 - `<html lang="hu">`.
 
 ## Stack (current)
@@ -26,6 +28,10 @@ history, keep the connected branch working).
   `PORT` (default 3000); `GET /api/health` is the healthcheck. Run the production build
   locally with `bun run build && bun run start`.
 - Tailwind CSS v4, theme in `src/styles.css` (`@theme inline` + CSS variables).
+- Fonts are self-hosted via Fontsource (`@fontsource/anton`, `@fontsource-variable/manrope`),
+  latin subsets preloaded in `__root.tsx`. Don't reintroduce Google Fonts links.
+- `src/start.ts`: request middleware for gzip (buffered; re-wrapping Start's live SSR stream
+  breaks the response), error fallback page and CSRF for server functions.
 - Package manager: **bun** (`bun install`, `bun run build`, `bun run lint`, `bun run test`).
 - Prettier: printWidth 100, double quotes, trailing commas. Lint runs Prettier as an ESLint rule.
 
@@ -39,12 +45,25 @@ history, keep the connected branch working).
   `src/components/layout` — Header, Footer.
 - `src/features/<name>` — feature components: `menu` (MenuItemCard, BeerCard,
   FeaturedBurgerCard), `booking` (BookingForm), `gallery` (GalleryGrid, PhotoCarousel).
-- `src/lib` — `utils` (`cn`), `format` (`formatNumber`, `formatFt`), `cta` (`ctaClass`),
-  `error-page`, SEO helpers.
+- `src/lib` — `utils` (`cn`), `format` (`formatNumber`, `formatFt`, `formatHours`), `cta`
+  (`ctaClass`), `error-page`, `site` (SITE_URL from `VITE_SITE_URL`), `seo`, `structured-data`.
 - `src/data` — content and types (`menu`, `beers`, `drinks`, `gallery`, `info`) plus
   `images.ts`. Phase 3 swaps the content for Supabase while keeping the types.
 - `src/assets` — images. **All image imports go through `src/data/images.ts`**, so the
   restaurant's own photos can be swapped in one place. Never import from `@/assets` elsewhere.
+  Each import carries a `vite-imagetools` query (`?w=…&format=avif;webp&as=picture`); render
+  with `<Picture image={…} sizes="…" />` and give `sizes` that match the rendered width.
+  `ImageSource` also accepts plain URLs (future Supabase Storage images).
+- `public/` — favicons, `site.webmanifest`, `og-image.jpg` (1200×630), `robots.txt`.
+
+## SEO
+
+- Every route's `head` uses `seo({ path, title, description })` from `src/lib/seo.ts`
+  (title, description, canonical, og:_, twitter:_). Descriptions ~110–160 chars, Hungarian.
+- The root head adds site-wide OG defaults, icons, manifest and the schema.org `Restaurant`
+  JSON-LD from `src/lib/structured-data.ts`, built from `src/data/info.ts` — keep hours and
+  contact data there (Phase 3: from Supabase) so UI and JSON-LD never disagree.
+- New public pages must be added to `src/routes/sitemap[.]xml.ts`.
 - No shadcn/ui: it was removed as unused. Build new UI from the brand primitives; add a
   headless library only when a feature genuinely needs one (e.g. admin dialogs).
 
@@ -56,21 +75,25 @@ template.
 
 Colours are Tailwind theme tokens only — **no hardcoded hex in components**:
 
-| Token | Hex | Tailwind |
-| --- | --- | --- |
-| background | #121110 | `bg-background` |
-| surface | #1C1A18 | `bg-card` |
-| border | #2E2A26 | `border-border` |
-| primary (cheddar gold) | #F2A900 | `bg-primary`, `text-primary` |
-| primary tint | #FFC94A | `primary-glow` |
-| accent (ember red) | #D9381E | `bg-ember` — **only main CTAs and badges** |
-| text | #F5EFE6 | `text-foreground` |
-| muted | #A89F94 | `text-muted-foreground` |
+| Token                  | Hex     | Tailwind                                                                                                      |
+| ---------------------- | ------- | ------------------------------------------------------------------------------------------------------------- |
+| background             | #121110 | `bg-background`                                                                                               |
+| surface                | #1C1A18 | `bg-card`                                                                                                     |
+| border                 | #2E2A26 | `border-border`                                                                                               |
+| primary (cheddar gold) | #F2A900 | `bg-primary`, `text-primary`                                                                                  |
+| primary tint           | #FFC94A | `primary-glow`                                                                                                |
+| accent (ember red)     | #D9381E | `bg-ember` — **only main CTAs and badges**; text on it is white (AA) — never use ember as text colour on dark |
+| text                   | #F5EFE6 | `text-foreground`                                                                                             |
+| muted                  | #A89F94 | `text-muted-foreground`                                                                                       |
 
 Typography: `font-display` (Anton, ultra-heavy condensed, uppercase) for oversized headlines;
 Manrope (`font-sans`) for body.
+`font-display` uses a 1.12 line pitch because Anton's accented capitals (É, Á, Ü, Ő) reach
+~1.1–1.17em above the baseline; tighter leading makes them hit the line above. Only use an
+explicit tighter `leading-*` for fixed copy known to be accent-safe (the hero uses 0.94).
 
 Signature elements:
+
 - Tilted infinite marquee strips (gold, dark uppercase text, small burger/beer icons) — `Marquee`.
 - Cut-out burgers overlapping giant type with a warm golden glow (`glow-gold`). Overlap is a
   stylistic touch only: **never hide whole words** of a headline or a card title, and never
@@ -95,7 +118,9 @@ parallax. All motion must respect `prefers-reduced-motion`.
 
 ## Roadmap
 
-Work happens on `claude/redesign-fixes`, in phases, stopping for review after each:
+Work happens on `claude/redesign-fixes`, in phases, stopping for review after each.
+Phases 1–2 are done:
+
 1. Design fixes (hero, cards, pattern, doodles, beer cards, gallery carousel, responsive pass).
 2. Keep TanStack Start SSR; plain Vite config, Nitro node-server, Dockerfile for Coolify,
    drop Lovable leftovers and unused shadcn/ui, restructure into
