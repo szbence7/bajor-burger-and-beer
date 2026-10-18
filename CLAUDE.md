@@ -15,10 +15,16 @@ history, keep the connected branch working).
 ## Stack (current)
 
 - React 19 + TypeScript (strict, `exactOptionalPropertyTypes`, `noUncheckedIndexedAccess`).
-- TanStack Start (SSR) + TanStack Router file-based routes in `src/routes`, TanStack Query.
-  `src/routeTree.gen.ts` is generated — never edit it.
-- Vite 8 via `@lovable.dev/vite-tanstack-config` (bundles tanstackStart, React, Tailwind, Nitro
-  with a Cloudflare target). Phase 2 replaces this with a plain Vite SPA build.
+- TanStack Start **with SSR** + TanStack Router file-based routes in `src/routes`, TanStack
+  Query. `src/routeTree.gen.ts` is generated — never edit it.
+- **Decision (Phase 2): keep SSR, do not convert to a static SPA.** Server-rendered HTML gives
+  search engines and link previews (Facebook, WhatsApp, Google) real titles, OG tags and
+  JSON-LD on every page, which matters for a restaurant site.
+- Plain Vite 8 config (`vite.config.ts`): tanstackStart, React, Tailwind, tsconfig paths, and
+  Nitro with the **`node-server` preset** (build only). No Lovable config wrapper.
+- Deployment: `Dockerfile` (bun build stage, Node runtime) on Coolify. The server listens on
+  `PORT` (default 3000); `GET /api/health` is the healthcheck. Run the production build
+  locally with `bun run build && bun run start`.
 - Tailwind CSS v4, theme in `src/styles.css` (`@theme inline` + CSS variables). shadcn/ui
   primitives in `src/components/ui` (mostly unused by the site).
 - Package manager: **bun** (`bun install`, `bun run build`, `bun run lint`, `bun run test`).
@@ -84,9 +90,10 @@ parallax. All motion must respect `prefers-reduced-motion`.
 
 Work happens on `claude/redesign-fixes`, in phases, stopping for review after each:
 1. Design fixes (hero, cards, pattern, doodles, beer cards, gallery carousel, responsive pass).
-2. Static SPA on TanStack Router + Query with Vite, Dockerfile/Nixpacks for Coolify, SPA
-   fallback, drop Lovable leftovers, restructure into `routes/components/features/lib/data`,
-   per-page SEO + Restaurant JSON-LD.
+2. Keep TanStack Start SSR; plain Vite config, Nitro node-server, Dockerfile for Coolify,
+   drop Lovable leftovers and unused shadcn/ui, restructure into
+   `routes/components/features/lib/data`, server-rendered SEO + Restaurant JSON-LD,
+   optimised WebP/AVIF images.
 3. Supabase backend (self-hosted on Coolify): tables, migrations, seed, RLS, zod-validated
    booking. Env vars in `.env.example`; never commit secrets.
 4. Protected `/admin` (Supabase Auth, admin role), Hungarian, mobile-first.
