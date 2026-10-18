@@ -1,7 +1,7 @@
 import { Beer as BeerIcon } from "lucide-react";
 import type { Beer } from "@/data/beers";
-import { formatFt } from "@/data/info";
 import { cn } from "@/lib/utils";
+import { Price } from "./Price";
 import { Tag } from "./Tag";
 
 export function BeerCard({ beer, tone = "dark" }: { beer: Beer; tone?: "dark" | "onGold" }) {
@@ -9,7 +9,7 @@ export function BeerCard({ beer, tone = "dark" }: { beer: Beer; tone?: "dark" | 
   return (
     <article
       className={cn(
-        "lift relative flex flex-col rounded-3xl p-6",
+        "lift relative flex h-full flex-col rounded-3xl p-6",
         onGold ? "bg-background text-foreground" : "border border-border bg-card",
       )}
     >
@@ -20,21 +20,25 @@ export function BeerCard({ beer, tone = "dark" }: { beer: Beer; tone?: "dark" | 
         <Tag label={beer.serve} />
       </div>
       <h3 className="font-display text-4xl">{beer.name}</h3>
-      <p className="mt-1 text-sm font-bold uppercase tracking-widest text-primary">{beer.style}</p>
-      <p className="mt-1 text-sm text-muted-foreground">{beer.brewery}</p>
-      <div className="mt-6 flex items-end justify-between gap-4 border-t border-border pt-4">
-        <span className="font-display text-3xl">
+      <p className="mt-2 text-base font-extrabold uppercase tracking-wider text-primary">
+        {beer.style}
+      </p>
+      <p className="mb-6 mt-1 text-base text-foreground/80">{beer.brewery}</p>
+      <div className="mt-auto flex items-end justify-between gap-4 border-t border-border pt-5">
+        <span className="font-display text-5xl leading-none">
           {beer.abv.toLocaleString("hu-HU")}
-          <span className="text-lg text-muted-foreground">%</span>
+          <span className="text-2xl text-foreground/80">%</span>
         </span>
-        <div className="space-y-1 text-right text-sm">
+        <dl className="space-y-1 text-right">
           {beer.sizes.map((s) => (
-            <div key={s.label}>
-              <span className="text-muted-foreground">{s.label}</span>{" "}
-              <span className="font-bold">{formatFt(s.price)}</span>
+            <div key={s.label} className="flex items-baseline justify-end gap-3">
+              <dt className="text-base text-foreground/80">{s.label}</dt>
+              <dd className="font-display text-2xl leading-tight text-primary">
+                <Price value={s.price} />
+              </dd>
             </div>
           ))}
-        </div>
+        </dl>
       </div>
     </article>
   );

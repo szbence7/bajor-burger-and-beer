@@ -1,5 +1,5 @@
 import type { Burger } from "@/data/menu";
-import { formatFt } from "@/data/info";
+import { Price } from "./Price";
 import { Tag } from "./Tag";
 
 export function MenuItemCard({ item }: { item: Burger }) {
@@ -23,7 +23,7 @@ export function MenuItemCard({ item }: { item: Burger }) {
       </div>
       <div className="flex items-start justify-between gap-4">
         <h3 className="font-display text-4xl">{item.name}</h3>
-        <span className="shrink-0 font-display text-2xl text-primary">{formatFt(item.price)}</span>
+        <Price value={item.price} className="shrink-0 font-display text-2xl text-primary" />
       </div>
       <p className="mt-3 text-muted-foreground">{item.description}</p>
       <p className="mt-4 border-t border-border pt-4 text-sm text-muted-foreground">
