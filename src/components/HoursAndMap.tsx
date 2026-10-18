@@ -1,9 +1,11 @@
 import { MapPin, Phone, Mail } from "lucide-react";
-import { contact, openingHours } from "@/data/info";
+import { useSiteInfo } from "@/lib/site-info";
 import { formatHours } from "@/lib/format";
 import { RautenPattern } from "./RautenPattern";
 
 export function MapPlaceholder() {
+  const { contact } = useSiteInfo();
+
   return (
     <div className="relative h-full min-h-80 overflow-hidden rounded-3xl border border-border bg-card">
       <RautenPattern className="opacity-[0.05]" />
@@ -21,6 +23,8 @@ export function MapPlaceholder() {
 }
 
 export function HoursCard() {
+  const { contact, openingHours } = useSiteInfo();
+
   return (
     <div className="rounded-3xl border border-border bg-card p-8">
       <h3 className="mb-6 font-display text-4xl text-primary">Nyitvatartás</h3>

@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdatkezelesRouteImport } from './routes/adatkezeles'
 import { Route as FoglalasRouteImport } from './routes/foglalas'
 import { Route as GaleriaRouteImport } from './routes/galeria'
 import { Route as MenuRouteImport } from './routes/menu'
@@ -21,6 +22,11 @@ import { Route as ApiHealthRouteImport } from './routes/api/health'
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdatkezelesRoute = AdatkezelesRouteImport.update({
+  id: '/adatkezeles',
+  path: '/adatkezeles',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FoglalasRoute = FoglalasRouteImport.update({
@@ -61,6 +67,7 @@ const ApiHealthRoute = ApiHealthRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/adatkezeles': typeof AdatkezelesRoute
   '/foglalas': typeof FoglalasRoute
   '/galeria': typeof GaleriaRoute
   '/menu': typeof MenuRoute
@@ -71,6 +78,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/adatkezeles': typeof AdatkezelesRoute
   '/foglalas': typeof FoglalasRoute
   '/galeria': typeof GaleriaRoute
   '/menu': typeof MenuRoute
@@ -82,6 +90,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/adatkezeles': typeof AdatkezelesRoute
   '/foglalas': typeof FoglalasRoute
   '/galeria': typeof GaleriaRoute
   '/menu': typeof MenuRoute
@@ -94,6 +103,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/adatkezeles'
     | '/foglalas'
     | '/galeria'
     | '/menu'
@@ -104,6 +114,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/adatkezeles'
     | '/foglalas'
     | '/galeria'
     | '/menu'
@@ -114,6 +125,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/adatkezeles'
     | '/foglalas'
     | '/galeria'
     | '/menu'
@@ -125,6 +137,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdatkezelesRoute: typeof AdatkezelesRoute
   FoglalasRoute: typeof FoglalasRoute
   GaleriaRoute: typeof GaleriaRoute
   MenuRoute: typeof MenuRoute
@@ -141,6 +154,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/adatkezeles': {
+      id: '/adatkezeles'
+      path: '/adatkezeles'
+      fullPath: '/adatkezeles'
+      preLoaderRoute: typeof AdatkezelesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/foglalas': {
@@ -197,6 +217,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdatkezelesRoute: AdatkezelesRoute,
   FoglalasRoute: FoglalasRoute,
   GaleriaRoute: GaleriaRoute,
   MenuRoute: MenuRoute,

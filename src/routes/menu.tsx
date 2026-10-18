@@ -1,8 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { burgers, sides } from "@/data/menu";
-import { beers } from "@/data/beers";
-import { drinks } from "@/data/drinks";
 import { PageHero } from "@/components/PageHero";
 import { MenuItemCard } from "@/features/menu/MenuItemCard";
 import { BeerCard } from "@/features/menu/BeerCard";
@@ -13,6 +10,7 @@ import { Price } from "@/components/Price";
 import { Doodle } from "@/components/Doodle";
 import { cn } from "@/lib/utils";
 import { seo } from "@/lib/seo";
+import { getMenuContent } from "@/features/menu/api";
 
 export const Route = createFileRoute("/menu")({
   head: () =>
@@ -22,6 +20,7 @@ export const Route = createFileRoute("/menu")({
       description:
         "Smash burgerek, óriás bajor perec, köretek, négy házi főzésű csapolt sör és válogatott kézműves sörök: a teljes étlap és itallap árakkal.",
     }),
+  loader: () => getMenuContent(),
   component: MenuPage,
 });
 
@@ -33,6 +32,7 @@ const tabs = [
 ];
 
 function MenuPage() {
+  const { burgers, sides, drinks, beers } = Route.useLoaderData();
   const [active, setActive] = useState("burgerek");
   useEffect(() => {
     const io = new IntersectionObserver(

@@ -1,10 +1,12 @@
 import { Link } from "@tanstack/react-router";
-import { contact, openingHours } from "@/data/info";
+import { useSiteInfo } from "@/lib/site-info";
 import { formatHours } from "@/lib/format";
 import { ctaClass } from "@/lib/cta";
 import { RautenPattern } from "@/components/RautenPattern";
 
 export function Footer() {
+  const { contact, openingHours } = useSiteInfo();
+
   return (
     <footer className="relative overflow-hidden border-t border-border bg-card pt-20">
       <RautenPattern />
@@ -56,9 +58,12 @@ export function Footer() {
           </ul>
         </div>
       </div>
-      <p className="relative mx-auto mt-16 max-w-7xl px-5 text-xs text-muted-foreground">
-        © {new Date().getFullYear()} Bajor Burger &amp; Beer. Minden jog fenntartva.
-      </p>
+      <div className="relative mx-auto mt-16 flex max-w-7xl flex-wrap gap-x-6 gap-y-2 px-5 text-xs text-muted-foreground">
+        <p>© {new Date().getFullYear()} Bajor Burger &amp; Beer. Minden jog fenntartva.</p>
+        <Link to="/adatkezeles" className="underline underline-offset-4 hover:text-primary">
+          Adatkezelési tájékoztató
+        </Link>
+      </div>
       <div
         aria-hidden
         className="relative -mb-[0.12em] mt-6 select-none text-center font-display text-[27vw] leading-[0.78] text-primary"

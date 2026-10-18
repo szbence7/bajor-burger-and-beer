@@ -3,8 +3,6 @@ import { useEffect, useRef } from "react";
 import { ArrowRight } from "lucide-react";
 import { images } from "@/data/images";
 import { Picture } from "@/components/Picture";
-import { burgers } from "@/data/menu";
-import { beers } from "@/data/beers";
 import { Marquee } from "@/components/Marquee";
 import { Doodle } from "@/components/Doodle";
 import { Reveal } from "@/components/Reveal";
@@ -18,6 +16,7 @@ import { PhotoCarousel } from "@/features/gallery/PhotoCarousel";
 import { RautenDivider } from "@/components/RautenPattern";
 import { cn } from "@/lib/utils";
 import { seo } from "@/lib/seo";
+import { getHomeContent } from "@/features/menu/api";
 
 export const Route = createFileRoute("/")({
   head: () =>
@@ -27,6 +26,7 @@ export const Route = createFileRoute("/")({
       description:
         "Smash burgerek, saját főzésű bajor sörök és hosszú asztalok Budapest szívében. Nézd meg a menüt, és foglalj asztalt online a Bajor Burger & Beer-be!",
     }),
+  loader: () => getHomeContent(),
   component: Index,
 });
 
@@ -79,8 +79,7 @@ function HeroBurger({ className }: { className?: string }) {
 
 function Index() {
   const parallaxRef = useParallax<HTMLSpanElement>(-0.08);
-  const featured = burgers.filter((b) => b.featured);
-  const houseBeers = beers.filter((b) => b.house);
+  const { featuredBurgers: featured, houseBeers } = Route.useLoaderData();
 
   return (
     <>

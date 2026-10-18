@@ -15,6 +15,7 @@ import antonLatin from "@fontsource/anton/files/anton-latin-400-normal.woff2?url
 import manropeLatin from "@fontsource-variable/manrope/files/manrope-latin-wght-normal.woff2?url";
 import { SITE_NAME } from "@/lib/site";
 import { getIndexing } from "@/lib/indexing";
+import { getSiteInfoFn } from "@/lib/site-info";
 import { restaurantJsonLd, toJsonLdScript } from "@/lib/structured-data";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
@@ -71,9 +72,13 @@ function ErrorComponent({ error, reset }: ErrorComponentProps) {
 }
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
-  // NOINDEX is a runtime env flag; fetched once on the server and kept for the session.
-  loader: () => getIndexing(),
-  staleTime: Infinity,
+  // NOINDEX (runtime env flag) and the site info (contact, hours, booking rules) that the
+  // header, footer and JSON-LD need on every page. Refreshed at most every 5 minutes.
+  loader: async () => {
+    const [indexing, site] = await Promise.all([getIndexing(), getSiteInfoFn()]);
+    return { ...indexing, site };
+  },
+  staleTime: 5 * 60_000,
   head: ({ loaderData }) => ({
     meta: [
       { charSet: "utf-8" },
@@ -110,7 +115,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
       { rel: "manifest", href: "/site.webmanifest" },
     ],
-    scripts: [{ type: "application/ld+json", children: toJsonLdScript(restaurantJsonLd()) }],
+    scripts: loaderData
+      ? [
+          {
+            type: "application/ld+json",
+            children: toJsonLdScript(restaurantJsonLd(loaderData.site)),
+          },
+        ]
+      : [],
   }),
   shellComponent: RootShell,
   component: RootComponent,

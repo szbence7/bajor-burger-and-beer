@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
-import { gallery, galleryCategories, type GalleryCategory } from "@/data/gallery";
+import { galleryCategories, type GalleryCategory, type GalleryItem } from "@/data/gallery";
 import { cn } from "@/lib/utils";
 import { Picture } from "@/components/Picture";
 
 /** Filterable masonry gallery with a keyboard-navigable lightbox. */
-export function GalleryGrid() {
+export function GalleryGrid({ items: gallery }: { items: GalleryItem[] }) {
   const [filter, setFilter] = useState<GalleryCategory | "Összes">("Összes");
   const [open, setOpen] = useState<number | null>(null);
   const items = filter === "Összes" ? gallery : gallery.filter((g) => g.category === filter);

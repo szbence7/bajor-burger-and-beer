@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Beer, Flame, Users } from "lucide-react";
 import { images } from "@/data/images";
 import { Picture } from "@/components/Picture";
-import { contact } from "@/data/info";
+import { useSiteInfo } from "@/lib/site-info";
 import { PageHero } from "@/components/PageHero";
 import { Reveal } from "@/components/Reveal";
 import { Doodle } from "@/components/Doodle";
@@ -33,6 +33,8 @@ const values = [
 ];
 
 function AboutPage() {
+  const { contact } = useSiteInfo();
+
   return (
     <>
       <PageHero

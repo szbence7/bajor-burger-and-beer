@@ -1,4 +1,4 @@
-import { defineConfig } from "vite";
+import { defineConfig, loadEnv } from "vite";
 import tailwindcss from "@tailwindcss/vite";
 import tsConfigPaths from "vite-tsconfig-paths";
 import viteReact from "@vitejs/plugin-react";
@@ -6,7 +6,20 @@ import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import { nitro } from "nitro/vite";
 import { imagetools } from "vite-imagetools";
 
-export default defineConfig(({ command }) => ({
+export default defineConfig(({ command, mode }) => {
+  // Runtime server vars (SUPABASE_*, NOINDEX) come from the environment in production. In dev,
+  // fill them from .env so `bun run dev` works without exporting them by hand.
+  if (command === "serve") {
+    for (const [key, value] of Object.entries(
+      loadEnv(mode, process.cwd(), ["SUPABASE_", "NOINDEX"]),
+    )) {
+      process.env[key] ??= value;
+    }
+  }
+  return config(command);
+});
+
+const config = (command: "build" | "serve") => ({
   server: { port: 8080 },
   resolve: {
     dedupe: ["react", "react-dom", "@tanstack/react-query", "@tanstack/query-core"],
@@ -27,4 +40,4 @@ export default defineConfig(({ command }) => ({
     command === "build" && nitro({ preset: "node-server", compressPublicAssets: true }),
     viteReact(),
   ],
-}));
+});

@@ -10,6 +10,8 @@ export const getRouter = () => {
     context: { queryClient },
     scrollRestoration: true,
     defaultPreloadStaleTime: 0,
+    // Content changes rarely; don't refetch it on every client-side navigation.
+    defaultStaleTime: 60_000,
   });
 
   return router;

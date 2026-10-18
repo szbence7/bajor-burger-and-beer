@@ -4,6 +4,7 @@ import { HoursCard } from "@/components/HoursAndMap";
 import { Doodle } from "@/components/Doodle";
 import { BookingForm } from "@/features/booking/BookingForm";
 import { seo } from "@/lib/seo";
+import { useSiteInfo } from "@/lib/site-info";
 
 export const Route = createFileRoute("/foglalas")({
   head: () =>
@@ -17,6 +18,8 @@ export const Route = createFileRoute("/foglalas")({
 });
 
 function BookingPage() {
+  const { contact, booking } = useSiteInfo();
+
   return (
     <>
       <PageHero
@@ -35,7 +38,8 @@ function BookingPage() {
         <aside className="space-y-6">
           <HoursCard />
           <p className="rounded-3xl bg-primary p-6 font-bold text-primary-foreground">
-            8 fő felett hívj minket telefonon. Az asztalt 15 percig tartjuk.
+            {booking.maxPartySize} fő felett hívj minket telefonon: {contact.phone}. Az asztalt{" "}
+            {booking.holdMinutes} percig tartjuk.
           </p>
         </aside>
       </section>

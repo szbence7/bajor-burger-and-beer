@@ -1,5 +1,16 @@
-export type Weekday =
-  "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday";
+// Content lives in Supabase (site_settings, opening_hours); see src/server/content.ts.
+// PLACEHOLDER: the seeded contact data and hours are invented; replace them before launch.
+
+export const WEEKDAYS = [
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+  "Sunday",
+] as const;
+export type Weekday = (typeof WEEKDAYS)[number];
 
 export interface OpeningHour {
   /** Display label, e.g. "Kedd – Csütörtök". */
@@ -10,49 +21,37 @@ export interface OpeningHour {
   closes: string | null;
 }
 
-export const openingHours: OpeningHour[] = [
-  { label: "Hétfő", days: ["Monday"], opens: null, closes: null },
-  {
-    label: "Kedd – Csütörtök",
-    days: ["Tuesday", "Wednesday", "Thursday"],
-    opens: "12:00",
-    closes: "23:00",
-  },
-  { label: "Péntek", days: ["Friday"], opens: "12:00", closes: "01:00" },
-  { label: "Szombat", days: ["Saturday"], opens: "12:00", closes: "01:00" },
-  { label: "Vasárnap", days: ["Sunday"], opens: "12:00", closes: "22:00" },
-];
+export interface SocialLink {
+  label: string;
+  href: string;
+}
 
-const address = {
-  street: "Kazinczy utca 12.",
-  postalCode: "1075",
-  city: "Budapest",
-  country: "HU",
-};
+export interface Contact {
+  /** One-line display address: "1075 Budapest, Kazinczy utca 12." */
+  address: string;
+  addressParts: { street: string; postalCode: string; city: string; country: string };
+  phone: string;
+  email: string;
+  socials: SocialLink[];
+}
 
-export const contact = {
-  address: `${address.postalCode} ${address.city}, ${address.street}`,
-  addressParts: address,
-  phone: "+36 1 234 5678",
-  email: "hello@bajorburger.hu",
-  socials: [
-    { label: "Instagram", href: "https://instagram.com" },
-    { label: "Facebook", href: "https://facebook.com" },
-    { label: "TikTok", href: "https://tiktok.com" },
-  ],
-};
+/** Online booking rules; the database enforces them, the UI uses them for copy and limits. */
+export interface BookingSettings {
+  slotMinutes: number;
+  /** How long a booking holds its table. */
+  durationMinutes: number;
+  /** Guests allowed at the same time. */
+  capacity: number;
+  /** Largest party bookable online; above it guests are asked to call. */
+  maxPartySize: number;
+  daysAhead: number;
+  minNoticeMinutes: number;
+  /** How long a table is held for late guests. */
+  holdMinutes: number;
+}
 
-export const timeSlots = [
-  "12:00",
-  "13:00",
-  "14:00",
-  "17:00",
-  "18:00",
-  "18:30",
-  "19:00",
-  "19:30",
-  "20:00",
-  "20:30",
-  "21:00",
-  "21:30",
-];
+export interface SiteInfo {
+  contact: Contact;
+  openingHours: OpeningHour[];
+  booking: BookingSettings;
+}
