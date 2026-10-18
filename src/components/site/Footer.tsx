@@ -1,11 +1,12 @@
 import { Link } from "@tanstack/react-router";
 import { contact, openingHours } from "@/data/info";
+import { RautenPattern } from "./RautenPattern";
 
 export function Footer() {
   return (
     <footer className="relative overflow-hidden border-t border-border bg-card pt-20">
-      <div className="rauten pointer-events-none absolute right-0 top-0 h-40 w-72 text-primary opacity-[0.06]" />
-      <div className="relative mx-auto grid max-w-7xl gap-12 px-5 md:grid-cols-4">
+      <RautenPattern />
+      <div className="relative mx-auto grid max-w-7xl gap-12 px-5 sm:grid-cols-2 lg:grid-cols-4">
         <div>
           <p className="font-display text-3xl text-primary">Bajor Burger &amp; Beer</p>
           <p className="mt-4 text-muted-foreground">

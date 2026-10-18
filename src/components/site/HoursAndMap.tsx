@@ -1,10 +1,11 @@
 import { MapPin, Phone, Mail } from "lucide-react";
 import { contact, openingHours } from "@/data/info";
+import { RautenPattern } from "./RautenPattern";
 
 export function MapPlaceholder() {
   return (
     <div className="relative h-full min-h-80 overflow-hidden rounded-3xl border border-border bg-card">
-      <div className="rauten absolute inset-0 text-primary opacity-[0.07]" />
+      <RautenPattern className="opacity-[0.05]" />
       <div className="absolute inset-0 grid place-items-center text-center">
         <div>
           <span className="mx-auto mb-4 grid h-16 w-16 place-items-center rounded-full bg-ember text-ember-foreground shadow-ember">

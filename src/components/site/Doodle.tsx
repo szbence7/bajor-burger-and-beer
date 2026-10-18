@@ -60,7 +60,7 @@ export function Doodle({ kind, className }: { kind: DoodleKind; className?: stri
       strokeLinecap="round"
       strokeLinejoin="round"
       aria-hidden
-      className={cn("pointer-events-none absolute h-20 w-20 text-primary opacity-25", className)}
+      className={cn("pointer-events-none absolute h-20 w-20 text-primary opacity-10", className)}
     >
       {paths[kind]}
     </svg>
