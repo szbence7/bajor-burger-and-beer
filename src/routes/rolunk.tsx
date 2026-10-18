@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Beer, Flame, Users } from "lucide-react";
 import { images } from "@/data/images";
+import { Picture } from "@/components/Picture";
 import { contact } from "@/data/info";
 import { PageHero } from "@/components/PageHero";
 import { Reveal } from "@/components/Reveal";
@@ -49,10 +50,10 @@ function AboutPage() {
       <section className="relative mx-auto grid max-w-7xl items-center gap-16 px-5 pb-28 md:grid-cols-2">
         <Doodle kind="pretzel" className="left-[46%] top-0 h-32 w-32 md:h-44 md:w-44" />
         <Reveal>
-          <img
-            src={images.placePeople}
+          <Picture
+            image={images.placePeople}
             alt="Vendégek koccintanak"
-            loading="lazy"
+            sizes="(min-width: 1280px) 600px, (min-width: 768px) 48vw, 92vw"
             className="w-full -rotate-2 rounded-3xl object-cover shadow-2xl"
           />
         </Reveal>

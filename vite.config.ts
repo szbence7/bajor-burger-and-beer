@@ -4,6 +4,7 @@ import tsConfigPaths from "vite-tsconfig-paths";
 import viteReact from "@vitejs/plugin-react";
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import { nitro } from "nitro/vite";
+import { imagetools } from "vite-imagetools";
 
 export default defineConfig(({ command }) => ({
   server: { port: 8080 },
@@ -12,6 +13,8 @@ export default defineConfig(({ command }) => ({
   },
   plugins: [
     tailwindcss(),
+    // Responsive AVIF/WebP variants for imports with an imagetools query (see src/data/images.ts).
+    imagetools(),
     tsConfigPaths({ projects: ["./tsconfig.json"] }),
     tanstackStart({
       // Keep server-only modules out of the client bundle.

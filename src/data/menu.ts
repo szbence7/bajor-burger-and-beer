@@ -1,3 +1,4 @@
+import type { ImageSource } from "@/components/Picture";
 import { images } from "./images";
 
 export type MenuBadge = "Új" | "Csípős" | "Vega" | "A ház kedvence";
@@ -8,7 +9,7 @@ export interface Burger {
   description: string;
   ingredients: string[];
   price: number;
-  image: string;
+  image: ImageSource;
   badges: MenuBadge[];
   featured?: boolean;
 }

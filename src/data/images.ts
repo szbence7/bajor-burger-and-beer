@@ -1,13 +1,15 @@
-// Image slots — replace files in src/assets with the restaurant's own photos
-// (keep the same filenames, or update the imports below).
-import burgerHero from "@/assets/burger-hero.png";
-import burgerSpicy from "@/assets/burger-spicy.png";
-import burgerVeggie from "@/assets/burger-veggie.png";
-import placeInterior from "@/assets/place-interior.jpg";
-import placePeople from "@/assets/place-people.jpg";
-import placeTap from "@/assets/place-tap.jpg";
-import foodTable from "@/assets/food-table.jpg";
-import eventNight from "@/assets/event-night.jpg";
+// Image slots — the single place images enter the app.
+// To use the restaurant's own photos, replace the files in src/assets (same filenames) or
+// change the paths below. The query string makes vite-imagetools emit AVIF + WebP in several
+// widths at build time, so originals can be large, full-quality exports.
+import burgerHero from "@/assets/burger-hero.png?w=400;700;1024&format=avif;webp&as=picture";
+import burgerSpicy from "@/assets/burger-spicy.png?w=400;700;1024&format=avif;webp&as=picture";
+import burgerVeggie from "@/assets/burger-veggie.png?w=400;700;1024&format=avif;webp&as=picture";
+import placeInterior from "@/assets/place-interior.jpg?w=480;800;1280&format=avif;webp&as=picture";
+import placePeople from "@/assets/place-people.jpg?w=480;800;960&format=avif;webp&as=picture";
+import placeTap from "@/assets/place-tap.jpg?w=480;800;960&format=avif;webp&as=picture";
+import foodTable from "@/assets/food-table.jpg?w=480;800;1280&format=avif;webp&as=picture";
+import eventNight from "@/assets/event-night.jpg?w=480;800;1280&format=avif;webp&as=picture";
 
 export const images = {
   burgerHero,

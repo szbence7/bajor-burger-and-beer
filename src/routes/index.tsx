@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef } from "react";
 import { ArrowRight } from "lucide-react";
 import { images } from "@/data/images";
+import { Picture } from "@/components/Picture";
 import { burgers } from "@/data/menu";
 import { beers } from "@/data/beers";
 import { Marquee } from "@/components/Marquee";
@@ -67,12 +68,13 @@ function HeroBurger({ className }: { className?: string }) {
   return (
     <div className={cn("pointer-events-none", className)}>
       <div className="glow-gold absolute inset-[-12%]" />
-      <img
-        src={images.burgerHero}
+      {/* Same sizes on both instances, so mobile and desktop share one download. */}
+      <Picture
+        image={images.burgerHero}
         alt=""
-        width={1024}
-        height={1024}
+        loading="eager"
         fetchPriority="high"
+        sizes="(min-width: 768px) 400px, 74vw"
         className="relative w-full animate-float drop-shadow-2xl"
       />
     </div>
@@ -103,7 +105,7 @@ function Index() {
           {/* md+: the burger lives in a slot right after line one, sized in em of the
               headline so it tracks the text at every width. The h1 reserves room above
               itself, so the burger never reaches the fixed header. */}
-          <h1 className="relative font-display text-[19vw] md:pt-[1.05em] md:text-[12vw] xl:text-[10.5rem]">
+          <h1 className="relative font-display text-[19vw] leading-[0.94] md:pt-[1.05em] md:text-[12vw] xl:text-[10.5rem]">
             <span className="flex items-end">
               <span className="md:whitespace-nowrap">Csapolt sör.</span>
               <span
@@ -184,16 +186,16 @@ function Index() {
         <Doodle kind="pretzel" className="right-2 top-8 h-36 w-36 md:h-48 md:w-48" />
         <Doodle kind="mug" className="bottom-4 left-[42%] h-36 w-36 md:h-44 md:w-44" />
         <Reveal className="relative h-[24rem] sm:h-[28rem] md:h-[34rem]">
-          <img
-            src={images.placeInterior}
+          <Picture
+            image={images.placeInterior}
             alt="Az étterem belső tere"
-            loading="lazy"
+            sizes="(min-width: 1280px) 480px, (min-width: 768px) 38vw, 78vw"
             className="absolute left-0 top-0 h-[70%] w-[78%] -rotate-3 rounded-3xl object-cover shadow-2xl"
           />
-          <img
-            src={images.placeTap}
+          <Picture
+            image={images.placeTap}
             alt="Csapolás"
-            loading="lazy"
+            sizes="(min-width: 1280px) 320px, (min-width: 768px) 26vw, 52vw"
             className="absolute bottom-0 right-0 h-[62%] w-[52%] rotate-3 rounded-3xl border-4 border-background object-cover shadow-2xl"
           />
         </Reveal>

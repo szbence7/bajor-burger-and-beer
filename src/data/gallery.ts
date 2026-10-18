@@ -1,10 +1,11 @@
+import type { ImageSource } from "@/components/Picture";
 import { images } from "./images";
 
 export type GalleryCategory = "Hely" | "Ételek" | "Sörök" | "Események";
 
 export interface GalleryItem {
   id: string;
-  src: string;
+  src: ImageSource;
   alt: string;
   category: GalleryCategory;
   tall?: boolean;

@@ -1,10 +1,11 @@
 import useEmblaCarousel from "embla-carousel-react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
+import { Picture, type ImageSource } from "@/components/Picture";
 import { cn } from "@/lib/utils";
 
 export interface CarouselPhoto {
-  src: string;
+  src: ImageSource;
   alt: string;
 }
 
@@ -48,12 +49,10 @@ export function PhotoCarousel({ photos }: { photos: CarouselPhoto[] }) {
                   i % 2 === 0 ? "-rotate-2" : "rotate-2",
                 )}
               >
-                <img
-                  src={p.src}
+                <Picture
+                  image={p.src}
                   alt={p.alt}
-                  loading="lazy"
-                  width={960}
-                  height={1200}
+                  sizes="(min-width: 1536px) 24vw, (min-width: 1024px) 31vw, (min-width: 640px) 45vw, 78vw"
                   className="aspect-[4/5] w-full object-cover"
                 />
               </figure>

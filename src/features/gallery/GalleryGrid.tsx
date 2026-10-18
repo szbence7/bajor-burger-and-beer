@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
 import { gallery, galleryCategories, type GalleryCategory } from "@/data/gallery";
 import { cn } from "@/lib/utils";
+import { Picture } from "@/components/Picture";
 
 /** Filterable masonry gallery with a keyboard-navigable lightbox. */
 export function GalleryGrid() {
@@ -47,10 +48,10 @@ export function GalleryGrid() {
               onClick={() => setOpen(i)}
               className="group mb-6 block w-full break-inside-avoid overflow-hidden rounded-3xl border border-border bg-card"
             >
-              <img
-                src={g.src}
+              <Picture
+                image={g.src}
                 alt={g.alt}
-                loading="lazy"
+                sizes="(min-width: 1280px) 400px, (min-width: 1024px) 31vw, (min-width: 640px) 48vw, 92vw"
                 className={cn(
                   "w-full object-cover transition-transform duration-500 group-hover:scale-105",
                   g.tall ? "aspect-[3/4]" : "aspect-[4/3]",
@@ -83,10 +84,12 @@ export function GalleryGrid() {
             <ChevronLeft className="h-12 w-12" />
           </button>
           <figure onClick={(e) => e.stopPropagation()} className="max-w-5xl">
-            <img
-              src={items[open].src}
+            <Picture
+              image={items[open].src}
               alt={items[open].alt}
-              className="max-h-[80vh] rounded-3xl object-contain"
+              loading="eager"
+              sizes="(min-width: 1024px) 1024px, 100vw"
+              className="max-h-[80vh] w-auto rounded-3xl object-contain"
             />
             <figcaption className="mt-4 text-center text-muted-foreground">
               <span className="font-bold text-primary">{items[open].category}</span> —{" "}

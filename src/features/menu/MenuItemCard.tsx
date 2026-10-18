@@ -1,4 +1,5 @@
 import type { Burger } from "@/data/menu";
+import { Picture } from "@/components/Picture";
 import { Price } from "@/components/Price";
 import { Tag } from "@/components/Tag";
 
@@ -7,12 +8,10 @@ export function MenuItemCard({ item }: { item: Burger }) {
     <article className="group lift relative flex flex-col overflow-hidden rounded-3xl border border-border bg-card p-6">
       <div className="relative mx-auto -mt-2 mb-4 h-52 w-full">
         <div className="glow-gold absolute inset-6 opacity-60 transition-opacity group-hover:opacity-100" />
-        <img
-          src={item.image}
+        <Picture
+          image={item.image}
           alt={item.name}
-          loading="lazy"
-          width={1024}
-          height={1024}
+          sizes="13rem"
           className="relative h-full w-full object-contain transition-transform duration-500 group-hover:-rotate-3 group-hover:scale-105"
         />
       </div>

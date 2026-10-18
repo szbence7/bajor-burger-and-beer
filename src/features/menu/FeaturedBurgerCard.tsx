@@ -2,6 +2,7 @@ import { ArrowRight } from "lucide-react";
 import type { Burger } from "@/data/menu";
 import { CtaLink } from "@/components/CtaButton";
 import { Price } from "@/components/Price";
+import { Picture } from "@/components/Picture";
 import { cn } from "@/lib/utils";
 
 const tones = [
@@ -29,12 +30,10 @@ export function FeaturedBurgerCard({ burger, index }: { burger: Burger; index: n
         ))}
       </h3>
       <div className="relative -mt-6 flex flex-1 items-end justify-end">
-        <img
-          src={burger.image}
+        <Picture
+          image={burger.image}
           alt={burger.name}
-          loading="lazy"
-          width={1024}
-          height={1024}
+          sizes="(min-width: 768px) 22rem, 82vw"
           className="-mr-12 w-[82%] max-w-[22rem] drop-shadow-2xl transition-transform duration-500 group-hover:-rotate-6 group-hover:scale-105 motion-reduce:transition-none"
         />
       </div>
