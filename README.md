@@ -4,8 +4,8 @@ Website for Bajor Burger & Beer, a burger and craft beer house in Budapest
 ([bajorburgerandbeer.hu](https://bajorburgerandbeer.hu)).
 
 React 19 + TypeScript, [TanStack Start](https://tanstack.com/start) (server-side rendering,
-file-based routing, TanStack Query), Tailwind CSS v4, Vite 8. Production runs as a Node
-server built by Nitro.
+file-based routing, TanStack Query), Tailwind CSS v4, Vite 8, Supabase (self-hosted) for
+content and reservations. Production runs as a Node server built by Nitro.
 
 Project conventions, the design system and the roadmap are in [CLAUDE.md](./CLAUDE.md).
 
@@ -20,6 +20,10 @@ bun run lint       # ESLint + Prettier
 bun run test       # Vitest
 ```
 
+The pages need a Supabase instance: `bun run db:start` runs one locally in Docker with the
+schema and content (see [supabase/README.md](./supabase/README.md)); put its URL and anon key
+in `.env`. `bun run test:db` runs the database tests.
+
 ## Production build
 
 ```sh
@@ -33,11 +37,14 @@ bun run start      # node .output/server/index.mjs, listens on $PORT (default 30
 
 Copy `.env.example` to `.env`. `VITE_*` variables are public and inlined at build time.
 
-| Variable        | Purpose                                                                                                                                  |
-| --------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
-| `VITE_SITE_URL` | Canonical origin for canonical URLs, Open Graph, JSON-LD and the sitemap                                                                 |
-| `PORT`          | Runtime port of the Node server (default `3000`)                                                                                         |
-| `NOINDEX`       | Runtime. `1`/`true`/`yes` adds `<meta name="robots" content="noindex">` to every page and serves `Disallow: /` from robots.txt (staging) |
+| Variable            | Purpose                                                                                                                                  |
+| ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| `VITE_SITE_URL`     | Canonical origin for canonical URLs, Open Graph, JSON-LD and the sitemap                                                                 |
+| `PORT`              | Runtime port of the Node server (default `3000`)                                                                                         |
+| `NOINDEX`           | Runtime. `1`/`true`/`yes` adds `<meta name="robots" content="noindex">` to every page and serves `Disallow: /` from robots.txt (staging) |
+| `SUPABASE_URL`      | Runtime, server-only. API URL of the Supabase instance                                                                                   |
+| `SUPABASE_ANON_KEY` | Runtime, server-only. Anon key; Row Level Security limits it                                                                             |
+| `SUPABASE_DB_URL`   | Local only (never in Coolify). Postgres connection for `bun run db:push`                                                                 |
 
 ## Deploying on Coolify
 
@@ -47,6 +54,7 @@ Copy `.env.example` to `.env`. `VITE_*` variables are public and inlined at buil
 3. Add `VITE_SITE_URL` as a **build variable** (it is baked into the client bundle).
    For a staging deploy, also set `NOINDEX=true` (runtime variable; toggling it needs only a
    restart, not a rebuild).
+   Add `SUPABASE_URL` and `SUPABASE_ANON_KEY` as **runtime** variables.
 4. Point the domain at the app. Pushes to the configured branch redeploy automatically.
 
 Responses are already gzip-compressed by the app, so the proxy's compression is optional.

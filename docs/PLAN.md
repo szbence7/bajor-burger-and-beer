@@ -155,27 +155,54 @@ Agreed with the user during Phases 1–2. These override the original prompt whe
 
 ## Status
 
-_Last updated: end of Phase 2 (2026-10-18)._
+_Last updated: end of Phase 3 implementation (2026-10-18)._
 
 | Phase | State |
 | --- | --- |
 | 1 — Design fixes | ✅ Done and approved |
 | 2 — TanStack Start SSR, Docker, cleanup, SEO, images | ✅ Done and approved |
-| 3 — Supabase backend | ⏭️ Next (not started) |
+| 3 — Supabase backend | 🔍 Implemented and tested locally; awaiting review, **not yet applied to the real instance** |
 | 4 — Admin panel | ⏳ Not started |
 
-Branch `claude/redesign-fixes`, pushed and in sync with `origin`. Lighthouse (mobile,
-production build): performance 93–98; accessibility, best practices and SEO 100 on all pages.
+Branch `claude/redesign-fixes`, pushed to `origin`.
+
+### Phase 3 summary
+
+- Schema in `supabase/migrations` (0001 content, 0002 reservations + booking rules, 0003 GDPR
+  retention with pg_cron), idempotent `supabase/seed.sql` with the former mock content, 30
+  pgTAP tests (`bun run test:db`) covering slots, overlap capacity, RLS and retention. Tested
+  on the Supabase CLI's local stack (Postgres 17.11, `supabase/postgres:17.11.0.004`).
+- All pages load content server-side from Supabase (route loaders → server functions →
+  `src/server`), so HTML, OG and JSON-LD stay server-rendered. Mock content removed from
+  `src/data`; the types are unchanged (Beer gained an optional `image`).
+- Booking form: slots from `available_slots()`, party 1–8 plus "9+ → call us", zod field
+  errors, consent checkbox, honeypot, 5 attempts/IP/hour, confirmation summary. The database
+  trigger re-checks every rule. `/adatkezeles` placeholder privacy page, linked from the form
+  and the footer, in the sitemap.
+- Verified: lint, tsc, 20 Vitest tests, build, pgTAP; production build against the local stack
+  (all pages 200, unknown route 404, JSON-LD from the DB, booking end to end in Chromium at
+  375 and 1280 px, no console errors); no page overflow at 320–1920 px.
 
 ### Open items
 
-- **Placeholder contact data in `src/data/info.ts`**: address, phone, email, social links,
-  opening hours and booking time slots are invented. They appear in the footer, contact cards
-  and the Restaurant JSON-LD, so keep `NOINDEX=true` on any public deploy until they are real.
+- **Apply to the real instance**: the user chooses CLI over the SSH tunnel (`bun run db:push`)
+  or pasting into Studio (see `supabase/README.md`). Also set `SUPABASE_URL` and
+  `SUPABASE_ANON_KEY` as runtime variables in Coolify **before** deploying this branch — the
+  pages need them. The instance's Supabase version is still unknown; the SQL avoids
+  version-specific features and has been tested on Postgres 17.
+- **Placeholder contact data** (now in `site_settings` / `opening_hours`): address, phone,
+  email, social links and opening hours are invented and feed the JSON-LD, so keep
+  `NOINDEX=true` on any public deploy until they are real.
+- **Booking rules to confirm** with the restaurant (defaults in `site_settings`): capacity 40,
+  90-minute dining, 30-minute slots, 1–8 online, 60 days ahead, 2 hours' notice, 15-minute
+  hold. No special closing days (holidays) yet; candidate for Phase 4.
+- **Privacy notice**: final text from the user for `/adatkezeles`.
 - **Real photos to come from the client.** `src/assets` holds stand-in images and
   `public/og-image.jpg` is rendered from them; swap via `src/data/images.ts` and regenerate
-  the OG image once real photos arrive.
-- **Booking capacity to confirm** with the restaurant: tables or covers per time slot, maximum
-  party size (the form currently offers 1–10 and says to call for more than 8), slot length,
-  and how long a table is held (the site says 15 minutes). Needed for Phase 3 booking rules.
+  the OG image once real photos arrive. The home "A hely" carousel and the About-page photos
+  are still fixed in code (candidates for admin control in Phase 4).
+- **Email notifications**: `onReservationCreated()` in `src/server/notifications.ts` is the
+  hook; nothing is sent yet, so the confirmation screen says the staff will confirm.
+- Content edits show up within ~30 s (server cache); a visitor's open tab refreshes site info
+  after 5 minutes. Phase 4 admin saves should call `clearCache()`.
 - Map: `MapPlaceholder` ("Térkép helye") still needs a real map embed or a static map.

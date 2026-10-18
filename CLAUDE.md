@@ -34,12 +34,14 @@ applies: never rewrite pushed history.
 
 `NOINDEX=true` must stay on any public deploy until these are real:
 
-- `src/data/info.ts`: address (Kazinczy utca 12., 1075 Budapest), phone (+36 1 234 5678),
-  email (hello@bajorburger.hu), social links (bare network homepages, so they are left out of
-  JSON-LD `sameAs` until they are real profile URLs), booking `timeSlots`, opening hours.
-  These feed the footer, contact cards **and the Restaurant JSON-LD**.
-- `src/data/menu.ts`, `beers.ts`, `drinks.ts`, `gallery.ts`: mock menu, prices and gallery
-  (some photos reused). Phase 3 moves these to Supabase.
+- `site_settings` + `opening_hours` (seeded from `supabase/seed.sql`): address (Kazinczy
+  utca 12., 1075 Budapest), phone (+36 1 234 5678), email (hello@bajorburger.hu), social links
+  (bare network homepages, so they are left out of JSON-LD `sameAs` until they are real
+  profile URLs), opening hours, booking rules (capacity 40 etc., to confirm with the
+  restaurant). These feed the footer, contact cards, booking form **and the Restaurant
+  JSON-LD**.
+- Menu, beers, prices and gallery in the seed are the old mock content (some photos reused).
+- `/adatkezeles` privacy notice is placeholder text; the user will supply the final version.
 - `src/assets/*`: AI-generated stand-in photos; `public/og-image.jpg` is rendered from the
   hero burger. Regenerate the OG image once real photos exist.
 - `MapPlaceholder` ("Térkép helye") stands in for a real map embed.
@@ -69,22 +71,32 @@ applies: never rewrite pushed history.
 - Tailwind CSS v4, theme tokens in `src/styles.css` (`@theme inline` + CSS variables).
 - No shadcn/ui (removed as unused in Phase 2, with its Radix etc. dependencies). Build UI from
   the brand primitives; add a headless library only when a feature genuinely needs one (e.g.
-  admin dialogs). `zod` is installed for Phase 3.
+  admin dialogs).
+- Data: self-hosted Supabase via `@supabase/supabase-js`, **server-side only** in Phase 3
+  (`src/server/supabase.ts`, anon key, so RLS applies). Pages load content in route loaders
+  through server functions; the browser never talks to Supabase. Inputs and DB rows are
+  validated with `zod`. Supabase CLI runs via `bunx supabase@2.121.0` (package scripts
+  `db:*`, `test:db`); it is not a dependency.
 - Package manager: **bun** (`bun.lock`, `bunfig.toml` has a 24 h minimum-release-age guard).
 - Prettier: printWidth 100, double quotes, trailing commas. ESLint runs Prettier as a rule.
 
 ## Environment variables
 
-| Variable        | When       | Purpose                                                                                                                                 |
-| --------------- | ---------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| `VITE_SITE_URL` | build time | Canonical origin for canonical URLs, OG, JSON-LD, sitemap, robots. Defaults to `https://bajorburgerandbeer.hu`. Coolify: build variable |
-| `PORT`          | runtime    | Node server port (default 3000)                                                                                                         |
-| `NOINDEX`       | runtime    | `1`/`true`/`yes` → `<meta name="robots" content="noindex">` on every page and `Disallow: /` in robots.txt. For staging                  |
+| Variable            | When       | Purpose                                                                                                                                 |
+| ------------------- | ---------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `VITE_SITE_URL`     | build time | Canonical origin for canonical URLs, OG, JSON-LD, sitemap, robots. Defaults to `https://bajorburgerandbeer.hu`. Coolify: build variable |
+| `PORT`              | runtime    | Node server port (default 3000)                                                                                                         |
+| `NOINDEX`           | runtime    | `1`/`true`/`yes` → `<meta name="robots" content="noindex">` on every page and `Disallow: /` in robots.txt. For staging                  |
+| `SUPABASE_URL`      | runtime    | Supabase API URL. Server-only (read via `process.env`)                                                                                  |
+| `SUPABASE_ANON_KEY` | runtime    | Supabase anon key. Server-only                                                                                                          |
+| `SUPABASE_DB_URL`   | local only | Postgres URL (SSH tunnel) for `bun run db:push`. Never in Coolify or git                                                                |
 
 `VITE_*` values are public (inlined into the client bundle). Secrets never go in `VITE_*` or
 in git; `.env` is gitignored, `.env.example` is the template. NOINDEX is read on the server
 (`src/lib/indexing.ts`) and passed to the client through the root route's loader
-(`staleTime: Infinity`), so the meta tag survives client-side navigation.
+(5 min `staleTime`, together with the site info), so the meta tag survives client-side
+navigation. In dev, `vite.config.ts` fills `SUPABASE_*`/`NOINDEX` from `.env` (production
+reads the real environment).
 
 ## Deployment (Coolify on the user's VPS)
 
@@ -93,13 +105,16 @@ in git; `.env` is gitignored, `.env.example` is the template. NOINDEX is read on
   `HEALTHCHECK` on `/api/health` via `wget`. Image ≈ 240 MB. `.dockerignore` excludes
   `node_modules`, `.output`, `.env*`.
 - Coolify: Dockerfile build pack, port 3000, `VITE_SITE_URL` as build variable, `NOINDEX=true`
-  on staging. Git push auto-deploys.
+  on staging, `SUPABASE_URL` + `SUPABASE_ANON_KEY` as runtime variables. Git push
+  auto-deploys. The rate limiter trusts `X-Real-IP` / the last `X-Forwarded-For` entry as set
+  by Coolify's Traefik.
 - The Phase 2 image was verified locally: all pages 200, unknown routes 404, AVIF served,
   container reports `healthy`, `PORT` and `NOINDEX` respected.
 
 ## Structure
 
-- `src/routes` — `index` (Főoldal), `menu`, `galeria`, `foglalas`, `rolunk`, server routes
+- `src/routes` — `index` (Főoldal), `menu`, `galeria`, `foglalas`, `rolunk`, `adatkezeles`
+  (privacy notice, placeholder), server routes
   `api/health`, `sitemap[.]xml`, `robots[.]txt`. `__root.tsx` holds the HTML shell, root head
   (fonts, icons, OG defaults, JSON-LD, NOINDEX), Header/Footer, 404 and error components.
   Routes stay thin: layout + `head`; logic lives in features.
@@ -109,12 +124,23 @@ in git; `.env` is gitignored, `.env.example` is the template. NOINDEX is read on
   `src/components/layout` — Header, Footer.
 - `src/features/menu` — MenuItemCard, BeerCard, FeaturedBurgerCard.
   `src/features/booking` — BookingForm (two steps + confirmation; currently client-only).
-  `src/features/gallery` — GalleryGrid (filters + lightbox), PhotoCarousel (Embla).
+  `src/features/gallery` — GalleryGrid (filters + lightbox), PhotoCarousel (Embla). Each
+  feature's `api.ts` holds its server functions (`getMenuContent`, `getHomeContent`,
+  `getGalleryContent`, `getAvailability`, `createReservation`); `booking/schema.ts` is the
+  shared zod schema + error codes.
+- `src/server` — server-only (import protection blocks it from the client): `supabase`
+  client, `content` queries (30 s in-memory cache, stale value on error), `mappers` (rows →
+  types), `booking` (availability, submit, honeypot, 5/IP/hour rate limit), `notifications`
+  (`onReservationCreated` hook, empty), `request` (client IP).
 - `src/lib` — `utils` (`cn`), `format` (`formatNumber`, `formatFt`, `formatHours`), `cta`
   (`ctaClass`, variants), `site` (`SITE_URL`, `SITE_NAME`, `DEFAULT_OG_IMAGE`, `absoluteUrl`),
-  `seo`, `structured-data`, `indexing`, `error-page`.
-- `src/data` — content + TypeScript types (`menu`, `beers`, `drinks`, `gallery`, `info`) and
-  `images.ts`. Phase 3 replaces the content with Supabase **keeping these types**.
+  `seo`, `structured-data`, `indexing`, `error-page`, `site-info` (`getSiteInfoFn`, root loader
+  data via `useSiteInfo()`), `date` (Budapest today, Hungarian date format).
+- `src/data` — the content **types** (`menu`, `beers`, `drinks`, `gallery`, `info`) and
+  `images.ts` (+ `resolveImage()`: DB image value = bundled image key or absolute URL). The
+  content itself lives in Supabase.
+- `supabase/` — numbered migrations, `seed.sql`, pgTAP tests, local CLI config; runbook in
+  `supabase/README.md` (roles, booking rules, applying to the real instance, GDPR cleanup).
   `OpeningHour` is structured (`label`, `days: Weekday[]`, `opens`, `closes`; null = closed;
   `closes < opens` = after midnight) because it drives both the UI and the JSON-LD.
 - `src/assets` — source images. `public/` — favicons (`favicon.svg/.ico`, `apple-touch-icon`,
@@ -147,7 +173,8 @@ in git; `.env` is gitignored, `.env.example` is the template. NOINDEX is read on
   email, opening hours, `hasMenu`, `acceptsReservations` → /foglalas). Data comes from
   `src/data/info.ts` so UI and JSON-LD never disagree — keep it that way when moving to
   Supabase.
-- New public pages must be added to the list in `src/routes/sitemap[.]xml.ts`. `/admin`
+- `/adatkezeles` is in the sitemap. New public pages must be added to the list in
+  `src/routes/sitemap[.]xml.ts`. `/admin`
   (Phase 4) must stay out of the sitemap and be noindexed.
 - Lighthouse (mobile, production build, end of Phase 2): performance 93–98, accessibility /
   best practices / SEO 100 on all five pages. Don't regress it.
@@ -222,7 +249,8 @@ parallax. All motion respects `prefers-reduced-motion` (CSS block at the end of
 ## Roadmap
 
 Phases 1–2 are done (design fixes; SSR on Node, Docker, cleanup, structure, images, SEO,
-NOINDEX). Next phases, as specified by the user:
+NOINDEX). Phase 3 (Supabase) is implemented; see docs/PLAN.md for status and the agreed
+booking/GDPR decisions. Phase specs as given by the user:
 
 ### Phase 3 — Supabase backend
 
