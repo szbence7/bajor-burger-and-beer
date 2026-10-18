@@ -9,19 +9,16 @@ import { Doodle } from "@/components/Doodle";
 import { Marquee } from "@/components/Marquee";
 import { HoursCard, MapPlaceholder } from "@/components/HoursAndMap";
 import { SectionHeader } from "@/components/SectionHeader";
+import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/rolunk")({
-  head: () => ({
-    meta: [
-      { title: "Rólunk & Kapcsolat — Bajor Burger & Beer" },
-      {
-        name: "description",
-        content: "A Bajor Burger & Beer története, értékei és elérhetőségei.",
-      },
-      { property: "og:title", content: "Rólunk & Kapcsolat — Bajor Burger & Beer" },
-      { property: "og:description", content: "Bajor szív, pesti lélek. Itt találsz minket." },
-    ],
-  }),
+  head: () =>
+    seo({
+      path: "/rolunk",
+      title: "Rólunk & Kapcsolat — Bajor Burger & Beer",
+      description:
+        "A Bajor Burger & Beer története, értékeink, nyitvatartásunk és elérhetőségeink. Itt találsz minket Budapesten.",
+    }),
   component: AboutPage,
 });
 

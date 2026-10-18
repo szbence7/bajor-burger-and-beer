@@ -12,19 +12,16 @@ import { Tag } from "@/components/Tag";
 import { Price } from "@/components/Price";
 import { Doodle } from "@/components/Doodle";
 import { cn } from "@/lib/utils";
+import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/menu")({
-  head: () => ({
-    meta: [
-      { title: "Menü — Bajor Burger & Beer" },
-      {
-        name: "description",
-        content: "Burgerek, köretek, csapolt és palackos sörök, egyéb italok árakkal.",
-      },
-      { property: "og:title", content: "Menü — Bajor Burger & Beer" },
-      { property: "og:description", content: "Smash burgerek, bajor perec és nyolc sör a csapon." },
-    ],
-  }),
+  head: () =>
+    seo({
+      path: "/menu",
+      title: "Menü — Burgerek, köretek és sörök | Bajor Burger & Beer",
+      description:
+        "Smash burgerek, óriás bajor perec, köretek, négy házi főzésű csapolt sör és válogatott kézműves sörök: a teljes étlap és itallap árakkal.",
+    }),
   component: MenuPage,
 });
 

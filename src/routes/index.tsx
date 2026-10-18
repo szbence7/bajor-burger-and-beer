@@ -17,20 +17,16 @@ import { FeaturedBurgerCard } from "@/features/menu/FeaturedBurgerCard";
 import { PhotoCarousel } from "@/features/gallery/PhotoCarousel";
 import { RautenDivider } from "@/components/RautenPattern";
 import { cn } from "@/lib/utils";
+import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/")({
-  head: () => ({
-    meta: [
-      { title: "Bajor Burger & Beer — Csapolt sör, szaftos burger | Budapest" },
-      {
-        name: "description",
-        content:
-          "Kézműves csapolt sörök és smash burgerek Budapest szívében. Foglalj asztalt a Bajor Burger & Beer-be!",
-      },
-      { property: "og:title", content: "Bajor Burger & Beer — Budapest" },
-      { property: "og:description", content: "Csapolt sör. Szaftos burger. Jó társaság." },
-    ],
-  }),
+  head: () =>
+    seo({
+      path: "/",
+      title: "Bajor Burger & Beer — Csapolt sör, szaftos burger | Budapest",
+      description:
+        "Smash burgerek, saját főzésű bajor sörök és hosszú asztalok Budapest szívében. Nézd meg a menüt, és foglalj asztalt online a Bajor Burger & Beer-be!",
+    }),
   component: Index,
 });
 

@@ -14,6 +14,7 @@ import { Route as FoglalasRouteImport } from './routes/foglalas'
 import { Route as GaleriaRouteImport } from './routes/galeria'
 import { Route as MenuRouteImport } from './routes/menu'
 import { Route as RolunkRouteImport } from './routes/rolunk'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as ApiHealthRouteImport } from './routes/api/health'
 
 const IndexRoute = IndexRouteImport.update({
@@ -41,6 +42,11 @@ const RolunkRoute = RolunkRouteImport.update({
   path: '/rolunk',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiHealthRoute = ApiHealthRouteImport.update({
   id: '/api/health',
   path: '/api/health',
@@ -53,6 +59,7 @@ export interface FileRoutesByFullPath {
   '/galeria': typeof GaleriaRoute
   '/menu': typeof MenuRoute
   '/rolunk': typeof RolunkRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/api/health': typeof ApiHealthRoute
 }
 export interface FileRoutesByTo {
@@ -61,6 +68,7 @@ export interface FileRoutesByTo {
   '/galeria': typeof GaleriaRoute
   '/menu': typeof MenuRoute
   '/rolunk': typeof RolunkRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/api/health': typeof ApiHealthRoute
 }
 export interface FileRoutesById {
@@ -70,14 +78,28 @@ export interface FileRoutesById {
   '/galeria': typeof GaleriaRoute
   '/menu': typeof MenuRoute
   '/rolunk': typeof RolunkRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/api/health': typeof ApiHealthRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/foglalas' | '/galeria' | '/menu' | '/rolunk' | '/api/health'
+    | '/'
+    | '/foglalas'
+    | '/galeria'
+    | '/menu'
+    | '/rolunk'
+    | '/sitemap.xml'
+    | '/api/health'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/foglalas' | '/galeria' | '/menu' | '/rolunk' | '/api/health'
+  to:
+    | '/'
+    | '/foglalas'
+    | '/galeria'
+    | '/menu'
+    | '/rolunk'
+    | '/sitemap.xml'
+    | '/api/health'
   id:
     | '__root__'
     | '/'
@@ -85,6 +107,7 @@ export interface FileRouteTypes {
     | '/galeria'
     | '/menu'
     | '/rolunk'
+    | '/sitemap.xml'
     | '/api/health'
   fileRoutesById: FileRoutesById
 }
@@ -94,6 +117,7 @@ export interface RootRouteChildren {
   GaleriaRoute: typeof GaleriaRoute
   MenuRoute: typeof MenuRoute
   RolunkRoute: typeof RolunkRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   ApiHealthRoute: typeof ApiHealthRoute
 }
 
@@ -134,6 +158,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RolunkRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/health': {
       id: '/api/health'
       path: '/api/health'
@@ -150,6 +181,7 @@ const rootRouteChildren: RootRouteChildren = {
   GaleriaRoute: GaleriaRoute,
   MenuRoute: MenuRoute,
   RolunkRoute: RolunkRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   ApiHealthRoute: ApiHealthRoute,
 }
 export const routeTree = rootRouteImport

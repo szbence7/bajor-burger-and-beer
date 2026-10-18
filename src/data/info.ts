@@ -1,18 +1,38 @@
+export type Weekday =
+  "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday";
+
 export interface OpeningHour {
-  day: string;
-  hours: string;
+  /** Display label, e.g. "Kedd – Csütörtök". */
+  label: string;
+  days: Weekday[];
+  /** "HH:MM"; both null when closed. A `closes` earlier than `opens` means after midnight. */
+  opens: string | null;
+  closes: string | null;
 }
 
 export const openingHours: OpeningHour[] = [
-  { day: "Hétfő", hours: "Zárva" },
-  { day: "Kedd – Csütörtök", hours: "12:00 – 23:00" },
-  { day: "Péntek", hours: "12:00 – 01:00" },
-  { day: "Szombat", hours: "12:00 – 01:00" },
-  { day: "Vasárnap", hours: "12:00 – 22:00" },
+  { label: "Hétfő", days: ["Monday"], opens: null, closes: null },
+  {
+    label: "Kedd – Csütörtök",
+    days: ["Tuesday", "Wednesday", "Thursday"],
+    opens: "12:00",
+    closes: "23:00",
+  },
+  { label: "Péntek", days: ["Friday"], opens: "12:00", closes: "01:00" },
+  { label: "Szombat", days: ["Saturday"], opens: "12:00", closes: "01:00" },
+  { label: "Vasárnap", days: ["Sunday"], opens: "12:00", closes: "22:00" },
 ];
 
+const address = {
+  street: "Kazinczy utca 12.",
+  postalCode: "1075",
+  city: "Budapest",
+  country: "HU",
+};
+
 export const contact = {
-  address: "1075 Budapest, Kazinczy utca 12.",
+  address: `${address.postalCode} ${address.city}, ${address.street}`,
+  addressParts: address,
   phone: "+36 1 234 5678",
   email: "hello@bajorburger.hu",
   socials: [

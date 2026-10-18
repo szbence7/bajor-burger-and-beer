@@ -11,6 +11,8 @@ import {
 import type { ReactNode } from "react";
 
 import appCss from "../styles.css?url";
+import { SITE_NAME } from "@/lib/site";
+import { restaurantJsonLd, toJsonLdScript } from "@/lib/structured-data";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { Doodle } from "@/components/Doodle";
@@ -70,9 +72,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Bajor Burger & Beer — Budapest" },
-      { name: "description", content: "Csapolt kézműves sör és szaftos burgerek Budapesten." },
+      { name: "theme-color", content: "#121110" },
+      // Defaults; each route's seo() overrides title, description and URLs.
+      { title: SITE_NAME },
       { property: "og:type", content: "website" },
+      { property: "og:site_name", content: SITE_NAME },
+      { property: "og:locale", content: "hu_HU" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [
@@ -83,8 +88,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         href: "https://fonts.googleapis.com/css2?family=Anton&family=Manrope:wght@400;500;700;800&display=swap",
       },
       { rel: "stylesheet", href: appCss },
-      { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
+      { rel: "icon", href: "/favicon.ico", sizes: "48x48" },
+      { rel: "icon", href: "/favicon.svg", type: "image/svg+xml" },
+      { rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
+      { rel: "manifest", href: "/site.webmanifest" },
     ],
+    scripts: [{ type: "application/ld+json", children: toJsonLdScript(restaurantJsonLd()) }],
   }),
   shellComponent: RootShell,
   component: RootComponent,

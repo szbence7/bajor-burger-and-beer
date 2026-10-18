@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { contact, openingHours } from "@/data/info";
+import { formatHours } from "@/lib/format";
 import { RautenPattern } from "@/components/RautenPattern";
 
 export function Footer() {
@@ -19,9 +20,9 @@ export function Footer() {
           </h4>
           <ul className="space-y-1 text-sm">
             {openingHours.map((h) => (
-              <li key={h.day} className="flex justify-between gap-4">
-                <span className="text-muted-foreground">{h.day}</span>
-                <span>{h.hours}</span>
+              <li key={h.label} className="flex justify-between gap-4">
+                <span className="text-muted-foreground">{h.label}</span>
+                <span>{formatHours(h)}</span>
               </li>
             ))}
           </ul>

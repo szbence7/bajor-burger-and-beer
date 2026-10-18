@@ -3,16 +3,16 @@ import { PageHero } from "@/components/PageHero";
 import { HoursCard } from "@/components/HoursAndMap";
 import { Doodle } from "@/components/Doodle";
 import { BookingForm } from "@/features/booking/BookingForm";
+import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/foglalas")({
-  head: () => ({
-    meta: [
-      { title: "Asztalfoglalás — Bajor Burger & Beer" },
-      { name: "description", content: "Foglalj asztalt online a Bajor Burger & Beer-be." },
-      { property: "og:title", content: "Asztalfoglalás — Bajor Burger & Beer" },
-      { property: "og:description", content: "Válassz napot, időpontot és létszámot." },
-    ],
-  }),
+  head: () =>
+    seo({
+      path: "/foglalas",
+      title: "Asztalfoglalás — Bajor Burger & Beer",
+      description:
+        "Foglalj asztalt online pár kattintással: válassz napot, időpontot és létszámot, mi pedig visszaigazoljuk a foglalásodat.",
+    }),
   component: BookingPage,
 });
 

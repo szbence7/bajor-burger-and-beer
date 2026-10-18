@@ -1,5 +1,6 @@
 import { MapPin, Phone, Mail } from "lucide-react";
 import { contact, openingHours } from "@/data/info";
+import { formatHours } from "@/lib/format";
 import { RautenPattern } from "./RautenPattern";
 
 export function MapPlaceholder() {
@@ -25,9 +26,9 @@ export function HoursCard() {
       <h3 className="mb-6 font-display text-4xl text-primary">Nyitvatartás</h3>
       <ul className="divide-y divide-border">
         {openingHours.map((h) => (
-          <li key={h.day} className="flex justify-between py-3">
-            <span className="text-muted-foreground">{h.day}</span>
-            <span className="font-bold">{h.hours}</span>
+          <li key={h.label} className="flex justify-between py-3">
+            <span className="text-muted-foreground">{h.label}</span>
+            <span className="font-bold">{formatHours(h)}</span>
           </li>
         ))}
       </ul>
