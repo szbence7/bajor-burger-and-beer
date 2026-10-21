@@ -3,6 +3,7 @@ import { Menu as MenuIcon, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { ctaClass } from "@/lib/cta";
+import { BrandLogo } from "@/components/BrandLogo";
 
 const nav = [
   { to: "/", label: "Főoldal" },
@@ -33,10 +34,12 @@ export function Header() {
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-5">
         <Link
           to="/"
-          className="font-display text-2xl leading-none text-primary md:text-3xl"
+          aria-label="Bajor Burger & Beer – Főoldal"
+          className="flex items-center gap-3"
           onClick={() => setOpen(false)}
         >
-          Bajor <span className="text-foreground">Burger</span> &amp; Beer
+          <BrandLogo alt="" className="h-12 md:h-14" />
+          <span className="font-display text-3xl leading-none text-primary md:text-4xl">Bajor</span>
         </Link>
         <nav className="hidden items-center gap-8 lg:flex">
           {nav.map((n) => (

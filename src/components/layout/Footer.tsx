@@ -3,6 +3,7 @@ import { useSiteInfo } from "@/lib/site-info";
 import { formatHours } from "@/lib/format";
 import { ctaClass } from "@/lib/cta";
 import { RautenPattern } from "@/components/RautenPattern";
+import { BrandLogo } from "@/components/BrandLogo";
 
 export function Footer() {
   const { contact, openingHours } = useSiteInfo();
@@ -12,8 +13,8 @@ export function Footer() {
       <RautenPattern />
       <div className="relative mx-auto grid max-w-7xl gap-12 px-5 sm:grid-cols-2 lg:grid-cols-4">
         <div>
-          <p className="font-display text-3xl text-primary">Bajor Burger &amp; Beer</p>
-          <p className="mt-4 text-muted-foreground">
+          <BrandLogo className="h-32" />
+          <p className="mt-6 text-muted-foreground">
             Csapolt sör, szaftos burger és jó társaság Budapest szívében.
           </p>
         </div>

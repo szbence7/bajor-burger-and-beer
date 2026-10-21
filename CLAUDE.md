@@ -43,7 +43,7 @@ applies: never rewrite pushed history.
 - Menu, beers, prices and gallery in the seed are the old mock content (some photos reused).
 - `/adatkezeles` privacy notice is placeholder text; the user will supply the final version.
 - `src/assets/*`: AI-generated stand-in photos; `public/og-image.jpg` is rendered from the
-  hero burger. Regenerate the OG image once real photos exist.
+  hero burger and the logo. Regenerate the OG image once real photos exist.
 - `MapPlaceholder` ("Térkép helye") stands in for a real map embed.
 - JSON-LD `priceRange: "$$"` and `servesCuisine` in `src/lib/structured-data.ts`.
 
@@ -119,7 +119,7 @@ reads the real environment).
   (fonts, icons, OG defaults, JSON-LD, NOINDEX), Header/Footer, 404 and error components.
   Routes stay thin: layout + `head`; logic lives in features.
 - `src/components` — shared brand primitives: CtaButton (`CtaLink`), Doodle, Marquee, Reveal,
-  RotatingBadge, PageHero, SectionHeader, Tag, Price, Picture, RautenPattern
+  RotatingBadge, PageHero, SectionHeader, Tag, Price, Picture, BrandLogo, RautenPattern
   (+ `RautenDivider`), HoursAndMap (`HoursCard`, `MapPlaceholder`).
   `src/components/layout` — Header, Footer.
 - `src/features/menu` — MenuItemCard, BeerCard, FeaturedBurgerCard.
@@ -143,7 +143,7 @@ reads the real environment).
   `supabase/README.md` (roles, booking rules, applying to the real instance, GDPR cleanup).
   `OpeningHour` is structured (`label`, `days: Weekday[]`, `opens`, `closes`; null = closed;
   `closes < opens` = after midnight) because it drives both the UI and the JSON-LD.
-- `src/assets` — source images. `public/` — favicons (`favicon.svg/.ico`, `apple-touch-icon`,
+- `src/assets` — source images. `public/` — `logo.svg`, favicons (`favicon.svg/.ico`, `apple-touch-icon`,
   `icon-192/512`), `site.webmanifest`, `og-image.jpg` (1200×630).
 - `src/env.d.ts` types `import.meta.env`; `src/imagetools.d.ts` types imagetools imports.
 
@@ -188,16 +188,16 @@ template.
 Colours are Tailwind theme tokens only — **no hardcoded hex in components** (the
 self-contained `error-page.ts` and generated brand assets are the only exceptions):
 
-| Token                  | Hex     | Tailwind                     |
-| ---------------------- | ------- | ---------------------------- |
-| background             | #121110 | `bg-background`              |
-| surface                | #1C1A18 | `bg-card`                    |
-| border                 | #2E2A26 | `border-border`              |
-| primary (cheddar gold) | #F2A900 | `bg-primary`, `text-primary` |
-| primary tint           | #FFC94A | `primary-glow`               |
-| accent (ember red)     | #D9381E | `bg-ember`                   |
-| text                   | #F5EFE6 | `text-foreground`            |
-| muted                  | #A89F94 | `text-muted-foreground`      |
+| Token               | Hex     | Tailwind                     |
+| ------------------- | ------- | ---------------------------- |
+| background          | #121110 | `bg-background`              |
+| surface             | #1C1A18 | `bg-card`                    |
+| border              | #2E2A26 | `border-border`              |
+| primary (logo gold) | #D2AC66 | `bg-primary`, `text-primary` |
+| primary tint        | #E6C88A | `primary-glow`               |
+| accent (ember red)  | #D9381E | `bg-ember`                   |
+| text                | #F5EFE6 | `text-foreground`            |
+| muted               | #A89F94 | `text-muted-foreground`      |
 
 - Ember is **only for main CTAs and badges**. Text on ember is pure white
   (`ember-foreground`, 4.6:1 AA); never use ember as a text colour on dark (3.6:1, fails).
@@ -225,6 +225,11 @@ Signature elements:
   On gold/ember sections they use the section's foreground colour at ~20%.
 - One or two full-width gold sections per page.
 - Giant "BAJOR" wordmark in the footer.
+- **The logo is fixed** (B² + vertical "BURGER & BEER", gold #D2AC66 + cream #E2CCA8 on black):
+  never recolour, crop or redraw it. `public/logo.svg` is a trace of
+  `docs/brand/logo-original.png`; render it with `<BrandLogo>` (header: logo + "Bajor"
+  wordmark; footer: large logo). The favicons and app icons use the gold B² mark only (the
+  vertical text is illegible at icon sizes). The primary token is the logo's gold.
 - Bavarian diamond (Rautenmuster) — `RautenPattern`: crisp 45° diamonds as an SVG mask in
   currentColor, 4–5% opacity. **Only** in the footer, on the map card, and as
   `RautenDivider` (16 px strip at 12% — user approved). Never in the hero or other sections.

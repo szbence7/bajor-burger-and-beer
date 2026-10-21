@@ -153,15 +153,24 @@ Agreed with the user during Phases 1–2. These override the original prompt whe
 17. **Spam protection**: honeypot field on the booking form and a rate limit of 5 booking
     attempts per IP per hour on the booking server function.
 
+### Brand update (2026-10-21, between Phases 3 and 4)
+
+18. **Official logo** supplied by the user; it is fixed and must not be changed. Traced to
+    `public/logo.svg` (source: `docs/brand/logo-original.png`), shown in the header (logo +
+    "Bajor") and the footer; favicons, app icons and the OG image regenerated from it.
+19. **Primary gold = the logo's gold**: #F2A900 / #FFC94A → #D2AC66 / #E6C88A (8.8:1 on the
+    background). Everything that used `primary` follows automatically.
+
 ## Status
 
-_Last updated: end of Phase 3 implementation (2026-10-18)._
+_Last updated: brand update (logo + logo gold), 2026-10-21._
 
 | Phase | State |
 | --- | --- |
 | 1 — Design fixes | ✅ Done and approved |
 | 2 — TanStack Start SSR, Docker, cleanup, SEO, images | ✅ Done and approved |
 | 3 — Supabase backend | 🔍 Implemented and tested locally; awaiting review, **not yet applied to the real instance** |
+| Brand update — logo, logo gold | 🔍 Done; awaiting review. Wider design proposals (ember, restaurant photos, calmer tone) not started |
 | 4 — Admin panel | ⏳ Not started |
 
 Branch `claude/redesign-fixes`, pushed to `origin`.
