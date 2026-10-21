@@ -53,7 +53,7 @@ export function Header() {
               {n.label}
             </Link>
           ))}
-          <Link to="/foglalas" className={ctaClass("ember", "px-5 py-3")}>
+          <Link to="/foglalas" className={ctaClass("gold", "px-5 py-3")}>
             Asztalfoglalás
           </Link>
         </nav>
@@ -77,7 +77,7 @@ export function Header() {
               {n.label}
             </Link>
           ))}
-          <Link to="/foglalas" onClick={() => setOpen(false)} className={ctaClass("ember", "mt-4")}>
+          <Link to="/foglalas" onClick={() => setOpen(false)} className={ctaClass("gold", "mt-4")}>
             Asztalfoglalás
           </Link>
         </nav>

@@ -6,7 +6,6 @@ import { Picture } from "@/components/Picture";
 import { Marquee } from "@/components/Marquee";
 import { Doodle } from "@/components/Doodle";
 import { Reveal } from "@/components/Reveal";
-import { RotatingBadge } from "@/components/RotatingBadge";
 import { SectionHeader } from "@/components/SectionHeader";
 import { BeerCard } from "@/features/menu/BeerCard";
 import { CtaLink } from "@/components/CtaButton";
@@ -86,12 +85,7 @@ function Index() {
       {/* HERO — no pattern: dark base, golden glow behind the burger, global grain */}
       <section className="relative flex min-h-[100svh] items-center overflow-hidden px-5 pb-16 pt-24 md:pb-20 md:pt-28">
         <Doodle kind="mug" className="left-[3%] top-24 h-32 w-32 -rotate-12 md:h-44 md:w-44" />
-        <Doodle kind="pretzel" className="bottom-16 left-[6%] h-28 w-28 md:h-40 md:w-40" />
         <Doodle kind="hop" className="right-[4%] top-[60%] hidden h-36 w-36 rotate-12 md:block" />
-        <Doodle
-          kind="fries"
-          className="bottom-10 right-[28%] h-28 w-28 -rotate-6 md:h-36 md:w-36"
-        />
 
         <div className="relative mx-auto w-full max-w-7xl">
           {/* Mobile: burger sits above the stacked headline and only kisses the first line. */}
@@ -100,7 +94,7 @@ function Index() {
           {/* md+: the burger lives in a slot right after line one, sized in em of the
               headline so it tracks the text at every width. The h1 reserves room above
               itself, so the burger never reaches the fixed header. */}
-          <h1 className="relative font-display text-[19vw] leading-[1.1] md:pt-[1.05em] md:leading-[0.94] md:text-[12vw] xl:text-[10.5rem]">
+          <h1 className="relative font-impact text-[19vw] leading-[1.1] md:pt-[1.05em] md:leading-[0.94] md:text-[12vw] xl:text-[10.5rem]">
             <span className="flex items-end">
               <span className="md:whitespace-nowrap">Csapolt sör.</span>
               <span
@@ -109,7 +103,6 @@ function Index() {
                 className="relative hidden flex-1 self-stretch md:block"
               >
                 <HeroBurger className="absolute -bottom-[0.3em] left-[0.08em] z-10 w-[2.6em] xl:w-[2.2em]" />
-                <RotatingBadge className="absolute -top-[1em] left-[1.85em] z-20 hidden h-[0.75em] w-[0.75em] lg:grid xl:left-[1.45em]" />
               </span>
             </span>
             <span className="block text-primary">Szaftos burger.</span>
@@ -128,7 +121,6 @@ function Index() {
       {/* FEATURED BURGERS */}
       <section className="relative mx-auto max-w-7xl px-5 py-28">
         <Doodle kind="burger" className="-left-4 top-6 h-40 w-40 md:h-56 md:w-56" />
-        <Doodle kind="fries" className="bottom-6 right-0 h-36 w-36 rotate-6 md:h-48 md:w-48" />
         <Reveal>
           <SectionHeader
             eyebrow="A konyhából"
@@ -156,10 +148,6 @@ function Index() {
           kind="foam"
           className="right-[6%] top-12 h-32 w-32 text-primary-foreground opacity-20 md:h-44 md:w-44"
         />
-        <Doodle
-          kind="hop"
-          className="bottom-10 left-[4%] h-28 w-28 text-primary-foreground opacity-20 md:h-40 md:w-40"
-        />
         <div className="relative mx-auto max-w-7xl">
           <Reveal>
             <SectionHeader tone="gold" eyebrow="Saját főzésű" title="A ház sörei">
@@ -179,19 +167,18 @@ function Index() {
       {/* ABOUT */}
       <section className="relative mx-auto grid max-w-7xl items-center gap-16 px-5 py-32 md:grid-cols-2">
         <Doodle kind="pretzel" className="right-2 top-8 h-36 w-36 md:h-48 md:w-48" />
-        <Doodle kind="mug" className="bottom-4 left-[42%] h-36 w-36 md:h-44 md:w-44" />
         <Reveal className="relative h-[24rem] sm:h-[28rem] md:h-[34rem]">
           <Picture
             image={images.placeInterior}
             alt="Az étterem belső tere"
             sizes="(min-width: 1280px) 480px, (min-width: 768px) 38vw, 78vw"
-            className="absolute left-0 top-0 h-[70%] w-[78%] -rotate-3 rounded-3xl object-cover shadow-2xl"
+            className="absolute left-0 top-0 h-[70%] w-[78%] rounded-3xl object-cover shadow-2xl"
           />
           <Picture
             image={images.placeTap}
             alt="Csapolás"
             sizes="(min-width: 1280px) 320px, (min-width: 768px) 26vw, 52vw"
-            className="absolute bottom-0 right-0 h-[62%] w-[52%] rotate-3 rounded-3xl border-4 border-background object-cover shadow-2xl"
+            className="absolute bottom-0 right-0 h-[62%] w-[52%] rounded-3xl border-4 border-background object-cover shadow-2xl"
           />
         </Reveal>
         <Reveal delay={150}>
@@ -213,8 +200,6 @@ function Index() {
           </CtaLink>
         </Reveal>
       </section>
-
-      <Marquee words={["Prost", "Egészségedre", "Hétvégén élőzene"]} tilt="right" variant="dark" />
 
       {/* PLACE CAROUSEL */}
       <section className="relative py-28">
@@ -245,21 +230,17 @@ function Index() {
       </section>
 
       {/* BOOKING CTA */}
-      <section className="relative overflow-hidden bg-ember px-5 py-24 text-ember-foreground">
-        <Doodle
-          kind="burger"
-          className="left-[5%] top-10 h-32 w-32 text-ember-foreground opacity-20 md:h-40 md:w-40"
-        />
+      <section className="relative overflow-hidden bg-forest px-5 py-24 text-forest-foreground">
         <Doodle
           kind="mug"
-          className="bottom-8 right-[6%] h-32 w-32 text-ember-foreground opacity-20 md:h-40 md:w-40"
+          className="bottom-8 right-[6%] h-32 w-32 text-forest-foreground opacity-20 md:h-40 md:w-40"
         />
         <div className="relative mx-auto max-w-7xl text-center">
           <h2 className="font-display text-[16vw] md:text-[10rem]">Foglalj asztalt!</h2>
           <p className="mx-auto mt-4 max-w-lg text-lg">
             Péntek este telt ház szokott lenni. Ne maradj le a hosszú asztalról.
           </p>
-          <CtaLink to="/foglalas" variant="dark" className="mt-10">
+          <CtaLink to="/foglalas" className="mt-10">
             Asztalfoglalás <ArrowRight className="h-4 w-4" />
           </CtaLink>
         </div>

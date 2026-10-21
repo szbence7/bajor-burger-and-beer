@@ -282,7 +282,7 @@ export function BookingForm() {
               </p>
               <a
                 href={`tel:${contact.phone.replace(/\s/g, "")}`}
-                className={ctaClass("ember", "mt-4")}
+                className={ctaClass("gold", "mt-4")}
               >
                 <Phone className="h-4 w-4" /> {contact.phone}
               </a>
@@ -298,7 +298,7 @@ export function BookingForm() {
               type="button"
               disabled={!canContinue}
               onClick={() => setStep(2)}
-              className={ctaClass("ember", "w-full disabled:opacity-40 sm:w-auto")}
+              className={ctaClass("gold", "w-full disabled:opacity-40 sm:w-auto")}
             >
               Tovább
             </button>
@@ -441,7 +441,7 @@ export function BookingForm() {
             <button
               type="submit"
               disabled={submit.isPending}
-              className={ctaClass("ember", "disabled:opacity-40")}
+              className={ctaClass("gold", "disabled:opacity-40")}
             >
               {submit.isPending ? "Küldés…" : "Foglalás elküldése"}
             </button>

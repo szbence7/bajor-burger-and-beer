@@ -11,7 +11,7 @@ export function MapPlaceholder() {
       <RautenPattern className="opacity-[0.05]" />
       <div className="absolute inset-0 grid place-items-center text-center">
         <div>
-          <span className="mx-auto mb-4 grid h-16 w-16 place-items-center rounded-full bg-ember text-ember-foreground shadow-ember">
+          <span className="mx-auto mb-4 grid h-16 w-16 place-items-center rounded-full bg-primary text-primary-foreground shadow-gold">
             <MapPin className="h-8 w-8" />
           </span>
           <p className="font-display text-3xl">Térkép helye</p>

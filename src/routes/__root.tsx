@@ -13,6 +13,7 @@ import type { ReactNode } from "react";
 import appCss from "../styles.css?url";
 import antonLatin from "@fontsource/anton/files/anton-latin-400-normal.woff2?url";
 import manropeLatin from "@fontsource-variable/manrope/files/manrope-latin-wght-normal.woff2?url";
+import oswaldLatin from "@fontsource-variable/oswald/files/oswald-latin-wght-normal.woff2?url";
 import { SITE_NAME } from "@/lib/site";
 import { getIndexing } from "@/lib/indexing";
 import { getSiteInfoFn } from "@/lib/site-info";
@@ -26,14 +27,13 @@ function NotFoundComponent() {
   return (
     <section className="relative flex min-h-[80vh] items-center justify-center overflow-hidden px-5 pt-24">
       <Doodle kind="burger" className="left-[10%] top-32 h-32 w-32 -rotate-12" />
-      <Doodle kind="mug" className="bottom-16 right-[12%] h-28 w-28 rotate-12" />
       <div className="text-center">
-        <p className="font-display text-[40vw] leading-none text-primary md:text-[18rem]">404</p>
+        <p className="font-impact text-[40vw] leading-none text-primary md:text-[18rem]">404</p>
         <h1 className="font-display text-5xl md:text-7xl">Ez a burger elfogyott</h1>
         <p className="mx-auto mt-4 max-w-md text-muted-foreground">
           A keresett oldal nem létezik, vagy elköltözött. Gyere vissza a pulthoz!
         </p>
-        <Link to="/" className={ctaClass("ember", "mt-8")}>
+        <Link to="/" className={ctaClass("gold", "mt-8")}>
           Vissza a főoldalra
         </Link>
       </div>
@@ -58,7 +58,7 @@ function ErrorComponent({ error, reset }: ErrorComponentProps) {
               router.invalidate();
               reset();
             }}
-            className={ctaClass("ember")}
+            className={ctaClass("gold")}
           >
             Újra
           </button>
@@ -93,11 +93,18 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [
-      // Latin subsets are needed for first paint (Anton is the LCP headline); latin-ext
-      // (ő, ű) loads on demand through unicode-range.
+      // Latin subsets are needed for first paint (Anton is the home LCP headline, Oswald the
+      // other headlines); latin-ext (ő, ű) loads on demand through unicode-range.
       {
         rel: "preload",
         href: antonLatin,
+        as: "font",
+        type: "font/woff2",
+        crossOrigin: "anonymous",
+      },
+      {
+        rel: "preload",
+        href: oswaldLatin,
         as: "font",
         type: "font/woff2",
         crossOrigin: "anonymous",

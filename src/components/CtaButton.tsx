@@ -5,7 +5,7 @@ import { ctaClass, type CtaVariant } from "@/lib/cta";
 export function CtaLink({
   to,
   children,
-  variant = "ember",
+  variant = "gold",
   className,
 }: {
   to: "/" | "/menu" | "/galeria" | "/foglalas" | "/rolunk";

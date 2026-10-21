@@ -7,11 +7,11 @@ import { cn } from "@/lib/utils";
 
 const tones = [
   { card: "bg-primary text-primary-foreground", cta: "dark" },
-  { card: "bg-ember text-ember-foreground", cta: "dark" },
+  { card: "bg-forest text-forest-foreground", cta: "gold" },
   { card: "bg-card text-foreground border border-border", cta: "gold" },
 ] as const;
 
-/** Big colour-blocked homepage card; `index` cycles the gold / ember / dark tone. */
+/** Big colour-blocked homepage card; `index` cycles the gold / forest / dark tone. */
 export function FeaturedBurgerCard({ burger, index }: { burger: Burger; index: number }) {
   const tone = tones[index % tones.length] ?? tones[0];
   return (
@@ -34,7 +34,7 @@ export function FeaturedBurgerCard({ burger, index }: { burger: Burger; index: n
           image={burger.image}
           alt={burger.name}
           sizes="(min-width: 768px) 22rem, 82vw"
-          className="-mr-12 w-[82%] max-w-[22rem] drop-shadow-2xl transition-transform duration-500 group-hover:-rotate-6 group-hover:scale-105 motion-reduce:transition-none"
+          className="-mr-12 w-[82%] max-w-[22rem] drop-shadow-2xl transition-transform duration-500 group-hover:scale-105 motion-reduce:transition-none"
         />
       </div>
       <div className="relative z-10 mt-4 flex flex-wrap items-center justify-between gap-3">

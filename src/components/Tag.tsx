@@ -2,8 +2,8 @@ import { cn } from "@/lib/utils";
 import type { MenuBadge } from "@/data/menu";
 
 const styles: Record<string, string> = {
-  Új: "bg-ember text-ember-foreground",
-  Csípős: "bg-ember text-ember-foreground",
+  Új: "bg-forest text-forest-foreground",
+  Csípős: "bg-forest text-forest-foreground",
   Vega: "bg-foreground text-background",
   "A ház kedvence": "bg-primary text-primary-foreground",
   csapolt: "bg-primary text-primary-foreground",

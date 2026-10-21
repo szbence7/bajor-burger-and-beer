@@ -52,7 +52,7 @@ export function Footer() {
               </li>
             ))}
             <li className="pt-2">
-              <Link to="/foglalas" className={ctaClass("ember", "mt-2 px-5 py-3")}>
+              <Link to="/foglalas" className={ctaClass("gold", "mt-2 px-5 py-3")}>
                 Asztalfoglalás
               </Link>
             </li>
@@ -67,7 +67,7 @@ export function Footer() {
       </div>
       <div
         aria-hidden
-        className="relative -mb-[0.12em] mt-6 select-none text-center font-display text-[27vw] leading-[0.78] text-primary"
+        className="relative -mb-[0.12em] mt-6 select-none text-center font-impact text-[27vw] leading-[0.78] text-primary"
       >
         Bajor
       </div>

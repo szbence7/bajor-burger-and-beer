@@ -24,8 +24,8 @@ export function Marquee({
         variant === "gold"
           ? "bg-primary text-primary-foreground"
           : "border-y border-primary/40 bg-card text-primary",
-        tilt === "left" && "-rotate-3",
-        tilt === "right" && "rotate-2",
+        tilt === "left" && "-rotate-1",
+        tilt === "right" && "rotate-1",
         className,
       )}
     >
@@ -35,13 +35,13 @@ export function Marquee({
             {row.map(({ w, icon, key }) => (
               <span
                 key={key}
-                className="flex items-center gap-6 px-6 font-display text-3xl md:text-5xl"
+                className="flex items-center gap-6 px-6 font-display text-3xl md:text-4xl"
               >
                 {w}
                 {icon === "burger" ? (
-                  <Hamburger className="h-7 w-7 md:h-9 md:w-9" strokeWidth={2.5} />
+                  <Hamburger className="h-6 w-6 md:h-8 md:w-8" strokeWidth={2} />
                 ) : (
-                  <Beer className="h-7 w-7 md:h-9 md:w-9" strokeWidth={2.5} />
+                  <Beer className="h-6 w-6 md:h-8 md:w-8" strokeWidth={2} />
                 )}
               </span>
             ))}

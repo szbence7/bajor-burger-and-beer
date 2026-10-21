@@ -53,7 +53,7 @@ function AboutPage() {
             image={images.placePeople}
             alt="Vendégek koccintanak"
             sizes="(min-width: 1280px) 600px, (min-width: 768px) 48vw, 92vw"
-            className="w-full -rotate-2 rounded-3xl object-cover shadow-2xl"
+            className="w-full rounded-3xl object-cover shadow-2xl"
           />
         </Reveal>
         <Reveal delay={150} className="space-y-5 text-lg text-muted-foreground">
@@ -75,10 +75,6 @@ function AboutPage() {
         <Doodle
           kind="hop"
           className="right-[5%] top-10 h-32 w-32 rotate-12 text-primary-foreground opacity-20 md:h-44 md:w-44"
-        />
-        <Doodle
-          kind="pretzel"
-          className="bottom-8 left-[3%] h-28 w-28 text-primary-foreground opacity-20 md:h-40 md:w-40"
         />
         <div className="relative mx-auto max-w-7xl">
           <SectionHeader tone="gold" eyebrow="Amiben hiszünk" title="Értékeink" />

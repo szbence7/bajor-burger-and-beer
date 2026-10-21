@@ -12,7 +12,7 @@ export function MenuItemCard({ item }: { item: Burger }) {
           image={item.image}
           alt={item.name}
           sizes="13rem"
-          className="relative h-full w-full object-contain transition-transform duration-500 group-hover:-rotate-3 group-hover:scale-105"
+          className="relative h-full w-full object-contain transition-transform duration-500 group-hover:scale-105"
         />
       </div>
       <div className="mb-3 flex flex-wrap gap-2">
