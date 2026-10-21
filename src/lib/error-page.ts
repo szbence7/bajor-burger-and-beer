@@ -12,12 +12,12 @@ export function renderErrorPage(): string {
     <style>
       body { margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 1.5rem;
         background: #121110; color: #f5efe6; font: 16px/1.5 system-ui, -apple-system, sans-serif; text-align: center; }
-      h1 { font: 900 2.5rem/1 Impact, "Arial Narrow", sans-serif; text-transform: uppercase; color: #f2a900; margin: 0 0 1rem; }
+      h1 { font: 900 2.5rem/1 Impact, "Arial Narrow", sans-serif; text-transform: uppercase; color: #d2ac66; margin: 0 0 1rem; }
       p { color: #a89f94; margin: 0 0 1.5rem; }
-      a, button { display: inline-block; margin: 0.25rem; padding: 0.85rem 1.5rem; border-radius: 999px; border: 2px solid #f2a900;
+      a, button { display: inline-block; margin: 0.25rem; padding: 0.85rem 1.5rem; border-radius: 999px; border: 2px solid #d2ac66;
         font: 800 0.85rem/1 system-ui, sans-serif; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; text-decoration: none; }
-      button { background: #f2a900; color: #121110; }
-      a { background: transparent; color: #f2a900; }
+      button { background: #d2ac66; color: #121110; }
+      a { background: transparent; color: #d2ac66; }
     </style>
   </head>
   <body>
