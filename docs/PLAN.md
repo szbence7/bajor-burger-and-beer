@@ -160,17 +160,24 @@ Agreed with the user during Phases 1–2. These override the original prompt whe
     "Bajor") and the footer; favicons, app icons and the OG image regenerated from it.
 19. **Primary gold = the logo's gold**: #F2A900 / #FFC94A → #D2AC66 / #E6C88A (8.8:1 on the
     background). Everything that used `primary` follows automatically.
+20. **Calmer, more elegant direction** (user accepted the proposals after seeing the venue
+    photos; overrides the original "loud street-food" brief): ember red removed (gold CTAs,
+    deep forest green #2E4A2B from the banquettes as accent); rotating badge removed; one
+    marquee per page at 1° tilt; no rotated photos/cards; fewer doodles; headlines in Oswald
+    600, Anton only for the home hero, the footer wordmark and 404.
+21. **Real photos** come from the restaurant as original files (Facebook can't be scraped and
+    serves compressed copies). Until then the AI stand-ins stay.
 
 ## Status
 
-_Last updated: brand update (logo + logo gold), 2026-10-21._
+_Last updated: brand update (logo, logo gold, calmer design), 2026-10-21._
 
 | Phase | State |
 | --- | --- |
 | 1 — Design fixes | ✅ Done and approved |
 | 2 — TanStack Start SSR, Docker, cleanup, SEO, images | ✅ Done and approved |
 | 3 — Supabase backend | 🔍 Implemented and tested locally; awaiting review, **not yet applied to the real instance** |
-| Brand update — logo, logo gold | 🔍 Done; awaiting review. Wider design proposals (ember, restaurant photos, calmer tone) not started |
+| Brand update — logo, logo gold, calmer design | 🔍 Done; awaiting review. Real venue photos pending from the restaurant |
 | 4 — Admin panel | ⏳ Not started |
 
 Branch `claude/redesign-fixes`, pushed to `origin`.

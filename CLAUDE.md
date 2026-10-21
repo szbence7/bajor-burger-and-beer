@@ -66,7 +66,8 @@ applies: never rewrite pushed history.
   Hungarian fallback error page (`src/lib/error-page.ts`), and CSRF protection for server
   functions.
 - Server routes: `/api/health` (healthcheck), `/sitemap.xml`, `/robots.txt`.
-- Fonts are self-hosted via Fontsource (`@fontsource/anton`, `@fontsource-variable/manrope`);
+- Fonts are self-hosted via Fontsource (`@fontsource/anton`, `@fontsource-variable/oswald`,
+  `@fontsource-variable/manrope`);
   latin subsets are preloaded in `__root.tsx`. Don't reintroduce Google Fonts links.
 - Tailwind CSS v4, theme tokens in `src/styles.css` (`@theme inline` + CSS variables).
 - No shadcn/ui (removed as unused in Phase 2, with its Radix etc. dependencies). Build UI from
@@ -119,7 +120,7 @@ reads the real environment).
   (fonts, icons, OG defaults, JSON-LD, NOINDEX), Header/Footer, 404 and error components.
   Routes stay thin: layout + `head`; logic lives in features.
 - `src/components` — shared brand primitives: CtaButton (`CtaLink`), Doodle, Marquee, Reveal,
-  RotatingBadge, PageHero, SectionHeader, Tag, Price, Picture, BrandLogo, RautenPattern
+  PageHero, SectionHeader, Tag, Price, Picture, BrandLogo, RautenPattern
   (+ `RautenDivider`), HoursAndMap (`HoursCard`, `MapPlaceholder`).
   `src/components/layout` — Header, Footer.
 - `src/features/menu` — MenuItemCard, BeerCard, FeaturedBurgerCard.
@@ -181,9 +182,11 @@ reads the real environment).
 
 ## Design system — keep it, enforce it everywhere
 
-Feel: a moody evening burger and beer house crossed with a bold, playful, youthful street-food
-brand. Dark, atmospheric base with loud graphic moments on top. Never a generic restaurant
-template.
+Feel (revised 2026-10-21 with the user, after the real logo and venue photos): **youthful,
+modern, clean but elegant** Bavarian beer + burger house. Dark base like the logo, logo gold
+as the one loud colour, the venue's deep green as the accent. Fewer, calmer graphic moments:
+no red, no rotating badge, no tilted cards, one marquee per page. Never a generic restaurant
+template, never fast-food loud.
 
 Colours are Tailwind theme tokens only — **no hardcoded hex in components** (the
 self-contained `error-page.ts` and generated brand assets are the only exceptions):
@@ -195,22 +198,27 @@ self-contained `error-page.ts` and generated brand assets are the only exception
 | border              | #2E2A26 | `border-border`              |
 | primary (logo gold) | #D2AC66 | `bg-primary`, `text-primary` |
 | primary tint        | #E6C88A | `primary-glow`               |
-| accent (ember red)  | #D9381E | `bg-ember`                   |
+| accent (forest)     | #2E4A2B | `bg-forest`                  |
 | text                | #F5EFE6 | `text-foreground`            |
 | muted               | #A89F94 | `text-muted-foreground`      |
 
-- Ember is **only for main CTAs and badges**. Text on ember is pure white
-  (`ember-foreground`, 4.6:1 AA); never use ember as a text colour on dark (3.6:1, fails).
-- Typography: `font-display` (Anton, ultra-heavy condensed, uppercase) for oversized
-  headlines; Manrope (`font-sans`) for body. `font-display` sets a 1.12 line pitch (via
-  `--tw-leading`, so it wins over `text-4xl…8xl`) because Anton's accented capitals (É, Á, Ü
-  reach ~1.10em, Ő/Ű ~1.17em above the baseline) otherwise hit the line above ("PQKOL").
-  Use a tighter explicit `leading-*` only for fixed, accent-safe copy (hero: 0.94).
+- CTAs are **gold** (`ctaClass("gold")`, the default; `dark` on gold surfaces, `outline`
+  for secondary). There is no red in the palette any more.
+- Forest (the banquettes' green, deepened) is for accent sections (home booking CTA), the
+  second featured burger card and the "Új"/"Csípős" badges. Text on it is cream
+  (`forest-foreground`, 8.6:1); gold on it is 4.6:1. Never use forest as text on dark.
+- Typography: `font-display` = **Oswald 600** (condensed like the logo's lettering, lighter
+  than Anton) for all headlines; `font-impact` = Anton, **only** for the home hero h1, the
+  footer "BAJOR" wordmark and the 404 numerals; Manrope (`font-sans`) for body. Both set a
+  1.12 line pitch (via `--tw-leading`, so it wins over `text-4xl…8xl`) because accented
+  capitals (É, Á, Ü ~1.10em, Ő/Ű ~1.17em above the baseline) otherwise hit the line above.
+  Use a tighter explicit `leading-*` only for fixed, accent-safe copy (hero: 0.94 on md+,
+  1.1 on mobile where "Csapolt sör." wraps).
 
 Signature elements:
 
-- Tilted infinite marquee strips (gold, dark uppercase text, small burger/beer icons) —
-  `Marquee`.
+- Infinite marquee strips, slightly tilted (1°; gold, dark uppercase text, small
+  burger/beer icons) — `Marquee`. **At most one per page.**
 - Cut-out burgers overlapping giant type with a warm golden glow (`glow-gold`). Overlap is a
   stylistic touch only: **never hide whole words** and never cover the header.
   - Home hero geometry: on md+ the burger sits in a flex slot right after "Csapolt sör.",
@@ -221,8 +229,9 @@ Signature elements:
   - Featured burger cards: the title is `relative z-10` above the image layer; the image sits
     lower in its own flex area.
 - Hand-drawn line doodles (burger, mug, foam, pretzel, fries, hop) — `Doodle`, default
-  **10% opacity, used large** (`h-28`–`h-56`) as texture in dark sections (user decision).
-  On gold/ember sections they use the section's foreground colour at ~20%.
+  **10% opacity, used large** (`h-28`–`h-56`) as texture in dark sections (user decision),
+  **at most one per section** (two in the home hero). On gold/forest sections they use the
+  section's foreground colour at ~20%.
 - One or two full-width gold sections per page.
 - Giant "BAJOR" wordmark in the footer.
 - **The logo is fixed** (B² + vertical "BURGER & BEER", gold #D2AC66 + cream #E2CCA8 on black):
@@ -235,8 +244,9 @@ Signature elements:
   `RautenDivider` (16 px strip at 12% — user approved). Never in the hero or other sections.
 - Hero: no pattern; dark background, golden radial glow behind the burger, global grain
   (`body::after` noise).
-- Photo carousel (home "A hely"): rounded-3xl cards alternating `-rotate-2` / `rotate-2`,
-  straightening and lifting on hover.
+- Photo carousel (home "A hely"): straight rounded-3xl cards that lift with a gold glow on
+  hover. Photos and burgers are never rotated (the hero burger's gentle float is the only
+  tilt).
 
 Motion: scroll reveal (`Reveal`), marquee, hover lift with gold glow (`lift`), hero float and
 parallax. All motion respects `prefers-reduced-motion` (CSS block at the end of
