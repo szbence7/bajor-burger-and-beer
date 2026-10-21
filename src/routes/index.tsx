@@ -100,7 +100,7 @@ function Index() {
           {/* md+: the burger lives in a slot right after line one, sized in em of the
               headline so it tracks the text at every width. The h1 reserves room above
               itself, so the burger never reaches the fixed header. */}
-          <h1 className="relative font-display text-[19vw] leading-[0.94] md:pt-[1.05em] md:text-[12vw] xl:text-[10.5rem]">
+          <h1 className="relative font-display text-[19vw] leading-[1.1] md:pt-[1.05em] md:leading-[0.94] md:text-[12vw] xl:text-[10.5rem]">
             <span className="flex items-end">
               <span className="md:whitespace-nowrap">Csapolt sör.</span>
               <span
