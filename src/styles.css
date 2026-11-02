@@ -199,6 +199,17 @@
   }
 }
 
+/* Booking time slots drifting in; `backwards` so disabled slots keep their own opacity after. */
+@keyframes slot-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+.slot-in {
+  animation: slot-in 0.4s ease-out backwards;
+}
+
 .reveal {
   opacity: 0;
   transform: translateY(40px);
@@ -216,7 +227,8 @@
     scroll-behavior: auto;
   }
   .animate-marquee,
-  .animate-float {
+  .animate-float,
+  .slot-in {
     animation: none;
   }
   .reveal {

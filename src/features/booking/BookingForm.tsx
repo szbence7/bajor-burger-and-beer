@@ -131,6 +131,24 @@ export function BookingForm() {
 
   const canContinue = dateInRange && Boolean(f.time);
 
+  // On phones the calendar fills the screen: after picking a day, bring the times into view.
+  const slotsRef = useRef<HTMLDivElement>(null);
+  const pickDate = (d: string) => {
+    const first = !f.date;
+    set("date", d);
+    if (!first) return;
+    setTimeout(() => {
+      const el = slotsRef.current;
+      if (!el) return;
+      const top = el.getBoundingClientRect().top;
+      if (top > window.innerHeight * 0.6) {
+        const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        // 96 px clears the fixed header.
+        window.scrollBy({ top: top - 96, behavior: reduce ? "auto" : "smooth" });
+      }
+    }, 150);
+  };
+
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setSubmitError(null);
@@ -184,16 +202,18 @@ export function BookingForm() {
     slotContent = <Notice>Erre a napra már nincs online foglalható időpont.</Notice>;
   } else {
     slotContent = (
-      <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 sm:gap-3">
-        {slots.map((s) => (
+      <div key={f.date} className="grid grid-cols-3 gap-2 sm:grid-cols-4 sm:gap-3">
+        {slots.map((s, i) => (
           <button
             key={s.time}
             type="button"
+            // Times drift in one after another when a day is picked.
+            style={{ animationDelay: `${Math.min(i, 24) * 25}ms` }}
             disabled={!s.available}
             aria-pressed={f.time === s.time}
             onClick={() => set("time", s.time)}
             className={cn(
-              "rounded-2xl py-3",
+              "slot-in rounded-2xl py-3",
               chip(f.time === s.time),
               "disabled:cursor-not-allowed disabled:border-border disabled:text-muted-foreground disabled:line-through disabled:opacity-60",
             )}
@@ -237,7 +257,7 @@ export function BookingForm() {
                 min={today}
                 max={maxDate}
                 isClosed={isClosed}
-                onChange={(d) => set("date", d)}
+                onChange={pickDate}
               />
             </div>
             {!f.date && (
@@ -246,31 +266,43 @@ export function BookingForm() {
               </p>
             )}
           </div>
-          {f.date && (
-            <>
-              <fieldset>
-                <legend className={labelClass}>Időpont — {formatDateHu(f.date)}</legend>
-                {slotContent}
-              </fieldset>
-              <fieldset>
-                <legend className={labelClass}>Hányan jöttök? {f.partySize} fő</legend>
-                <div className="flex flex-wrap gap-2">
-                  {Array.from({ length: booking.maxPartySize }, (_, i) => i + 1).map((n) => (
-                    <button
-                      key={n}
-                      type="button"
-                      aria-pressed={f.partySize === n}
-                      aria-label={`${n} fő`}
-                      onClick={() => set("partySize", n)}
-                      className={cn("h-12 w-12 rounded-full", chip(f.partySize === n))}
-                    >
-                      {n}
-                    </button>
-                  ))}
-                </div>
-              </fieldset>
-            </>
-          )}
+          {/* Opens smoothly below the calendar once a day is picked (0fr → 1fr grid rows). */}
+          <div
+            ref={slotsRef}
+            inert={!f.date}
+            className={cn(
+              "grid transition-[grid-template-rows,opacity] duration-500 ease-out motion-reduce:transition-none",
+              f.date ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0",
+            )}
+          >
+            <div className="min-h-0 space-y-6 overflow-hidden">
+              {f.date && (
+                <>
+                  <fieldset>
+                    <legend className={labelClass}>Időpont — {formatDateHu(f.date)}</legend>
+                    {slotContent}
+                  </fieldset>
+                  <fieldset>
+                    <legend className={labelClass}>Hányan jöttök? {f.partySize} fő</legend>
+                    <div className="flex flex-wrap gap-2">
+                      {Array.from({ length: booking.maxPartySize }, (_, i) => i + 1).map((n) => (
+                        <button
+                          key={n}
+                          type="button"
+                          aria-pressed={f.partySize === n}
+                          aria-label={`${n} fő`}
+                          onClick={() => set("partySize", n)}
+                          className={cn("h-12 w-12 rounded-full", chip(f.partySize === n))}
+                        >
+                          {n}
+                        </button>
+                      ))}
+                    </div>
+                  </fieldset>
+                </>
+              )}
+            </div>
+          </div>
           <button
             type="button"
             disabled={!canContinue}
