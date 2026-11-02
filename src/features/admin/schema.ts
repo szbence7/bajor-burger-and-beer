@@ -29,6 +29,13 @@ export const DECISION_LABELS: Record<DecisionStatus, string> = {
   cancelled: "Lemondom",
 };
 
+/** Accepting a booking that was already rejected or cancelled (undoing a decision). */
+export const isReopening = (from: ReservationStatus, to: DecisionStatus) =>
+  to === "confirmed" && (from === "rejected" || from === "cancelled");
+
+export const decisionLabel = (from: ReservationStatus, to: DecisionStatus) =>
+  isReopening(from, to) ? "Mégis elfogadom" : DECISION_LABELS[to];
+
 export const NOTIFICATION_KINDS = [
   "guest_received",
   "staff_new",

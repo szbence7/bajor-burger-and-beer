@@ -3,7 +3,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(45);
+select plan(47);
 
 -- Start bookings, the email log and specials from a known state, whatever local data exists.
 delete from public.notification_log;
@@ -139,6 +139,14 @@ select lives_ok($$
   insert into public.reservations (date, time, party_size, name, phone, email, consent_at)
   select tue, '18:30', 8, 'Pótló', '+36301234567', 'p@example.com', now() from d
 $$, 'seats of a rejected booking can be booked again');
+select pg_temp.reset();
+select pg_temp.as_user('admin');
+select is(public.capacity_overflow((select id from public.reservations where name = 'Vendég 1')),
+  8, 're-accepting the rejected booking would put the window 8 guests over capacity');
+select pg_temp.reset();
+select pg_temp.as_anon();
+select throws_ok($$ select public.capacity_overflow(gen_random_uuid()) $$, '42501', null,
+  'anon cannot check capacity');
 select pg_temp.reset();
 
 -- Minimum notice -------------------------------------------------------------------------------

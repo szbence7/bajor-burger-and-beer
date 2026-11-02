@@ -8,6 +8,7 @@ Supabase instance.
 | `migrations/0001_content.sql`               | Menu, beers, gallery, opening hours, site settings; RLS                       |
 | `migrations/0002_reservations.sql`          | Reservations, booking rules (trigger), `available_slots()`; RLS               |
 | `migrations/0003_reservation_retention.sql` | 12-month GDPR cleanup, scheduled daily with pg_cron                           |
+| `migrations/0007_capacity_overflow.sql`     | `capacity_overflow()`: seats over capacity if a booking were re-accepted      |
 | `migrations/0006_site_details.sql`          | Restaurant name + company details; `replace_opening_hours()` for the admin    |
 | `migrations/0005_admin_users.sql`           | Temporary-password accounts are not admins; account emails in the log         |
 | `migrations/0004_admin.sql`                 | 2FA admins, decisions, Hónap ajánlata, PDF menu, email log, Storage, Realtime |
@@ -91,7 +92,8 @@ Test every new migration locally first (`bun run db:reset && bun run test:db`). 
   (`slot_full`, `invalid_slot`, `too_late`, `date_out_of_range`, `party_too_large`,
   `consent_required`); the app maps the codes to Hungarian messages.
 - **Statuses:** `pending` → `confirmed` (accepted) or `rejected` (declined); `confirmed` →
-  `cancelled`. A mistaken rejection or cancellation can be confirmed again. Every decision
+  `cancelled`. A mistaken rejection or cancellation can be confirmed again ("Mégis elfogadom"); the panel
+  warns, via `capacity_overflow()`, if the seats have been taken since. Every decision
   emails the guest, optionally with the staff's message (`decision_note`).
 - **Capacity** counts pending and confirmed bookings. Each booking occupies
   `duration_minutes` (snapshotted from the setting when it was made); a new one is accepted

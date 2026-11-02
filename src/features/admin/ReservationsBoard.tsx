@@ -7,7 +7,8 @@ import { cn } from "@/lib/utils";
 import { resendNotificationFn, setReservationStatusFn } from "./api";
 import {
   ADMIN_ERRORS,
-  DECISION_LABELS,
+  decisionLabel,
+  isReopening,
   NEXT_STATUSES,
   NOTIFICATION_KIND_LABELS,
   RESERVATION_STATUSES,
@@ -177,8 +178,39 @@ function Decision({
     onError: () => report({ ok: false, error: "unknown" }, ""),
   });
   const id = `decision-${reservation.id}`;
+  const reopening = isReopening(reservation.status, status);
+  // The seats may have been booked by someone else since the rejection.
+  const overflow = useQuery({
+    queryKey: ["admin", "overflow", reservation.id],
+    enabled: reopening,
+    queryFn: async () => {
+      const { data, error } = await adminSupabase().rpc("capacity_overflow", {
+        p_id: reservation.id,
+      });
+      if (error) throw error;
+      return data as number;
+    },
+  });
   return (
     <div className="mt-4 rounded-2xl border-2 border-primary p-4">
+      {reopening && (
+        <div className="mb-4 space-y-2 text-sm">
+          <p className="font-bold">
+            Ezt a foglalást korábban{" "}
+            {reservation.status === "rejected" ? "elutasítottátok" : "lemondtátok"}. A vendég erről
+            már e-mailt kapott; most egy elfogadó e-mailt kap.
+          </p>
+          {overflow.data !== undefined &&
+            (overflow.data > 0 ? (
+              <p role="alert" className="rounded-xl border-2 border-primary-glow p-3 font-bold">
+                Figyelem: közben betelt az időpont. Ha elfogadod, {overflow.data} fővel túllépitek a
+                férőhelyet.
+              </p>
+            ) : (
+              <p className="text-muted-foreground">Van még hely erre az időpontra.</p>
+            ))}
+        </div>
+      )}
       <label htmlFor={id} className={labelClass}>
         Üzenet a vendégnek <span className="font-normal text-muted-foreground">(nem kötelező)</span>
       </label>
@@ -201,7 +233,9 @@ function Decision({
           disabled={decide.isPending}
           onClick={() => decide.mutate()}
         >
-          {decide.isPending ? "Mentés…" : `${DECISION_LABELS[status]} és értesítem`}
+          {decide.isPending
+            ? "Mentés…"
+            : `${decisionLabel(reservation.status, status)} és értesítem`}
         </Button>
         <Button variant="ghost" onClick={onClose} disabled={decide.isPending}>
           Mégse
@@ -271,11 +305,12 @@ function ReservationCard({ r }: { r: ReservationRow }) {
           {NEXT_STATUSES[r.status].map((s) => (
             <Button
               key={s}
-              variant={s === "confirmed" ? "gold" : "outline"}
+              // Undoing a rejection is the exception, so it is not the loud gold button.
+              variant={s === "confirmed" && !isReopening(r.status, s) ? "gold" : "outline"}
               onClick={() => setDeciding(s)}
               className="flex-1 sm:flex-none"
             >
-              {DECISION_LABELS[s]}
+              {decisionLabel(r.status, s)}
             </Button>
           ))}
         </div>
