@@ -17,7 +17,8 @@
     "db:stop": "bunx supabase@2.121.0 stop",
     "db:reset": "bunx supabase@2.121.0 db reset",
     "test:db": "bunx supabase@2.121.0 test db",
-    "db:push": "bunx supabase@2.121.0 db push --db-url \"$SUPABASE_DB_URL\" --include-seed"
+    "db:push": "bunx supabase@2.121.0 db push --db-url \"$SUPABASE_DB_URL\" --include-seed",
+    "admin": "bun scripts/admin.ts"
   },
   "overrides": {
     "rolldown": "1.2.1"
@@ -35,6 +36,7 @@
     "clsx": "^2.1.1",
     "embla-carousel-react": "^8.6.0",
     "lucide-react": "^0.575.0",
+    "nodemailer": "^10.3.1",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "tailwind-merge": "^3.5.0",
@@ -47,6 +49,7 @@
     "@testing-library/jest-dom": "^6.6.0",
     "@testing-library/react": "^16.0.0",
     "@types/node": "^22.16.5",
+    "@types/nodemailer": "^8.0.2",
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
     "@vitejs/plugin-react": "^5.2.0",

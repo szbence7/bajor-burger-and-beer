@@ -34,6 +34,7 @@ describe("submitReservation", () => {
   it("inserts only guest-supplied columns and calls the notification hook", async () => {
     await expect(submitReservation(input, nextIp())).resolves.toEqual({ ok: true });
     expect(insert).toHaveBeenCalledWith({
+      id: expect.stringMatching(/^[0-9a-f-]{36}$/),
       date: "2026-10-20",
       time: "18:00",
       party_size: 4,

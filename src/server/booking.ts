@@ -4,7 +4,7 @@ import {
   type ReservationResult,
   type Slot,
 } from "@/features/booking/schema";
-import { onReservationCreated, type NewReservation } from "./notifications";
+import { onReservationCreated, type ReservationDetails } from "./notifications";
 import { createRateLimiter } from "./rate-limit";
 import { getSupabase } from "./supabase";
 
@@ -37,7 +37,10 @@ export async function submitReservation(
     return { ok: true };
   }
 
-  const reservation: NewReservation = {
+  const reservation: ReservationDetails = {
+    // Generated here so the notification log can refer to the booking; visitors can insert
+    // reservations but never read them back.
+    id: crypto.randomUUID(),
     date: input.date,
     time: input.time,
     partySize: input.partySize,
@@ -49,6 +52,7 @@ export async function submitReservation(
   const { error } = await getSupabase()
     .from("reservations")
     .insert({
+      id: reservation.id,
       date: reservation.date,
       time: reservation.time,
       party_size: reservation.partySize,

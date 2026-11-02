@@ -7,11 +7,11 @@ import { nitro } from "nitro/vite";
 import { imagetools } from "vite-imagetools";
 
 export default defineConfig(({ command, mode }) => {
-  // Runtime server vars (SUPABASE_*, NOINDEX) come from the environment in production. In dev,
-  // fill them from .env so `bun run dev` works without exporting them by hand.
+  // Runtime server vars (SUPABASE_*, SMTP_*, NOTIFY_*, NOINDEX) come from the environment in
+  // production. In dev, fill them from .env so `bun run dev` works without exporting them.
   if (command === "serve") {
     for (const [key, value] of Object.entries(
-      loadEnv(mode, process.cwd(), ["SUPABASE_", "NOINDEX"]),
+      loadEnv(mode, process.cwd(), ["SUPABASE_", "SMTP_", "NOTIFY_", "NOINDEX"]),
     )) {
       process.env[key] ??= value;
     }

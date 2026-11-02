@@ -1,16 +1,74 @@
-export interface NewReservation {
-  date: string;
-  time: string;
-  partySize: number;
-  name: string;
-  phone: string;
-  email: string;
-  note: string;
+// Reservation emails. Every attempt is written to notification_log (sent / failed / skipped),
+// so the staff can see in the admin panel whether a guest was actually notified.
+import {
+  DECISION_NOTIFICATION,
+  type DecisionStatus,
+  type NotificationKind,
+  type NotificationStatus,
+} from "@/features/admin/schema";
+import { getSiteInfo } from "./content";
+import { buildEmail, type ReservationDetails } from "./email-templates";
+import { sendMail } from "./mailer";
+import { getServiceSupabase } from "./supabase";
+
+export type { ReservationDetails };
+
+/** Staff inbox for new-booking alerts: NOTIFY_STAFF_EMAIL, else the venue's public email. */
+async function staffRecipient(): Promise<string> {
+  return process.env["NOTIFY_STAFF_EMAIL"]?.trim() || (await getSiteInfo()).contact.email;
+}
+
+async function log(
+  reservationId: string,
+  kind: NotificationKind,
+  recipient: string,
+  status: NotificationStatus,
+  error?: string,
+) {
+  const { error: dbError } = await getServiceSupabase()
+    .from("notification_log")
+    .insert({ reservation_id: reservationId, kind, recipient, status, error: error ?? null });
+  if (dbError) console.error(`Could not log the ${kind} email of ${reservationId}:`, dbError);
+}
+
+/** Sends one notification and logs the outcome. Never throws. */
+export async function deliver(
+  kind: NotificationKind,
+  reservation: ReservationDetails,
+): Promise<NotificationStatus> {
+  let recipient = reservation.email;
+  try {
+    if (kind === "staff_new") recipient = await staffRecipient();
+    const mail = buildEmail(kind, reservation, await getSiteInfo(), recipient);
+    const result = await sendMail(mail);
+    await log(
+      reservation.id,
+      kind,
+      recipient,
+      result.status,
+      "error" in result ? result.error : undefined,
+    );
+    return result.status;
+  } catch (error) {
+    console.error(`Notification ${kind} of ${reservation.id} failed:`, error);
+    const message = error instanceof Error ? error.message : String(error);
+    await log(reservation.id, kind, recipient, "failed", message).catch(() => {});
+    return "failed";
+  }
 }
 
 /**
- * Hook point for notifications (e.g. a confirmation email to the guest and an alert to the
- * staff). Called after a reservation is stored; failures are logged and never fail the
- * booking. Not implemented yet.
+ * Called after a booking is stored: a receipt to the guest and an alert to the staff.
+ * Failures are logged and never fail the booking.
  */
-export async function onReservationCreated(_reservation: NewReservation): Promise<void> {}
+export async function onReservationCreated(reservation: ReservationDetails): Promise<void> {
+  await Promise.all([deliver("guest_received", reservation), deliver("staff_new", reservation)]);
+}
+
+/** Called after the staff accepted, rejected or cancelled a booking. */
+export function onReservationDecided(
+  reservation: ReservationDetails,
+  status: DecisionStatus,
+): Promise<NotificationStatus> {
+  return deliver(DECISION_NOTIFICATION[status], reservation);
+}
