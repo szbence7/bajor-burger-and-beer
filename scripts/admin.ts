@@ -71,7 +71,8 @@ switch (command) {
     const { data, error } = await auth.listUsers({ perPage: 200 });
     if (error) throw error;
     for (const u of data.users) {
-      const verified = (u.factors ?? []).filter((f) => f.status === "verified").length;
+      const factors = await auth.mfa.listFactors({ userId: u.id });
+      const verified = (factors.data?.factors ?? []).filter((f) => f.status === "verified").length;
       console.log(
         `${u.email}\t${u.app_metadata["role"] === "admin" ? "admin" : "-"}\t2FA: ${verified ? "igen" : "nincs"}`,
       );

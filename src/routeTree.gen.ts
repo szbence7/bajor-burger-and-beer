@@ -23,6 +23,7 @@ import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as AdminAjanlatRouteImport } from './routes/admin/ajanlat'
 import { Route as AdminErtesitesekRouteImport } from './routes/admin/ertesitesek'
 import { Route as AdminEtlapRouteImport } from './routes/admin/etlap'
+import { Route as AdminFelhasznalokRouteImport } from './routes/admin/felhasznalok'
 import { Route as ApiHealthRouteImport } from './routes/api/health'
 
 const IndexRoute = IndexRouteImport.update({
@@ -95,6 +96,11 @@ const AdminEtlapRoute = AdminEtlapRouteImport.update({
   path: '/etlap',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminFelhasznalokRoute = AdminFelhasznalokRouteImport.update({
+  id: '/felhasznalok',
+  path: '/felhasznalok',
+  getParentRoute: () => AdminRoute,
+} as any)
 const ApiHealthRoute = ApiHealthRouteImport.update({
   id: '/api/health',
   path: '/api/health',
@@ -115,6 +121,7 @@ export interface FileRoutesByFullPath {
   '/admin/ajanlat': typeof AdminAjanlatRoute
   '/admin/ertesitesek': typeof AdminErtesitesekRoute
   '/admin/etlap': typeof AdminEtlapRoute
+  '/admin/felhasznalok': typeof AdminFelhasznalokRoute
   '/api/health': typeof ApiHealthRoute
   '/admin/': typeof AdminIndexRoute
 }
@@ -131,6 +138,7 @@ export interface FileRoutesByTo {
   '/admin/ajanlat': typeof AdminAjanlatRoute
   '/admin/ertesitesek': typeof AdminErtesitesekRoute
   '/admin/etlap': typeof AdminEtlapRoute
+  '/admin/felhasznalok': typeof AdminFelhasznalokRoute
   '/api/health': typeof ApiHealthRoute
   '/admin': typeof AdminIndexRoute
 }
@@ -149,6 +157,7 @@ export interface FileRoutesById {
   '/admin/ajanlat': typeof AdminAjanlatRoute
   '/admin/ertesitesek': typeof AdminErtesitesekRoute
   '/admin/etlap': typeof AdminEtlapRoute
+  '/admin/felhasznalok': typeof AdminFelhasznalokRoute
   '/api/health': typeof ApiHealthRoute
   '/admin/': typeof AdminIndexRoute
 }
@@ -168,6 +177,7 @@ export interface FileRouteTypes {
     | '/admin/ajanlat'
     | '/admin/ertesitesek'
     | '/admin/etlap'
+    | '/admin/felhasznalok'
     | '/api/health'
     | '/admin/'
   fileRoutesByTo: FileRoutesByTo
@@ -184,6 +194,7 @@ export interface FileRouteTypes {
     | '/admin/ajanlat'
     | '/admin/ertesitesek'
     | '/admin/etlap'
+    | '/admin/felhasznalok'
     | '/api/health'
     | '/admin'
   id:
@@ -201,6 +212,7 @@ export interface FileRouteTypes {
     | '/admin/ajanlat'
     | '/admin/ertesitesek'
     | '/admin/etlap'
+    | '/admin/felhasznalok'
     | '/api/health'
     | '/admin/'
   fileRoutesById: FileRoutesById
@@ -319,6 +331,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminEtlapRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/felhasznalok': {
+      id: '/admin/felhasznalok'
+      path: '/felhasznalok'
+      fullPath: '/admin/felhasznalok'
+      preLoaderRoute: typeof AdminFelhasznalokRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/api/health': {
       id: '/api/health'
       path: '/api/health'
@@ -333,6 +352,7 @@ interface AdminRouteChildren {
   AdminAjanlatRoute: typeof AdminAjanlatRoute
   AdminErtesitesekRoute: typeof AdminErtesitesekRoute
   AdminEtlapRoute: typeof AdminEtlapRoute
+  AdminFelhasznalokRoute: typeof AdminFelhasznalokRoute
   AdminIndexRoute: typeof AdminIndexRoute
 }
 
@@ -340,6 +360,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminAjanlatRoute: AdminAjanlatRoute,
   AdminErtesitesekRoute: AdminErtesitesekRoute,
   AdminEtlapRoute: AdminEtlapRoute,
+  AdminFelhasznalokRoute: AdminFelhasznalokRoute,
   AdminIndexRoute: AdminIndexRoute,
 }
 

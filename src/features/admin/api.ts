@@ -7,8 +7,23 @@ import {
   setMenuPdf,
   setReservationStatus,
 } from "@/server/admin";
+import {
+  completePasswordChange,
+  inviteAdmin,
+  listAdmins,
+  removeAdmin,
+  resetAdmin,
+} from "@/server/admin-users";
 import { getBearerToken } from "@/server/request";
-import { idInput, menuPdfInput, reorderInput, setStatusInput, specialInput } from "./schema";
+import {
+  idInput,
+  inviteInput,
+  menuPdfInput,
+  newPasswordInput,
+  reorderInput,
+  setStatusInput,
+  specialInput,
+} from "./schema";
 import { accessToken } from "./supabase";
 
 /** Sends the admin's access token with every admin server function call. */
@@ -61,4 +76,37 @@ export const setMenuPdfFn = createServerFn({ method: "POST" })
   .inputValidator(menuPdfInput)
   .handler(({ data, context }) =>
     context.token ? setMenuPdf(context.token, data.path) : unauthorized,
+  );
+
+export const listAdminsFn = createServerFn({ method: "POST" })
+  .middleware([adminAuth])
+  .handler(({ context }) => (context.token ? listAdmins(context.token) : unauthorized));
+
+export const inviteAdminFn = createServerFn({ method: "POST" })
+  .middleware([adminAuth])
+  .inputValidator(inviteInput)
+  .handler(({ data, context }) =>
+    context.token ? inviteAdmin(context.token, data.email) : unauthorized,
+  );
+
+export const resetAdminFn = createServerFn({ method: "POST" })
+  .middleware([adminAuth])
+  .inputValidator(idInput)
+  .handler(({ data, context }) =>
+    context.token ? resetAdmin(context.token, data.id) : unauthorized,
+  );
+
+export const removeAdminFn = createServerFn({ method: "POST" })
+  .middleware([adminAuth])
+  .inputValidator(idInput)
+  .handler(({ data, context }) =>
+    context.token ? removeAdmin(context.token, data.id) : unauthorized,
+  );
+
+/** First sign-in with the emailed temporary password. */
+export const completePasswordChangeFn = createServerFn({ method: "POST" })
+  .middleware([adminAuth])
+  .inputValidator(newPasswordInput)
+  .handler(({ data, context }) =>
+    context.token ? completePasswordChange(context.token, data.password) : unauthorized,
   );

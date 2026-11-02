@@ -35,8 +35,15 @@ export const NOTIFICATION_KINDS = [
   "guest_confirmed",
   "guest_rejected",
   "guest_cancelled",
+  "admin_invite",
+  "admin_reset",
 ] as const;
 export type NotificationKind = (typeof NOTIFICATION_KINDS)[number];
+
+/** Emails about a reservation (the rest are about admin accounts). */
+export type ReservationNotificationKind = Exclude<NotificationKind, "admin_invite" | "admin_reset">;
+export const isReservationKind = (k: NotificationKind): k is ReservationNotificationKind =>
+  k !== "admin_invite" && k !== "admin_reset";
 
 export const NOTIFICATION_KIND_LABELS: Record<NotificationKind, string> = {
   guest_received: "Vendégnek: foglalás beérkezett",
@@ -44,10 +51,12 @@ export const NOTIFICATION_KIND_LABELS: Record<NotificationKind, string> = {
   guest_confirmed: "Vendégnek: elfogadva",
   guest_rejected: "Vendégnek: elutasítva",
   guest_cancelled: "Vendégnek: lemondva",
+  admin_invite: "Admin meghívó",
+  admin_reset: "Admin fiók visszaállítva",
 };
 
 /** The guest email that goes out with each decision. */
-export const DECISION_NOTIFICATION: Record<DecisionStatus, NotificationKind> = {
+export const DECISION_NOTIFICATION: Record<DecisionStatus, ReservationNotificationKind> = {
   confirmed: "guest_confirmed",
   rejected: "guest_rejected",
   cancelled: "guest_cancelled",
@@ -140,6 +149,39 @@ export const menuPdfInput = z.object({
     .nullable(),
 });
 
+// Admin accounts ------------------------------------------------------------------------------
+
+export const inviteInput = z.object({
+  email: z.string().trim().toLowerCase().email("Adj meg egy érvényes e-mail-címet.").max(254),
+});
+
+export const PASSWORD_MIN_LENGTH = 10;
+
+export const newPasswordInput = z.object({
+  password: z
+    .string()
+    .min(PASSWORD_MIN_LENGTH, `Legalább ${PASSWORD_MIN_LENGTH} karakter legyen.`)
+    .max(72, "Legfeljebb 72 karakter lehet."),
+});
+
+export interface AdminUser {
+  id: string;
+  email: string;
+  createdAt: string;
+  lastSignInAt: string | null;
+  /** Still on the emailed temporary password. */
+  mustChangePassword: boolean;
+  hasTwoFactor: boolean;
+  isSelf: boolean;
+}
+
+/** Result of an invite or reset: whether the email went out; the password only if it did not. */
+export interface AccountEmailOutcome {
+  email: NotificationStatus;
+  /** Shown once to the inviting admin when the email could not be sent. */
+  temporaryPassword?: string;
+}
+
 export const MENU_PDF_MAX_BYTES = 15 * 1024 * 1024;
 export const IMAGE_MAX_BYTES = 5 * 1024 * 1024;
 
@@ -147,6 +189,10 @@ export const IMAGE_MAX_BYTES = 5 * 1024 * 1024;
 export const ADMIN_ERRORS = {
   unauthorized: "Lejárt a bejelentkezésed. Jelentkezz be újra.",
   forbidden: "Ehhez nincs jogosultságod, vagy a tétel már nem létezik.",
+  user_exists: "Ezzel az e-mail-címmel már van fiók.",
+  self: "A saját fiókodat nem törölheted és nem állíthatod vissza.",
+  last_admin: "Ő az utolsó admin, nem törölhető.",
+  weak_password: "Ez a jelszó túl gyenge vagy túl gyakori. Válassz másikat.",
   unknown: "Valami hiba történt. Próbáld újra.",
 } as const;
 export type AdminErrorCode = keyof typeof ADMIN_ERRORS;

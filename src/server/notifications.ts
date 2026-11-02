@@ -5,9 +5,10 @@ import {
   type DecisionStatus,
   type NotificationKind,
   type NotificationStatus,
+  type ReservationNotificationKind,
 } from "@/features/admin/schema";
 import { getSiteInfo } from "./content";
-import { buildEmail, type ReservationDetails } from "./email-templates";
+import { buildAccountEmail, buildEmail, type ReservationDetails } from "./email-templates";
 import { sendMail } from "./mailer";
 import { getServiceSupabase } from "./supabase";
 
@@ -19,7 +20,7 @@ async function staffRecipient(): Promise<string> {
 }
 
 async function log(
-  reservationId: string,
+  reservationId: string | null,
   kind: NotificationKind,
   recipient: string,
   status: NotificationStatus,
@@ -33,7 +34,7 @@ async function log(
 
 /** Sends one notification and logs the outcome. Never throws. */
 export async function deliver(
-  kind: NotificationKind,
+  kind: ReservationNotificationKind,
   reservation: ReservationDetails,
 ): Promise<NotificationStatus> {
   let recipient = reservation.email;
@@ -71,4 +72,15 @@ export function onReservationDecided(
   status: DecisionStatus,
 ): Promise<NotificationStatus> {
   return deliver(DECISION_NOTIFICATION[status], reservation);
+}
+
+/** Emails a new or reset admin their temporary password; logged without the password. */
+export async function deliverAccountEmail(
+  kind: "admin_invite" | "admin_reset",
+  to: string,
+  temporaryPassword: string,
+): Promise<NotificationStatus> {
+  const result = await sendMail(buildAccountEmail(kind, to, temporaryPassword));
+  await log(null, kind, to, result.status, "error" in result ? result.error : undefined);
+  return result.status;
 }

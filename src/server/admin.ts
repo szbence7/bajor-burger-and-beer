@@ -3,6 +3,7 @@
 // public content cache so the site shows them at once.
 import {
   NOTIFICATION_KINDS,
+  isReservationKind,
   type AdminErrorCode,
   type AdminResult,
   type DecisionOutcome,
@@ -40,10 +41,10 @@ const reservationDetailsRow = z
     ...(r.decision_note && { decisionNote: r.decision_note }),
   }));
 
-const fail = (error: AdminErrorCode) => ({ ok: false, error }) as const;
+export const fail = (error: AdminErrorCode) => ({ ok: false, error }) as const;
 
 /** Maps PostgREST errors: expired tokens and RLS denials have their own messages. */
-function failFrom(error: { code?: string; message?: string }, action: string) {
+export function failFrom(error: { code?: string; message?: string }, action: string) {
   if (error.code === "PGRST301" || error.code === "PGRST303") return fail("unauthorized");
   if (error.code === "42501") return fail("forbidden");
   console.error(`Admin ${action} failed:`, error);
@@ -82,7 +83,7 @@ export async function resendNotification(
     .object({ kind: z.enum(NOTIFICATION_KINDS), reservations: reservationDetailsRow.nullable() })
     .nullable()
     .parse(data);
-  if (!row?.reservations) return fail("forbidden");
+  if (!row?.reservations || !isReservationKind(row.kind)) return fail("forbidden");
   return { ok: true, data: { email: await deliver(row.kind, row.reservations) } };
 }
 

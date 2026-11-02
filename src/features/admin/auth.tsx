@@ -14,11 +14,14 @@ import type { Session } from "@supabase/supabase-js";
 import { BrandLogo } from "@/components/BrandLogo";
 import { Button, Card, inputClass, labelClass } from "./ui";
 import { adminSupabase } from "./supabase";
+import { completePasswordChangeFn } from "./api";
+import { ADMIN_ERRORS, PASSWORD_MIN_LENGTH, newPasswordInput } from "./schema";
 
 type Stage =
   | { name: "loading" }
   | { name: "signedOut" }
   | { name: "notAdmin" }
+  | { name: "changePassword" }
   | { name: "enroll" }
   | { name: "verify"; factorId: string }
   | { name: "ready"; email: string };
@@ -32,6 +35,8 @@ export const useAdminUser = () => useContext(AdminUserContext);
 async function stageFor(session: Session | null): Promise<Stage> {
   if (!session) return { name: "signedOut" };
   if (session.user.app_metadata["role"] !== "admin") return { name: "notAdmin" };
+  // Order on first sign-in: own password first, then the authenticator app.
+  if (session.user.app_metadata["must_change_password"] === true) return { name: "changePassword" };
   const sb = adminSupabase();
   const aal = await sb.auth.mfa.getAuthenticatorAssuranceLevel();
   if (aal.data?.currentLevel === "aal2") return { name: "ready", email: session.user.email ?? "" };
@@ -174,6 +179,94 @@ function CodeForm({
 }
 
 const codeError = "Hibás vagy lejárt kód. Írd be az alkalmazásban éppen látható kódot.";
+
+/** First sign-in with the emailed temporary password: choose an own one. */
+function ChangePassword({ onSignOut }: { onSignOut: () => void }) {
+  const [password, setPassword] = useState("");
+  const [confirm, setConfirm] = useState("");
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  const submit = async (e: FormEvent) => {
+    e.preventDefault();
+    setError("");
+    const parsed = newPasswordInput.safeParse({ password });
+    if (!parsed.success) {
+      setError(parsed.error.issues[0]?.message ?? ADMIN_ERRORS.unknown);
+      return;
+    }
+    if (password !== confirm) {
+      setError("A két jelszó nem egyezik.");
+      return;
+    }
+    setBusy(true);
+    try {
+      const sb = adminSupabase();
+      const email = (await sb.auth.getSession()).data.session?.user.email ?? "";
+      const result = await completePasswordChangeFn({ data: parsed.data });
+      if (!result.ok) {
+        setError(ADMIN_ERRORS[result.error]);
+        return;
+      }
+      // Changing the password ends the old session; sign in with the new one. The fresh token
+      // no longer carries must_change_password, so the gate moves on to the 2FA setup.
+      const { error } = await sb.auth.signInWithPassword({ email, password });
+      if (error) await sb.auth.signOut();
+    } catch {
+      setError(ADMIN_ERRORS.unknown);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <Screen title="Új jelszó">
+      <p className="mb-6 text-muted-foreground">
+        Ideiglenes jelszóval léptél be. Adj meg egy saját jelszót (legalább {PASSWORD_MIN_LENGTH}{" "}
+        karakter), utána a kétlépcsős azonosítást állítjuk be.
+      </p>
+      <form onSubmit={submit} className="space-y-4" noValidate>
+        <div>
+          <label htmlFor="admin-new-password" className={labelClass}>
+            Új jelszó
+          </label>
+          <input
+            id="admin-new-password"
+            type="password"
+            autoComplete="new-password"
+            className={inputClass}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+        </div>
+        <div>
+          <label htmlFor="admin-confirm-password" className={labelClass}>
+            Új jelszó még egyszer
+          </label>
+          <input
+            id="admin-confirm-password"
+            type="password"
+            autoComplete="new-password"
+            className={inputClass}
+            value={confirm}
+            onChange={(e) => setConfirm(e.target.value)}
+          />
+        </div>
+        <ErrorText>{error}</ErrorText>
+        <Button type="submit" disabled={busy} className="w-full">
+          {busy ? "Mentés…" : "Tovább"}
+        </Button>
+      </form>
+      <button
+        type="button"
+        onClick={onSignOut}
+        className="mt-6 text-sm font-bold text-muted-foreground underline underline-offset-4"
+      >
+        Kijelentkezés
+      </button>
+    </Screen>
+  );
+}
 
 /** First sign-in: link an authenticator app (Google Authenticator, Microsoft Authenticator…). */
 function Enroll({ onSignOut }: { onSignOut: () => void }) {
@@ -325,6 +418,8 @@ export function AdminAuthGate({ children }: { children: ReactNode }) {
           </Button>
         </Screen>
       );
+    case "changePassword":
+      return <ChangePassword onSignOut={signOut} />;
     case "enroll":
       return <Enroll onSignOut={signOut} />;
     case "verify":

@@ -15,6 +15,7 @@ const nav = [
   { to: "/admin/ajanlat", label: "Hónap ajánlata" },
   { to: "/admin/etlap", label: "Étlap PDF" },
   { to: "/admin/ertesitesek", label: "Értesítések" },
+  { to: "/admin/felhasznalok", label: "Felhasználók" },
 ] as const;
 
 type LiveState = "connecting" | "live" | "offline";

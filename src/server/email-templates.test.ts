@@ -54,3 +54,14 @@ describe("buildEmail", () => {
     expect(mail.text).toMatch(/\/foglalas$/m);
   });
 });
+
+describe("buildAccountEmail", () => {
+  it("sends the temporary password and a sign-in link, and explains the 2FA step", async () => {
+    const { buildAccountEmail } = await import("./email-templates");
+    const mail = buildAccountEmail("admin_invite", "uj@bajor.hu", "Abc23xyzQRst");
+    expect(mail.to).toBe("uj@bajor.hu");
+    expect(mail.text).toContain("Ideiglenes jelszó: Abc23xyzQRst");
+    expect(mail.text).toContain("hitelesítő alkalmazást");
+    expect(mail.text).toMatch(/\/admin$/m);
+  });
+});

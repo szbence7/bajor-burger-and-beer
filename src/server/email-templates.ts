@@ -1,7 +1,7 @@
 // Notification emails (Hungarian). Self-contained HTML with inline styles, because mail
 // clients ignore stylesheets; colours mirror the theme tokens in src/styles.css. Every value
 // that came from a guest or the staff is escaped.
-import type { NotificationKind } from "@/features/admin/schema";
+import type { ReservationNotificationKind } from "@/features/admin/schema";
 import type { SiteInfo } from "@/data/info";
 import { formatDateHu } from "@/lib/date";
 import { SITE_NAME, absoluteUrl } from "@/lib/site";
@@ -89,7 +89,7 @@ const bookingRows = (r: ReservationDetails): [string, string][] => [
 
 /** The email for one notification kind; `to` is the guest, or the staff for staff_new. */
 export function buildEmail(
-  kind: NotificationKind,
+  kind: ReservationNotificationKind,
   r: ReservationDetails,
   site: SiteInfo,
   to: string,
@@ -179,4 +179,34 @@ export function buildEmail(
         r.email,
       );
   }
+}
+
+/** Invitation (or account reset) for a staff member, with the temporary password. */
+export function buildAccountEmail(
+  kind: "admin_invite" | "admin_reset",
+  to: string,
+  temporaryPassword: string,
+): Mail {
+  const invite = kind === "admin_invite";
+  return render(
+    {
+      subject: invite
+        ? `Meghívó a ${SITE_NAME} admin felületére`
+        : `Visszaállítottuk a ${SITE_NAME} admin fiókodat`,
+      heading: invite ? "Meghívtak az admin felületre" : "Új ideiglenes jelszó",
+      intro: [
+        invite
+          ? "Fiókot kaptál a foglalások és a weboldal kezeléséhez."
+          : "Visszaállították az admin fiókodat: új ideiglenes jelszót kaptál, és a kétlépcsős azonosítást újra be kell állítanod.",
+        "Az első belépéskor meg kell adnod egy saját jelszót, majd be kell állítanod egy hitelesítő alkalmazást (pl. Google Authenticator) a telefonodon. Enélkül nem lehet belépni.",
+      ],
+      rows: [
+        ["E-mail", to],
+        ["Ideiglenes jelszó", temporaryPassword],
+      ],
+      outro: ["Ha nem számítottál erre a levélre, töröld, és szólj a vezetőnek."],
+      link: { href: absoluteUrl("/admin"), label: "Belépés" },
+    },
+    to,
+  );
 }
