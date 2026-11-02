@@ -290,7 +290,10 @@ Signature elements:
   hover. Photos and burgers are never rotated (the hero burger's gentle float is the only
   tilt).
 
-Motion: scroll reveal (`Reveal`), marquee, hover lift with gold glow (`lift`), hero float and
+Motion: scroll reveal (`Reveal`), `.unveil` photo frames (CSS scroll-driven: the frame opens
+from a rounded crop while the photo settles from a slight zoom; no JS, off for reduced motion
+and unsupported browsers; used on the home About photos, the gallery and the About page),
+the sticky story on the About page (text sticks, photos scroll), marquee, hover lift with gold glow (`lift`), hero float and
 parallax. All motion respects `prefers-reduced-motion` (CSS block at the end of
 `styles.css`; parallax checks `matchMedia`).
 

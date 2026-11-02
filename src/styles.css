@@ -164,6 +164,41 @@
   animation: float 6s ease-in-out infinite;
 }
 
+/* Photos that unfold as they scroll into view: the frame opens from a smaller, rounded crop
+   while the photo settles from a slight zoom. Pure CSS scroll-driven animation; browsers
+   without it (and reduced motion) simply show the photo. Put .unveil on the frame
+   (overflow-hidden, rounded) around a Picture. */
+@keyframes unveil-frame {
+  from {
+    clip-path: inset(9% 7% round 26px);
+  }
+  to {
+    clip-path: inset(0 round 26px);
+  }
+}
+@keyframes unveil-photo {
+  from {
+    scale: 1.16;
+  }
+  to {
+    scale: 1;
+  }
+}
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .unveil {
+      animation: unveil-frame linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 38%;
+    }
+    .unveil img {
+      animation: unveil-photo linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 55%;
+    }
+  }
+}
+
 .reveal {
   opacity: 0;
   transform: translateY(40px);

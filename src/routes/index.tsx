@@ -178,20 +178,24 @@ function Index() {
       {/* ABOUT */}
       <section className="relative mx-auto grid max-w-7xl items-center gap-16 px-5 py-32 md:grid-cols-2">
         <Doodle kind="pretzel" className="right-2 top-8 h-36 w-36 md:h-48 md:w-48" />
-        <Reveal className="relative h-[24rem] sm:h-[28rem] md:h-[34rem]">
-          <Picture
-            image={images.placeInterior}
-            alt="Az étterem belső tere"
-            sizes="(min-width: 1280px) 480px, (min-width: 768px) 38vw, 78vw"
-            className="absolute left-0 top-0 h-[70%] w-[78%] rounded-3xl object-cover shadow-2xl"
-          />
-          <Picture
-            image={images.placeTap}
-            alt="Csapolás"
-            sizes="(min-width: 1280px) 320px, (min-width: 768px) 26vw, 52vw"
-            className="absolute bottom-0 right-0 h-[62%] w-[52%] rounded-3xl border-4 border-background object-cover shadow-2xl"
-          />
-        </Reveal>
+        <div className="relative h-[24rem] sm:h-[28rem] md:h-[34rem]">
+          <div className="unveil absolute left-0 top-0 h-[70%] w-[78%] overflow-hidden rounded-3xl shadow-2xl">
+            <Picture
+              image={images.placeInterior}
+              alt="Az étterem belső tere"
+              sizes="(min-width: 1280px) 480px, (min-width: 768px) 38vw, 78vw"
+              className="h-full w-full object-cover"
+            />
+          </div>
+          <div className="unveil absolute bottom-0 right-0 h-[62%] w-[52%] overflow-hidden rounded-3xl border-4 border-background shadow-2xl">
+            <Picture
+              image={images.placeTap}
+              alt="Csapolás"
+              sizes="(min-width: 1280px) 320px, (min-width: 768px) 26vw, 52vw"
+              className="h-full w-full object-cover"
+            />
+          </div>
+        </div>
         <Reveal delay={150}>
           <SectionHeader
             eyebrow="Rólunk"

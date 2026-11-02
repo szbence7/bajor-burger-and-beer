@@ -32,6 +32,12 @@ const values = [
   { icon: Users, title: "Jó társaság", text: "Hosszú asztalok, ahol a szomszédból is barát lesz." },
 ];
 
+const storyPhotos = [
+  { image: images.placePeople, alt: "Vendégek koccintanak" },
+  { image: images.placeInterior, alt: "Az étterem esti belső tere" },
+  { image: images.placeTap, alt: "Csapolás a pultnál" },
+];
+
 function AboutPage() {
   const { contact } = useSiteInfo();
 
@@ -46,17 +52,10 @@ function AboutPage() {
         }
       />
 
-      <section className="relative mx-auto grid max-w-7xl items-center gap-16 px-5 pb-28 md:grid-cols-2">
+      {/* Sticky story: the text stays put while the photos unfold beside it. */}
+      <section className="relative mx-auto grid max-w-7xl gap-12 px-5 pb-28 md:grid-cols-2 md:gap-16">
         <Doodle kind="pretzel" className="left-[46%] top-0 h-32 w-32 md:h-44 md:w-44" />
-        <Reveal>
-          <Picture
-            image={images.placePeople}
-            alt="Vendégek koccintanak"
-            sizes="(min-width: 1280px) 600px, (min-width: 768px) 48vw, 92vw"
-            className="w-full rounded-3xl object-cover shadow-2xl"
-          />
-        </Reveal>
-        <Reveal delay={150} className="space-y-5 text-lg text-muted-foreground">
+        <div className="space-y-5 text-lg text-muted-foreground md:sticky md:top-32 md:self-start">
           <p className="font-display text-5xl text-foreground">München → Budapest</p>
           <p>
             2019-ben két barát egy müncheni sörkertben ült, kezükben egy-egy maß, és azon
@@ -68,7 +67,19 @@ function AboutPage() {
             asztalokkal, ahol mindenkinek jut hely.
           </p>
           <p>Ma is ugyanaz a cél: őszinte étel, friss sör, hangos este.</p>
-        </Reveal>
+        </div>
+        <div className="space-y-8 md:space-y-16 md:pt-24">
+          {storyPhotos.map((p) => (
+            <div key={p.alt} className="unveil overflow-hidden rounded-3xl shadow-2xl">
+              <Picture
+                image={p.image}
+                alt={p.alt}
+                sizes="(min-width: 1280px) 600px, (min-width: 768px) 46vw, 92vw"
+                className="aspect-[4/5] w-full object-cover"
+              />
+            </div>
+          ))}
+        </div>
       </section>
 
       <section className="relative overflow-hidden bg-primary px-5 py-24 text-primary-foreground">

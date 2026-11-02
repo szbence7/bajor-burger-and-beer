@@ -46,7 +46,7 @@ export function GalleryGrid({ items: gallery }: { items: GalleryItem[] }) {
             <button
               key={g.id}
               onClick={() => setOpen(i)}
-              className="group mb-6 block w-full break-inside-avoid overflow-hidden rounded-3xl border border-border bg-card"
+              className="unveil group mb-6 block w-full break-inside-avoid overflow-hidden rounded-3xl border border-border bg-card"
             >
               <Picture
                 image={g.src}
