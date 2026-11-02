@@ -3,9 +3,10 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(41);
+select plan(42);
 
--- Start bookings and specials from a known state, whatever local data exists.
+-- Start bookings, the email log and specials from a known state, whatever local data exists.
+delete from public.notification_log;
 delete from public.reservations;
 delete from public.monthly_specials;
 insert into public.monthly_specials (name, price, sort_order)
@@ -26,11 +27,14 @@ create function pg_temp.as_anon() returns void language sql as $$
   set local role anon;
 $$;
 -- aal2 = the session passed the authenticator-app check (2FA).
-create function pg_temp.as_user(app_role text, aal text default 'aal2') returns void
+create function pg_temp.as_user(app_role text, aal text default 'aal2',
+                                 must_change boolean default false) returns void
 language sql as $$
   select set_config('request.jwt.claims',
     json_build_object('role', 'authenticated', 'sub', gen_random_uuid(), 'aal', aal,
-                      'app_metadata', json_build_object('role', app_role))::text, true);
+                      'app_metadata', json_build_object('role', app_role,
+                                                        'must_change_password', must_change)
+    )::text, true);
   set local role authenticated;
 $$;
 create function pg_temp.reset() returns void language sql as $$
@@ -160,6 +164,11 @@ select is((select count(*)::int from public.reservations), 0,
 update public.monthly_specials set name = 'Feltört';
 select is((select count(*)::int from public.monthly_specials where name = 'Feltört'), 0,
   'an admin without the second factor cannot edit the monthly specials');
+select pg_temp.reset();
+
+select pg_temp.as_user('admin', 'aal2', true);
+select is((select count(*)::int from public.reservations), 0,
+  'an admin still on the emailed temporary password sees nothing, even with 2FA');
 select pg_temp.reset();
 
 select pg_temp.as_user('admin');

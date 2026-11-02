@@ -8,6 +8,7 @@ Supabase instance.
 | `migrations/0001_content.sql`               | Menu, beers, gallery, opening hours, site settings; RLS                       |
 | `migrations/0002_reservations.sql`          | Reservations, booking rules (trigger), `available_slots()`; RLS               |
 | `migrations/0003_reservation_retention.sql` | 12-month GDPR cleanup, scheduled daily with pg_cron                           |
+| `migrations/0005_admin_users.sql`           | Temporary-password accounts are not admins; account emails in the log         |
 | `migrations/0004_admin.sql`                 | 2FA admins, decisions, Hónap ajánlata, PDF menu, email log, Storage, Realtime |
 | `seed.sql`                                  | Launch content (the mock data). Idempotent: never overwrites existing rows    |
 | `tests/booking_test.sql`                    | pgTAP tests: slots, capacity, RLS, retention                                  |
@@ -46,21 +47,25 @@ Test every new migration locally first (`bun run db:reset && bun run test:db`). 
 - **Who is an admin:** an Auth user with `app_metadata.role = 'admin'` **whose session passed
   the authenticator-app check** (`aal2`). `public.is_admin()` requires both, so every RLS
   policy (tables, Storage, Realtime) enforces 2FA; a stolen password alone sees nothing.
-- **Accounts** (sign-ups are off; run with the target instance's URL + service key in `.env`):
+- **Accounts** (sign-ups are off): admins invite colleagues in the panel (Felhasználók). The
+  new admin gets an email with a temporary password (`app_metadata.must_change_password`);
+  on first sign-in they must choose their own password, then set up the authenticator app.
+  `is_admin()` is false while the flag is set, even with 2FA, so the emailed password alone
+  never reaches data. "Visszaállítás" (lost phone or password) sends a new temporary password
+  and removes their 2FA. If the email cannot be sent, the panel shows the temporary password
+  once so it can be handed over in person. Bootstrap the first admin, or fix things, from the
+  CLI (needs the instance's URL + service key in `.env`):
 
   ```sh
   bun run admin create anna@bajorburger.hu   # prints a generated password
   bun run admin promote anna@bajorburger.hu  # make an existing user an admin
-  bun run admin reset-2fa anna@bajorburger.hu   # lost phone: sets up 2FA again on next sign-in
+  bun run admin reset-2fa anna@bajorburger.hu   # remove their authenticator
   bun run admin list
   ```
 
-  On the first sign-in the panel shows a QR code to link Google/Microsoft Authenticator (or
-  any TOTP app); after that every sign-in asks for the 6-digit code.
-
 - **Self-hosted Auth settings** (Coolify → Supabase service → environment), then restart Auth:
   `GOTRUE_DISABLE_SIGNUP=true`, `GOTRUE_MFA_TOTP_ENROLL_ENABLED=true`,
-  `GOTRUE_MFA_TOTP_VERIFY_ENABLED=true`. Keep email+password sign-in enabled
+  `GOTRUE_MFA_TOTP_VERIFY_ENABLED=true`, `GOTRUE_PASSWORD_MIN_LENGTH=10`. Keep email+password sign-in enabled
   (`GOTRUE_EXTERNAL_EMAIL_ENABLED=true`). The Realtime and Storage services must be running
   (they are part of the standard self-hosted stack).
 - **Live reservations:** `reservations` and `notification_log` are in the `supabase_realtime`
