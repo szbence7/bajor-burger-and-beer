@@ -8,6 +8,7 @@ import {
   type ReactNode,
 } from "react";
 import { AlertTriangle, Check, MinusCircle } from "lucide-react";
+import { AnimatePresence, m } from "@/components/motion";
 import { cn } from "@/lib/utils";
 import {
   NOTIFICATION_STATUS_LABELS,
@@ -96,7 +97,7 @@ export function StatusBadge({ status }: { status: ReservationStatus }) {
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-full px-3 py-1 text-xs font-extrabold uppercase tracking-wider",
+        "inline-flex items-center rounded-full px-3 py-1 text-xs font-extrabold uppercase tracking-wider transition-colors duration-500",
         statusStyles[status],
       )}
     >
@@ -158,19 +159,25 @@ export function ToastProvider({ children }: { children: ReactNode }) {
         aria-live="polite"
         className="pointer-events-none fixed inset-x-0 bottom-4 z-[110] flex flex-col items-center gap-2 px-4"
       >
-        {toasts.map((t) => (
-          <p
-            key={t.id}
-            className={cn(
-              "pointer-events-auto w-full max-w-md rounded-2xl px-5 py-3 font-bold shadow-gold",
-              t.tone === "info"
-                ? "bg-primary text-primary-foreground"
-                : "border-2 border-primary-glow bg-card text-foreground",
-            )}
-          >
-            {t.message}
-          </p>
-        ))}
+        <AnimatePresence initial={false}>
+          {toasts.map((t) => (
+            <m.p
+              key={t.id}
+              layout
+              initial={{ opacity: 0, y: 24, scale: 0.97 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.97, transition: { duration: 0.2 } }}
+              className={cn(
+                "pointer-events-auto w-full max-w-md rounded-2xl px-5 py-3 font-bold shadow-gold",
+                t.tone === "info"
+                  ? "bg-primary text-primary-foreground"
+                  : "border-2 border-primary-glow bg-card text-foreground",
+              )}
+            >
+              {t.message}
+            </m.p>
+          ))}
+        </AnimatePresence>
       </div>
     </ToastContext.Provider>
   );

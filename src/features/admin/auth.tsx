@@ -12,6 +12,7 @@ import {
 } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { BrandLogo } from "@/components/BrandLogo";
+import { Swap, m } from "@/components/motion";
 import { Button, Card, inputClass, labelClass } from "./ui";
 import { adminSupabase } from "./supabase";
 import { completePasswordChangeFn } from "./api";
@@ -412,17 +413,20 @@ export function AdminAuthGate({ children }: { children: ReactNode }) {
 
   const signOut = () => void adminSupabase().auth.signOut();
 
+  let screen: ReactNode;
   switch (stage.name) {
     case "loading":
-      return (
+      screen = (
         <div className="flex min-h-[100svh] items-center justify-center text-muted-foreground">
           Betöltés…
         </div>
       );
+      break;
     case "signedOut":
-      return <Login />;
+      screen = <Login />;
+      break;
     case "notAdmin":
-      return (
+      screen = (
         <Screen title="Nincs jogosultság">
           <p className="mb-6 text-muted-foreground">
             Ez a fiók nem admin. Kérd meg a rendszergazdát, hogy adjon hozzáférést.
@@ -432,17 +436,26 @@ export function AdminAuthGate({ children }: { children: ReactNode }) {
           </Button>
         </Screen>
       );
+      break;
     case "changePassword":
-      return <ChangePassword onSignOut={signOut} />;
+      screen = <ChangePassword onSignOut={signOut} />;
+      break;
     case "enroll":
-      return <Enroll onSignOut={signOut} />;
+      screen = <Enroll onSignOut={signOut} />;
+      break;
     case "verify":
-      return <Verify factorId={stage.factorId} onSignOut={signOut} />;
+      screen = <Verify factorId={stage.factorId} onSignOut={signOut} />;
+      break;
     case "ready":
+      // Opacity only: a transform here would trap the panel's fixed toasts.
       return (
         <AdminUserContext.Provider value={{ email: stage.email, signOut }}>
-          {children}
+          <m.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }}>
+            {children}
+          </m.div>
         </AdminUserContext.Provider>
       );
   }
+  // The sign-in steps cross-fade into each other.
+  return <Swap id={stage.name}>{screen}</Swap>;
 }

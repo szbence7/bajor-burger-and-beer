@@ -10,6 +10,8 @@ import {
   type AdminUser,
 } from "./schema";
 import { Button, Card, PageTitle, formatTimestamp, inputClass, labelClass, useToast } from "./ui";
+import { Collapse } from "@/components/motion";
+import { useSmoothList } from "@/lib/motion";
 
 const QUERY_KEY = ["admin", "users"];
 
@@ -96,12 +98,12 @@ function InviteForm() {
             {invite.isPending ? "Küldés…" : "Meghívom"}
           </Button>
         </div>
-        {error && (
-          <p id="invite-error" className="mt-2 text-sm font-bold text-primary-glow">
+        <Collapse open={Boolean(error)}>
+          <p id="invite-error" className="pt-2 text-sm font-bold text-primary-glow">
             {error}
           </p>
-        )}
-        {handOver && <HandOver {...handOver} />}
+        </Collapse>
+        <Collapse open={Boolean(handOver)}>{handOver && <HandOver {...handOver} />}</Collapse>
       </form>
     </Card>
   );
@@ -187,13 +189,16 @@ function UserRow({ user }: { user: AdminUser }) {
             </div>
           )}
         </div>
-        {handOver && <HandOver email={user.email} outcome={handOver} />}
+        <Collapse open={Boolean(handOver)}>
+          {handOver && <HandOver email={user.email} outcome={handOver} />}
+        </Collapse>
       </Card>
     </li>
   );
 }
 
 export function UsersManager() {
+  const listRef = useSmoothList<HTMLUListElement>();
   const query = useQuery({
     queryKey: QUERY_KEY,
     queryFn: async () => {
@@ -217,7 +222,7 @@ export function UsersManager() {
       ) : query.isPending ? (
         <p className="text-muted-foreground">Betöltés…</p>
       ) : (
-        <ul className="space-y-4">
+        <ul ref={listRef} className="space-y-4">
           {query.data.map((u) => (
             <UserRow key={u.id} user={u} />
           ))}

@@ -16,6 +16,8 @@ import {
   type SpecialRow,
 } from "./schema";
 import { adminSupabase } from "./supabase";
+import { Collapse, Swap } from "@/components/motion";
+import { useSmoothList } from "@/lib/motion";
 import { removeUploadedImage, uploadImage } from "./upload";
 import { Button, Card, PageTitle, inputClass, labelClass, useToast } from "./ui";
 
@@ -243,6 +245,8 @@ function SpecialForm({ special, onDone }: { special: SpecialRow | null; onDone: 
 }
 
 export function SpecialsEditor() {
+  // Reordering, adding and deleting slide the cards instead of jumping.
+  const listRef = useSmoothList<HTMLOListElement>();
   const query = useSpecials();
   const queryClient = useQueryClient();
   const toast = useToast();
@@ -309,11 +313,11 @@ export function SpecialsEditor() {
         {visible > 0 && ` Most ${visible} látható.`}
       </p>
 
-      {editing === "new" && (
-        <div className="mb-6">
+      <Collapse open={editing === "new"}>
+        <div className="pb-6">
           <SpecialForm special={null} onDone={() => setEditing(null)} />
         </div>
-      )}
+      </Collapse>
 
       {query.isError ? (
         <Card>
@@ -329,11 +333,13 @@ export function SpecialsEditor() {
           <p className="text-muted-foreground">Még nincs ajánlat.</p>
         </Card>
       ) : (
-        <ol className="space-y-4">
+        <ol ref={listRef} className="space-y-4">
           {rows.map((s, i) =>
             editing !== "new" && editing?.id === s.id ? (
               <li key={s.id}>
-                <SpecialForm special={s} onDone={() => setEditing(null)} />
+                <Swap id="edit">
+                  <SpecialForm special={s} onDone={() => setEditing(null)} />
+                </Swap>
               </li>
             ) : (
               <li key={s.id}>

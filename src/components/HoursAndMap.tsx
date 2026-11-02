@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { MapPin, Phone, Mail } from "lucide-react";
 import { ctaClass } from "@/lib/cta";
+import { m } from "./motion";
 import { useSiteInfo } from "@/lib/site-info";
 import { formatHours } from "@/lib/format";
 import { RautenPattern } from "./RautenPattern";
@@ -27,7 +28,10 @@ export function MapCard() {
   return (
     <div className="relative h-full min-h-80 overflow-hidden rounded-3xl border border-border bg-card">
       {show ? (
-        <iframe
+        <m.iframe
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.6 }}
           title={`Térkép: ${contact.address}`}
           src={`https://www.google.com/maps?q=${query}&output=embed&hl=hu`}
           className="absolute inset-0 h-full w-full border-0"

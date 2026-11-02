@@ -11,6 +11,7 @@ import {
   notificationRow,
 } from "./schema";
 import { adminSupabase } from "./supabase";
+import { useSmoothList } from "@/lib/motion";
 import { Button, Card, Chip, EmailStatus, PageTitle, formatTimestamp, useToast } from "./ui";
 
 const logRow = notificationRow.extend({
@@ -38,6 +39,8 @@ function useLog(onlyProblems: boolean) {
 
 /** Every email the site tried to send, newest first, with its outcome. */
 export function NotificationLog() {
+  // New entries arriving live slide in.
+  const listRef = useSmoothList<HTMLUListElement>();
   const [onlyProblems, setOnlyProblems] = useState(false);
   const query = useLog(onlyProblems);
   const queryClient = useQueryClient();
@@ -89,7 +92,10 @@ export function NotificationLog() {
           </p>
         </Card>
       ) : (
-        <ul className="divide-y divide-border rounded-3xl border border-border bg-card">
+        <ul
+          ref={listRef}
+          className="divide-y divide-border rounded-3xl border border-border bg-card"
+        >
           {rows.map((n) => (
             <li key={n.id} className="flex flex-col gap-1 p-4 sm:p-5">
               <div className="flex flex-wrap items-center justify-between gap-2">

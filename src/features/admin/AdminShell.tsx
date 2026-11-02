@@ -3,6 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Bell, BellOff, LogOut } from "lucide-react";
 import { BrandLogo } from "@/components/BrandLogo";
+import { m } from "@/components/motion";
 import { formatDateHu, todayInBudapest } from "@/lib/date";
 import { cn } from "@/lib/utils";
 import { useAdminUser } from "./auth";
@@ -191,17 +192,28 @@ function ShellInner({ children }: { children: ReactNode }) {
               key={n.to}
               to={n.to}
               activeOptions={{ exact: true }}
-              className="flex shrink-0 items-center gap-2 rounded-full px-4 py-2 text-sm font-extrabold uppercase tracking-wider text-muted-foreground transition-colors hover:text-primary"
-              activeProps={{ className: "bg-primary !text-primary-foreground" }}
+              className="relative isolate flex shrink-0 items-center gap-2 rounded-full px-4 py-2 text-sm font-extrabold uppercase tracking-wider text-muted-foreground transition-colors hover:text-primary"
+              activeProps={{ className: "!text-primary-foreground" }}
             >
-              {n.label}
-              {n.to === "/admin" && pending > 0 && (
-                <span
-                  className="rounded-full bg-forest px-2 py-0.5 text-xs text-forest-foreground"
-                  aria-label={`${pending} függőben`}
-                >
-                  {pending}
-                </span>
+              {({ isActive }) => (
+                <>
+                  {/* The gold pill slides to the open page. */}
+                  {isActive && (
+                    <m.span
+                      layoutId="admin-tab"
+                      className="absolute inset-0 -z-10 rounded-full bg-primary"
+                    />
+                  )}
+                  {n.label}
+                  {n.to === "/admin" && pending > 0 && (
+                    <span
+                      className="rounded-full bg-forest px-2 py-0.5 text-xs text-forest-foreground"
+                      aria-label={`${pending} függőben`}
+                    >
+                      {pending}
+                    </span>
+                  )}
+                </>
               )}
             </Link>
           ))}

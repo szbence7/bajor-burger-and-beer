@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { saveSiteDetailsFn } from "./api";
 import { ADMIN_ERRORS, SOCIAL_NETWORKS, siteDetailsInput, type SiteDetailsInput } from "./schema";
 import { adminSupabase } from "./supabase";
+import { Collapse, Swap } from "@/components/motion";
 import { Button, Card, PageTitle, inputClass, labelClass, useToast } from "./ui";
 
 const QUERY_KEY = ["admin", "site-details"];
@@ -126,11 +127,11 @@ function Field({
         onChange={(e) => onChange(e.target.value)}
         {...input}
       />
-      {error && (
-        <p id={`${id}-error`} className="mt-2 text-sm font-bold text-primary-glow">
+      <Collapse open={Boolean(error)}>
+        <p id={`${id}-error`} className="pt-2 text-sm font-bold text-primary-glow">
           {error}
         </p>
-      )}
+      </Collapse>
     </div>
   );
 }
@@ -265,39 +266,39 @@ function Form({ initial }: { initial: FormState }) {
                 />
                 Nyitva
               </label>
-              {d.open ? (
-                <span className="flex items-center gap-2">
-                  <label className="sr-only" htmlFor={`site-hours.${i}.opens`}>
-                    {WEEKDAY_LABELS[d.day]} nyitás
-                  </label>
-                  <input
-                    id={`site-hours.${i}.opens`}
-                    type="time"
-                    className={cn(inputClass, "w-32 py-2")}
-                    value={d.opens}
-                    onChange={(e) => setDay(i, { opens: e.target.value })}
-                  />
-                  –
-                  <label className="sr-only" htmlFor={`site-hours.${i}.closes`}>
-                    {WEEKDAY_LABELS[d.day]} zárás
-                  </label>
-                  <input
-                    id={`site-hours.${i}.closes`}
-                    type="time"
-                    className={cn(inputClass, "w-32 py-2")}
-                    aria-invalid={err(`hours.${i}.closes`) ? true : undefined}
-                    value={d.closes}
-                    onChange={(e) => setDay(i, { closes: e.target.value })}
-                  />
-                </span>
-              ) : (
-                <span className="text-sm text-muted-foreground">Zárva</span>
-              )}
-              {err(`hours.${i}.closes`) && (
-                <p className="basis-full text-sm font-bold text-primary-glow">
-                  {err(`hours.${i}.closes`)}
-                </p>
-              )}
+              <Swap id={d.open ? "open" : "closed"}>
+                {d.open ? (
+                  <span className="flex items-center gap-2">
+                    <label className="sr-only" htmlFor={`site-hours.${i}.opens`}>
+                      {WEEKDAY_LABELS[d.day]} nyitás
+                    </label>
+                    <input
+                      id={`site-hours.${i}.opens`}
+                      type="time"
+                      className={cn(inputClass, "w-32 py-2")}
+                      value={d.opens}
+                      onChange={(e) => setDay(i, { opens: e.target.value })}
+                    />
+                    –
+                    <label className="sr-only" htmlFor={`site-hours.${i}.closes`}>
+                      {WEEKDAY_LABELS[d.day]} zárás
+                    </label>
+                    <input
+                      id={`site-hours.${i}.closes`}
+                      type="time"
+                      className={cn(inputClass, "w-32 py-2")}
+                      aria-invalid={err(`hours.${i}.closes`) ? true : undefined}
+                      value={d.closes}
+                      onChange={(e) => setDay(i, { closes: e.target.value })}
+                    />
+                  </span>
+                ) : (
+                  <span className="text-sm text-muted-foreground">Zárva</span>
+                )}
+              </Swap>
+              <Collapse open={Boolean(err(`hours.${i}.closes`))} className="basis-full">
+                <p className="text-sm font-bold text-primary-glow">{err(`hours.${i}.closes`)}</p>
+              </Collapse>
             </li>
           ))}
         </ul>

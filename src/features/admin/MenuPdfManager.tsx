@@ -6,6 +6,7 @@ import { absoluteUrl } from "@/lib/site";
 import { setMenuPdfFn } from "./api";
 import { ADMIN_ERRORS, MENU_PDF_MAX_BYTES } from "./schema";
 import { adminSupabase } from "./supabase";
+import { useSmoothList } from "@/lib/motion";
 import { Button, Card, PageTitle, formatTimestamp, useToast } from "./ui";
 
 const QUERY_KEY = ["admin", "menu-pdf"];
@@ -31,6 +32,8 @@ function useMenuPdf() {
 }
 
 export function MenuPdfManager() {
+  // Loading → current file → replaced file ease instead of jumping.
+  const stateRef = useSmoothList<HTMLDivElement>();
   const query = useMenuPdf();
   const queryClient = useQueryClient();
   const toast = useToast();
@@ -102,39 +105,41 @@ export function MenuPdfManager() {
       </p>
 
       <Card className="mb-6">
-        {query.isPending ? (
-          <p className="text-muted-foreground">Betöltés…</p>
-        ) : query.isError ? (
-          <p>Nem sikerült betölteni.</p>
-        ) : current ? (
-          <div className="flex flex-wrap items-center gap-4">
-            <FileText className="h-12 w-12 shrink-0 text-primary" aria-hidden />
-            <div className="min-w-0 flex-1">
-              <p className="font-bold">Jelenlegi étlap</p>
-              <p className="text-sm text-muted-foreground">
-                Feltöltve:{" "}
-                {current.menu_pdf_updated_at && formatTimestamp(current.menu_pdf_updated_at)}
-              </p>
+        <div ref={stateRef}>
+          {query.isPending ? (
+            <p className="text-muted-foreground">Betöltés…</p>
+          ) : query.isError ? (
+            <p>Nem sikerült betölteni.</p>
+          ) : current ? (
+            <div className="flex flex-wrap items-center gap-4">
+              <FileText className="h-12 w-12 shrink-0 text-primary" aria-hidden />
+              <div className="min-w-0 flex-1">
+                <p className="font-bold">Jelenlegi étlap</p>
+                <p className="text-sm text-muted-foreground">
+                  Feltöltve:{" "}
+                  {current.menu_pdf_updated_at && formatTimestamp(current.menu_pdf_updated_at)}
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <a
+                  href={PUBLIC_PATH}
+                  target="_blank"
+                  rel="noopener"
+                  className="inline-flex min-h-11 items-center gap-2 rounded-full border-2 border-border px-5 py-2.5 text-sm font-extrabold uppercase tracking-wider hover:border-primary"
+                >
+                  <ExternalLink className="h-4 w-4" aria-hidden /> Megnyitás
+                </a>
+                <Button variant="ghost" disabled={busy !== null} onClick={() => void remove()}>
+                  {busy === "remove" ? "Levétel…" : "Levétel"}
+                </Button>
+              </div>
             </div>
-            <div className="flex flex-wrap gap-2">
-              <a
-                href={PUBLIC_PATH}
-                target="_blank"
-                rel="noopener"
-                className="inline-flex min-h-11 items-center gap-2 rounded-full border-2 border-border px-5 py-2.5 text-sm font-extrabold uppercase tracking-wider hover:border-primary"
-              >
-                <ExternalLink className="h-4 w-4" aria-hidden /> Megnyitás
-              </a>
-              <Button variant="ghost" disabled={busy !== null} onClick={() => void remove()}>
-                {busy === "remove" ? "Levétel…" : "Levétel"}
-              </Button>
-            </div>
-          </div>
-        ) : (
-          <p className="text-muted-foreground">
-            Még nincs feltöltött étlap, a Menü oldalon nem látszik PDF gomb.
-          </p>
-        )}
+          ) : (
+            <p className="text-muted-foreground">
+              Még nincs feltöltött étlap, a Menü oldalon nem látszik PDF gomb.
+            </p>
+          )}
+        </div>
       </Card>
 
       <input

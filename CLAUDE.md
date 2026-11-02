@@ -290,7 +290,13 @@ Signature elements:
   hover. Photos and burgers are never rotated (the hero burger's gentle float is the only
   tilt).
 
-Motion: scroll reveal (`Reveal`), `.unveil` photo frames (CSS scroll-driven: the frame opens
+Motion: nothing may appear, disappear or move with a jump. Use `src/components/motion.tsx`
+(Motion via `m` components with lazily loaded features — never `motion.*`, LazyMotion is
+strict): `Collapse` for content that opens/closes (menus, errors, panels), `Swap` for content
+replaced by `id` (form steps, screens), `layoutId` pills for active tabs/filters, and
+`useSmoothList()` from `src/lib/motion.ts` (AutoAnimate) on list containers. Page changes
+cross-fade via the router's `defaultViewTransition`. All of it honours reduced motion. Also:
+scroll reveal (`Reveal`), `.unveil` photo frames (CSS scroll-driven: the frame opens
 from a rounded crop while the photo settles from a slight zoom; no JS, off for reduced motion
 and unsupported browsers; used on the home About photos, the gallery and the About page),
 the sticky story on the About page (text sticks, photos scroll), marquee, hover lift with gold glow (`lift`), hero float and

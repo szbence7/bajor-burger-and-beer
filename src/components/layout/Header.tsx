@@ -1,9 +1,10 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useRouterState } from "@tanstack/react-router";
 import { Menu as MenuIcon, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { ctaClass } from "@/lib/cta";
 import { BrandLogo } from "@/components/BrandLogo";
+import { Collapse, Swap } from "@/components/motion";
 import { useSiteInfo } from "@/lib/site-info";
 
 const nav = [
@@ -17,6 +18,9 @@ export function Header() {
   const { name } = useSiteInfo();
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  // Close the mobile menu on any navigation, not only via its own links.
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  useEffect(() => setOpen(false), [pathname]);
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 30);
     onScroll();
@@ -64,11 +68,13 @@ export function Header() {
           onClick={() => setOpen((o) => !o)}
           aria-label="Menü megnyitása"
         >
-          {open ? <X className="h-8 w-8" /> : <MenuIcon className="h-8 w-8" />}
+          <Swap id={open ? "close" : "open"}>
+            {open ? <X className="h-8 w-8" /> : <MenuIcon className="h-8 w-8" />}
+          </Swap>
         </button>
       </div>
-      {open && (
-        <nav className="flex flex-col gap-2 px-5 pb-8 lg:hidden">
+      <Collapse open={open} className="lg:hidden">
+        <nav className="flex flex-col gap-2 px-5 pb-8">
           {nav.map((n) => (
             <Link
               key={n.to}
@@ -83,7 +89,7 @@ export function Header() {
             Asztalfoglalás
           </Link>
         </nav>
-      )}
+      </Collapse>
     </header>
   );
 }

@@ -22,6 +22,8 @@ import {
   type ReservationStatus,
 } from "./schema";
 import { adminSupabase } from "./supabase";
+import { Swap } from "@/components/motion";
+import { useSmoothList } from "@/lib/motion";
 import {
   Button,
   Card,
@@ -121,6 +123,8 @@ function useResultToast() {
 }
 
 function EmailLog({ log }: { log: NotificationRow[] }) {
+  // New log rows (arriving live) slide in.
+  const listRef = useSmoothList<HTMLUListElement>();
   const queryClient = useQueryClient();
   const report = useResultToast();
   const resend = useMutation({
@@ -134,7 +138,7 @@ function EmailLog({ log }: { log: NotificationRow[] }) {
     return <p className="text-sm text-muted-foreground">Még nem ment ki értesítés.</p>;
   }
   return (
-    <ul className="space-y-2">
+    <ul ref={listRef} className="space-y-2">
       {log.map((n) => (
         <li key={n.id} className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
           <EmailStatus status={n.status} />
@@ -298,28 +302,31 @@ function ReservationCard({ r }: { r: ReservationRow }) {
         <EmailLog log={r.notification_log} />
       </div>
 
-      {deciding ? (
-        <Decision reservation={r} status={deciding} onClose={() => setDeciding(null)} />
-      ) : (
-        <div className="mt-4 flex flex-wrap gap-2">
-          {NEXT_STATUSES[r.status].map((s) => (
-            <Button
-              key={s}
-              // Undoing a rejection is the exception, so it is not the loud gold button.
-              variant={s === "confirmed" && !isReopening(r.status, s) ? "gold" : "outline"}
-              onClick={() => setDeciding(s)}
-              className="flex-1 sm:flex-none"
-            >
-              {decisionLabel(r.status, s)}
-            </Button>
-          ))}
-        </div>
-      )}
+      <Swap id={deciding ?? "actions"}>
+        {deciding ? (
+          <Decision reservation={r} status={deciding} onClose={() => setDeciding(null)} />
+        ) : (
+          <div className="mt-4 flex flex-wrap gap-2">
+            {NEXT_STATUSES[r.status].map((s) => (
+              <Button
+                key={s}
+                // Undoing a rejection is the exception, so it is not the loud gold button.
+                variant={s === "confirmed" && !isReopening(r.status, s) ? "gold" : "outline"}
+                onClick={() => setDeciding(s)}
+                className="flex-1 sm:flex-none"
+              >
+                {decisionLabel(r.status, s)}
+              </Button>
+            ))}
+          </div>
+        )}
+      </Swap>
     </Card>
   );
 }
 
 export function ReservationsBoard() {
+  const daysRef = useSmoothList<HTMLDivElement>();
   const [today, setToday] = useState("");
   useEffect(() => setToday(todayInBudapest()), []);
   const [filters, setFilters] = useState<Filters>({ range: "upcoming", day: "", status: "all" });
@@ -381,33 +388,39 @@ export function ReservationsBoard() {
           <p className="text-muted-foreground">Nincs foglalás ezekkel a szűrőkkel.</p>
         </Card>
       ) : (
-        <div className="space-y-10">
-          {[...days].map(([date, list]) => {
-            const guests = list
-              .filter((r) => r.status === "pending" || r.status === "confirmed")
-              .reduce((sum, r) => sum + r.party_size, 0);
-            return (
-              <section key={date} aria-labelledby={`day-${date}`}>
-                <h2
-                  id={`day-${date}`}
-                  className="sticky top-[7.5rem] z-10 -mx-4 mb-3 bg-background/95 px-4 py-2 font-display text-2xl backdrop-blur"
-                >
-                  {date === today ? "Ma — " : ""}
-                  {formatDateHu(date)}
-                  <span className="ml-3 font-sans text-sm font-bold normal-case tracking-normal text-muted-foreground">
-                    {list.length} foglalás · {guests} fő várható
-                  </span>
-                </h2>
-                <div className="grid gap-4 md:grid-cols-2">
-                  {list.map((r) => (
-                    <ReservationCard key={r.id} r={r} />
-                  ))}
-                </div>
-              </section>
-            );
-          })}
+        <div ref={daysRef} className="space-y-10">
+          {[...days].map(([date, list]) => (
+            <Day key={date} date={date} list={list} today={today} />
+          ))}
         </div>
       )}
     </>
+  );
+}
+
+/** One day's bookings; cards arriving live, leaving on a filter change or moving ease. */
+function Day({ date, list, today }: { date: string; list: ReservationRow[]; today: string }) {
+  const cardsRef = useSmoothList<HTMLDivElement>();
+  const guests = list
+    .filter((r) => r.status === "pending" || r.status === "confirmed")
+    .reduce((sum, r) => sum + r.party_size, 0);
+  return (
+    <section aria-labelledby={`day-${date}`}>
+      <h2
+        id={`day-${date}`}
+        className="sticky top-[7.5rem] z-10 -mx-4 mb-3 bg-background/95 px-4 py-2 font-display text-2xl backdrop-blur"
+      >
+        {date === today ? "Ma — " : ""}
+        {formatDateHu(date)}
+        <span className="ml-3 font-sans text-sm font-bold normal-case tracking-normal text-muted-foreground">
+          {list.length} foglalás · {guests} fő várható
+        </span>
+      </h2>
+      <div ref={cardsRef} className="grid gap-4 md:grid-cols-2">
+        {list.map((r) => (
+          <ReservationCard key={r.id} r={r} />
+        ))}
+      </div>
+    </section>
   );
 }

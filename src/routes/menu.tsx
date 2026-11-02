@@ -10,6 +10,7 @@ import { Price } from "@/components/Price";
 import { Doodle } from "@/components/Doodle";
 import { FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { m } from "@/components/motion";
 import { ctaClass } from "@/lib/cta";
 import { useSiteInfo } from "@/lib/site-info";
 import { seo } from "@/lib/seo";
@@ -78,12 +79,19 @@ function MenuPage() {
               key={t.id}
               href={`#${t.id}`}
               className={cn(
-                "shrink-0 rounded-full px-5 py-2 text-sm font-extrabold uppercase tracking-widest transition-colors",
+                "relative isolate shrink-0 rounded-full px-5 py-2 text-sm font-extrabold uppercase tracking-widest transition-colors",
                 active === t.id
-                  ? "bg-primary text-primary-foreground"
+                  ? "text-primary-foreground"
                   : "text-muted-foreground hover:text-primary",
               )}
             >
+              {/* The gold pill slides to the active tab. */}
+              {active === t.id && (
+                <m.span
+                  layoutId="menu-tab"
+                  className="absolute inset-0 -z-10 rounded-full bg-primary"
+                />
+              )}
               {t.label}
             </a>
           ))}

@@ -22,6 +22,7 @@ import { restaurantJsonLd, toJsonLdScript } from "@/lib/structured-data";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { Doodle } from "@/components/Doodle";
+import { MotionProvider } from "@/components/motion";
 import { ctaClass } from "@/lib/cta";
 
 function NotFoundComponent() {
@@ -161,17 +162,19 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {isAdmin ? (
-        <Outlet />
-      ) : (
-        <>
-          <Header />
-          <main className="overflow-x-clip">
-            <Outlet />
-          </main>
-          <Footer />
-        </>
-      )}
+      <MotionProvider>
+        {isAdmin ? (
+          <Outlet />
+        ) : (
+          <>
+            <Header />
+            <main className="overflow-x-clip">
+              <Outlet />
+            </main>
+            <Footer />
+          </>
+        )}
+      </MotionProvider>
     </QueryClientProvider>
   );
 }
