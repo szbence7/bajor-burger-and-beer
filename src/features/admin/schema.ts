@@ -157,12 +157,19 @@ export const inviteInput = z.object({
 
 export const PASSWORD_MIN_LENGTH = 10;
 
-export const newPasswordInput = z.object({
-  password: z
-    .string()
-    .min(PASSWORD_MIN_LENGTH, `Legalább ${PASSWORD_MIN_LENGTH} karakter legyen.`)
-    .max(72, "Legfeljebb 72 karakter lehet."),
-});
+export const newPasswordInput = z
+  .object({
+    /** The temporary password again, so a left-open session alone can't set one. */
+    currentPassword: z.string().min(1, "Add meg a jelenlegi (ideiglenes) jelszavad."),
+    password: z
+      .string()
+      .min(PASSWORD_MIN_LENGTH, `Legalább ${PASSWORD_MIN_LENGTH} karakter legyen.`)
+      .max(72, "Legfeljebb 72 karakter lehet."),
+  })
+  .refine((v) => v.password !== v.currentPassword, {
+    message: "Az új jelszó nem lehet ugyanaz, mint a jelenlegi.",
+    path: ["password"],
+  });
 
 export interface AdminUser {
   id: string;
@@ -193,6 +200,7 @@ export const ADMIN_ERRORS = {
   self: "A saját fiókodat nem törölheted és nem állíthatod vissza.",
   last_admin: "Ő az utolsó admin, nem törölhető.",
   weak_password: "Ez a jelszó túl gyenge vagy túl gyakori. Válassz másikat.",
+  wrong_password: "A jelenlegi jelszó nem stimmel.",
   unknown: "Valami hiba történt. Próbáld újra.",
 } as const;
 export type AdminErrorCode = keyof typeof ADMIN_ERRORS;

@@ -108,5 +108,7 @@ export const completePasswordChangeFn = createServerFn({ method: "POST" })
   .middleware([adminAuth])
   .inputValidator(newPasswordInput)
   .handler(({ data, context }) =>
-    context.token ? completePasswordChange(context.token, data.password) : unauthorized,
+    context.token
+      ? completePasswordChange(context.token, data.currentPassword, data.password)
+      : unauthorized,
   );

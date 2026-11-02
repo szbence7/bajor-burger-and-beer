@@ -49,7 +49,7 @@ Test every new migration locally first (`bun run db:reset && bun run test:db`). 
   policy (tables, Storage, Realtime) enforces 2FA; a stolen password alone sees nothing.
 - **Accounts** (sign-ups are off): admins invite colleagues in the panel (Felhasználók). The
   new admin gets an email with a temporary password (`app_metadata.must_change_password`);
-  on first sign-in they must choose their own password, then set up the authenticator app.
+  on first sign-in they must enter it again and choose their own password (twice), then set up the authenticator app.
   `is_admin()` is false while the flag is set, even with 2FA, so the emailed password alone
   never reaches data. "Visszaállítás" (lost phone or password) sends a new temporary password
   and removes their 2FA. If the email cannot be sent, the panel shows the temporary password

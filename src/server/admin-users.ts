@@ -5,7 +5,7 @@ import type { User } from "@supabase/supabase-js";
 import type { AccountEmailOutcome, AdminResult, AdminUser } from "@/features/admin/schema";
 import { fail, failFrom } from "./admin";
 import { deliverAccountEmail } from "./notifications";
-import { getServiceSupabase, getUserSupabase } from "./supabase";
+import { createAnonSupabase, getServiceSupabase, getUserSupabase } from "./supabase";
 
 /** 12 characters from an unambiguous alphabet, easy to type from an email. */
 export function temporaryPassword(): string {
@@ -141,6 +141,7 @@ async function accountEmail(
  */
 export async function completePasswordChange(
   token: string,
+  currentPassword: string,
   password: string,
 ): Promise<AdminResult> {
   const service = getServiceSupabase().auth;
@@ -150,6 +151,14 @@ export async function completePasswordChange(
   if (!isAdminUser(user) || user.app_metadata["must_change_password"] !== true) {
     return fail("forbidden");
   }
+  // The current (temporary) password again. The check signs in on a throwaway client; that
+  // session ends with the password change below, which revokes the user's sessions.
+  const check = await createAnonSupabase().auth.signInWithPassword({
+    email: user.email ?? "",
+    password: currentPassword,
+  });
+  if (check.error) return fail("wrong_password");
+
   const { error } = await service.admin.updateUserById(user.id, {
     password,
     app_metadata: { ...user.app_metadata, must_change_password: false },

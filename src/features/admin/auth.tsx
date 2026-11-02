@@ -182,6 +182,7 @@ const codeError = "Hibás vagy lejárt kód. Írd be az alkalmazásban éppen l�
 
 /** First sign-in with the emailed temporary password: choose an own one. */
 function ChangePassword({ onSignOut }: { onSignOut: () => void }) {
+  const [currentPassword, setCurrentPassword] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [error, setError] = useState("");
@@ -190,7 +191,7 @@ function ChangePassword({ onSignOut }: { onSignOut: () => void }) {
   const submit = async (e: FormEvent) => {
     e.preventDefault();
     setError("");
-    const parsed = newPasswordInput.safeParse({ password });
+    const parsed = newPasswordInput.safeParse({ currentPassword, password });
     if (!parsed.success) {
       setError(parsed.error.issues[0]?.message ?? ADMIN_ERRORS.unknown);
       return;
@@ -222,10 +223,23 @@ function ChangePassword({ onSignOut }: { onSignOut: () => void }) {
   return (
     <Screen title="Új jelszó">
       <p className="mb-6 text-muted-foreground">
-        Ideiglenes jelszóval léptél be. Adj meg egy saját jelszót (legalább {PASSWORD_MIN_LENGTH}{" "}
-        karakter), utána a kétlépcsős azonosítást állítjuk be.
+        Ideiglenes jelszóval léptél be. Add meg még egyszer, majd válassz egy saját jelszót
+        (legalább {PASSWORD_MIN_LENGTH} karakter). Utána a kétlépcsős azonosítást állítjuk be.
       </p>
       <form onSubmit={submit} className="space-y-4" noValidate>
+        <div>
+          <label htmlFor="admin-current-password" className={labelClass}>
+            Jelenlegi (ideiglenes) jelszó
+          </label>
+          <input
+            id="admin-current-password"
+            type="password"
+            autoComplete="current-password"
+            className={inputClass}
+            value={currentPassword}
+            onChange={(e) => setCurrentPassword(e.target.value)}
+          />
+        </div>
         <div>
           <label htmlFor="admin-new-password" className={labelClass}>
             Új jelszó

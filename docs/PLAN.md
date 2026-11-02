@@ -196,8 +196,8 @@ Agreed with the user during Phases 1–2. These override the original prompt whe
     the public `menu` bucket; the Menü page shows an "Étlap PDF-ben" button once one exists.
     The HTML menu page stays as it is.
 28. **Admin accounts from the panel** (user request, 2026-11-02): no self-registration; an
-    admin invites a colleague by email, who receives a temporary password, must set their own
-    password on first sign-in and then set up 2FA. `is_admin()` ignores accounts still on the
+    admin invites a colleague by email, who receives a temporary password, must enter it again and
+    set their own password (twice) on first sign-in, then set up 2FA. `is_admin()` ignores accounts still on the
     temporary password. Admins can also reset (new temporary password + 2FA removed) and
     remove other admins; never themselves, never the last admin.
 
