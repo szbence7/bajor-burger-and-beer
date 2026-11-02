@@ -7,6 +7,7 @@ import type { Drink } from "@/data/drinks";
 import { galleryCategories, type GalleryItem } from "@/data/gallery";
 import { WEEKDAYS, type OpeningHour, type SiteInfo } from "@/data/info";
 import { MENU_BADGES, type Burger, type Side } from "@/data/menu";
+import type { MonthlySpecial } from "@/data/specials";
 
 /** "12:00:00" → "12:00" */
 const time = z
@@ -29,6 +30,8 @@ export const siteSettingsRow = z.object({
   booking_days_ahead: z.number().int(),
   booking_min_notice_minutes: z.number().int(),
   booking_hold_minutes: z.number().int(),
+  menu_pdf_path: z.string().nullable(),
+  menu_pdf_updated_at: z.string().nullable(),
 });
 
 export const openingHourRow = z.object({
@@ -62,6 +65,14 @@ export const beerRow = z.object({
   is_house: z.boolean(),
 });
 
+export const specialRow = z.object({
+  id: z.string(),
+  name: z.string(),
+  description: z.string(),
+  price: z.number().int(),
+  image: z.string().nullable(),
+});
+
 export const galleryImageRow = z.object({
   id: z.string(),
   url: z.string(),
@@ -93,6 +104,10 @@ export function toSiteInfo(
       minNoticeMinutes: settings.booking_min_notice_minutes,
       holdMinutes: settings.booking_hold_minutes,
     },
+    menuPdf:
+      settings.menu_pdf_path && settings.menu_pdf_updated_at
+        ? { updatedAt: settings.menu_pdf_updated_at }
+        : null,
   };
 }
 
@@ -142,6 +157,17 @@ export function toBeer(r: z.infer<typeof beerRow>): Beer {
     sizes: r.sizes,
     ...(r.is_house && { house: true }),
     ...(image && { image }),
+  };
+}
+
+export function toSpecial(r: z.infer<typeof specialRow>): MonthlySpecial {
+  return {
+    id: r.id,
+    name: r.name,
+    description: r.description,
+    price: r.price,
+    // The cards always show a photo; fall back to the hero burger.
+    image: resolveImage(r.image) ?? images.burgerHero,
   };
 }
 

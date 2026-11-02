@@ -54,4 +54,6 @@ export interface SiteInfo {
   contact: Contact;
   openingHours: OpeningHour[];
   booking: BookingSettings;
+  /** The downloadable menu (served at /etlap.pdf); null until the staff upload one. */
+  menuPdf: { updatedAt: string } | null;
 }

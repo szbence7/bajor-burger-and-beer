@@ -5,6 +5,7 @@ import type { Beer } from "@/data/beers";
 import type { GalleryItem } from "@/data/gallery";
 import type { SiteInfo } from "@/data/info";
 import type { Menu } from "@/data/menu";
+import type { MonthlySpecial } from "@/data/specials";
 import { cached } from "./cache";
 import {
   beerRow,
@@ -12,10 +13,12 @@ import {
   menuItemRow,
   openingHourRow,
   siteSettingsRow,
+  specialRow,
   toBeer,
   toGalleryItems,
   toMenuItems,
   toSiteInfo,
+  toSpecial,
 } from "./mappers";
 import { getSupabase } from "./supabase";
 
@@ -69,6 +72,25 @@ export function getMenu(): Promise<Menu> {
       getBeers(),
     ]);
     return { ...toMenuItems(parse(z.array(menuItemRow), rows)), beers };
+  });
+}
+
+export function getMonthlySpecials(): Promise<MonthlySpecial[]> {
+  return cached("specials", TTL_MS, async () => {
+    const rows = await getSupabase()
+      .from("monthly_specials")
+      .select("id, name, description, price, image")
+      .order("sort_order")
+      .order("created_at");
+    return parse(z.array(specialRow), rows).map(toSpecial);
+  });
+}
+
+/** Object name of the current menu PDF in the "menu" bucket, or null. */
+export function getMenuPdfPath(): Promise<string | null> {
+  return cached("menu-pdf", TTL_MS, async () => {
+    const row = await getSupabase().from("site_settings").select("menu_pdf_path").single();
+    return parse(z.object({ menu_pdf_path: z.string().nullable() }), row).menu_pdf_path;
   });
 }
 

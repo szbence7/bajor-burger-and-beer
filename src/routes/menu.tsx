@@ -8,7 +8,10 @@ import { Reveal } from "@/components/Reveal";
 import { Tag } from "@/components/Tag";
 import { Price } from "@/components/Price";
 import { Doodle } from "@/components/Doodle";
+import { FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { ctaClass } from "@/lib/cta";
+import { useSiteInfo } from "@/lib/site-info";
 import { seo } from "@/lib/seo";
 import { getMenuContent } from "@/features/menu/api";
 
@@ -33,6 +36,7 @@ const tabs = [
 
 function MenuPage() {
   const { burgers, sides, drinks, beers } = Route.useLoaderData();
+  const { menuPdf } = useSiteInfo();
   const [active, setActive] = useState("burgerek");
   useEffect(() => {
     const io = new IntersectionObserver(
@@ -58,6 +62,14 @@ function MenuPage() {
       >
         Minden burger mellé kérhetsz köretet — és persze egy korsót.
       </PageHero>
+
+      {menuPdf && (
+        <div className="mx-auto -mt-6 max-w-7xl px-5 pb-12">
+          <a href="/etlap.pdf" target="_blank" rel="noopener" className={ctaClass("outline")}>
+            <FileText className="h-4 w-4" /> Étlap PDF-ben
+          </a>
+        </div>
+      )}
 
       <div className="sticky top-20 z-40 border-y border-border bg-background/95 backdrop-blur">
         <div className="mx-auto flex max-w-7xl gap-2 overflow-x-auto px-5 py-3 [scrollbar-width:none]">

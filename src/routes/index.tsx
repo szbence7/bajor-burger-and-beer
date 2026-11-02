@@ -10,7 +10,7 @@ import { SectionHeader } from "@/components/SectionHeader";
 import { BeerCard } from "@/features/menu/BeerCard";
 import { CtaLink } from "@/components/CtaButton";
 import { HoursCard, MapPlaceholder } from "@/components/HoursAndMap";
-import { FeaturedBurgerCard } from "@/features/menu/FeaturedBurgerCard";
+import { SpecialCard } from "@/features/menu/SpecialCard";
 import { PhotoCarousel } from "@/features/gallery/PhotoCarousel";
 import { RautenDivider } from "@/components/RautenPattern";
 import { cn } from "@/lib/utils";
@@ -78,7 +78,7 @@ function HeroBurger({ className }: { className?: string }) {
 
 function Index() {
   const parallaxRef = useParallax<HTMLSpanElement>(-0.08);
-  const { featuredBurgers: featured, houseBeers } = Route.useLoaderData();
+  const { specials, month, houseBeers } = Route.useLoaderData();
 
   return (
     <>
@@ -118,29 +118,38 @@ function Index() {
 
       <Marquee />
 
-      {/* FEATURED BURGERS */}
-      <section className="relative mx-auto max-w-7xl px-5 py-28">
-        <Doodle kind="burger" className="-left-4 top-6 h-40 w-40 md:h-56 md:w-56" />
-        <Reveal>
-          <SectionHeader
-            eyebrow="A konyhából"
-            title={
-              <>
-                Kedvenc <span className="text-primary">burgereink</span>
-              </>
-            }
+      {/* HÓNAP AJÁNLATA — edited by the staff in the admin panel; hidden when empty */}
+      {specials.length > 0 && (
+        <section id="honap-ajanlata" className="relative mx-auto max-w-7xl px-5 py-28">
+          <Doodle kind="burger" className="-left-4 top-6 h-40 w-40 md:h-56 md:w-56" />
+          <Reveal>
+            <SectionHeader
+              eyebrow={month}
+              title={
+                <>
+                  Hónap <span className="text-primary">ajánlata</span>
+                </>
+              }
+            >
+              A konyha e havi kedvencei. Csak korlátozott ideig, amíg a készlet tart.
+            </SectionHeader>
+          </Reveal>
+          <div
+            className={cn(
+              "grid gap-8",
+              specials.length === 1 && "md:mx-auto md:max-w-md",
+              specials.length === 2 && "md:grid-cols-2 lg:mx-auto lg:max-w-5xl",
+              specials.length >= 3 && "md:grid-cols-3",
+            )}
           >
-            Friss, napi darálású marha, házi szószok és puha buci. Ennyi a titok.
-          </SectionHeader>
-        </Reveal>
-        <div className="grid gap-8 md:grid-cols-3">
-          {featured.map((b, i) => (
-            <Reveal key={b.id} delay={i * 120} className="h-full">
-              <FeaturedBurgerCard burger={b} index={i} />
-            </Reveal>
-          ))}
-        </div>
-      </section>
+            {specials.map((s, i) => (
+              <Reveal key={s.id} delay={(i % 3) * 120} className="h-full">
+                <SpecialCard special={s} index={i} />
+              </Reveal>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* HOUSE BEERS — gold */}
       <section className="relative overflow-hidden bg-primary px-5 py-28 text-primary-foreground">

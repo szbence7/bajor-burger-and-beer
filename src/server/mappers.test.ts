@@ -38,6 +38,8 @@ describe("toSiteInfo", () => {
       booking_days_ahead: 60,
       booking_min_notice_minutes: 120,
       booking_hold_minutes: 15,
+      menu_pdf_path: null,
+      menu_pdf_updated_at: null,
       updated_at: "2026-10-18T10:00:00Z",
     });
     const hours = [
@@ -55,6 +57,7 @@ describe("toSiteInfo", () => {
       closes: "01:00",
     });
     expect(info.booking).toMatchObject({ maxPartySize: 8, capacity: 40, holdMinutes: 15 });
+    expect(info.menuPdf).toBeNull();
   });
 
   it("rejects unknown weekdays", () => {
