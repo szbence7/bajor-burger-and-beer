@@ -168,9 +168,37 @@ Agreed with the user during Phases 1–2. These override the original prompt whe
 21. **Real photos** come from the restaurant as original files (Facebook can't be scraped and
     serves compressed copies). Until then the AI stand-ins stay.
 
+### Phase 4 decisions (user request, 2026-11-02)
+
+22. **Narrowed scope** (user: "egyelőre más nem kell"): the admin panel covers only
+    - **live reservations**: see new bookings instantly, accept or reject them;
+    - **PDF menu**: upload / replace the downloadable menu;
+    - **Hónap ajánlata**: the home section formerly "Kedvenc burgereink", renamed and made
+      editable (own `monthly_specials` table, independent of the menu);
+    - **email notification log**, visible to the staff, showing whether each email went out;
+    - **mandatory 2FA** for every admin.
+    Menu/beer/gallery editing, opening hours and contact details are **not** in this phase.
+23. **2FA = TOTP authenticator app** (Supabase Auth MFA). `is_admin()` requires
+    `app_metadata.role = 'admin'` **and** `aal2`, so RLS enforces it everywhere (tables,
+    Storage, Realtime). Sign-ups are off; admins are created with `bun run admin create`.
+24. **Statuses**: `pending` → `confirmed` / `rejected`; `confirmed` → `cancelled`; a mistaken
+    rejection/cancellation can be confirmed again. Only pending + confirmed hold seats. Each
+    decision emails the guest, with an optional message from the staff.
+25. **Emails over SMTP** (nodemailer, any provider, runtime `SMTP_*` vars): receipt to the guest
+    and an alert to the staff on a new booking; a guest email on every decision. Every attempt
+    is logged in `notification_log` (sent / failed / skipped) and can be re-sent from the panel.
+    Without SMTP settings nothing is sent and the log says so.
+26. **Admin architecture**: `/admin` renders client-side only (`ssr: false`, noindex); the
+    browser uses supabase-js for Auth, Realtime, Storage uploads and reads; writes go through
+    server functions with the admin's token (RLS decides) so the server can send email and
+    clear the content cache. The service role key is used only for the notification log.
+27. **PDF menu** at the stable address `/etlap.pdf` (good for table QR codes), streamed from
+    the public `menu` bucket; the Menü page shows an "Étlap PDF-ben" button once one exists.
+    The HTML menu page stays as it is.
+
 ## Status
 
-_Last updated: brand update (logo, logo gold, calmer design), 2026-10-21._
+_Last updated: Phase 4 (reduced admin panel) implemented, 2026-11-02._
 
 | Phase | State |
 | --- | --- |
@@ -178,7 +206,7 @@ _Last updated: brand update (logo, logo gold, calmer design), 2026-10-21._
 | 2 — TanStack Start SSR, Docker, cleanup, SEO, images | ✅ Done and approved |
 | 3 — Supabase backend | 🔍 Implemented and tested locally; awaiting review, **not yet applied to the real instance** |
 | Brand update — logo, logo gold, calmer design | 🔍 Done; awaiting review. Real venue photos pending from the restaurant |
-| 4 — Admin panel | ⏳ Not started |
+| 4 — Admin panel (reduced scope, decision 22) | 🔍 Implemented and tested locally; awaiting review, **not yet applied to the real instance** |
 
 Branch `claude/redesign-fixes`, pushed to `origin`.
 
@@ -199,6 +227,27 @@ Branch `claude/redesign-fixes`, pushed to `origin`.
   (all pages 200, unknown route 404, JSON-LD from the DB, booking end to end in Chromium at
   375 and 1280 px, no console errors); no page overflow at 320–1920 px.
 
+### Phase 4 summary
+
+- Migration `0004_admin.sql`: aal2-only `is_admin()`, `rejected` status + `decision_note` +
+  `status_changed_at`, `monthly_specials` (seeded with the three former featured burgers),
+  `site_settings.menu_pdf_*`, `notification_log`, public `menu` / `media` buckets with
+  admin-only writes, Realtime publication. 41 pgTAP tests (2FA-less admin sees nothing, rejected
+  bookings free their seats, log and specials RLS).
+- `/admin`: sign-in + mandatory TOTP enrolment/verification; Foglalások (live via Realtime,
+  toast + optional chime + pending count, filters by day range and status, accept / reject /
+  cancel with a message, per-booking email log with re-send); Hónap ajánlata (add, edit,
+  image upload shrunk to WebP in the browser, show/hide, reorder, delete); Étlap PDF
+  (upload/replace/remove); Értesítések (full email log, "only failed" filter, re-send).
+- Public site: "Hónap ajánlata" section (current month as eyebrow, hidden when empty, 1–3+
+  card layouts), "Étlap PDF-ben" button on the Menü page, `/etlap.pdf`.
+- Verified: lint (0 errors), tsc, 27 Vitest tests, build, pgTAP; end to end in Chromium on the
+  local stack (2FA enrolment and re-login with TOTP, a booking from the public form appears live
+  in the admin with both emails logged as sent in Mailpit, accept → guest email, special edit
+  with image upload, hide, reorder, PDF upload + replace with old file removed, `/etlap.pdf`
+  200); production build: all pages 200, `/admin` noindexed, booking emails sent, supabase-js
+  not in the public bundles; no horizontal overflow at 320–1920 px.
+
 ### Open items
 
 - **Apply to the real instance**: the user chooses CLI over the SSH tunnel (`bun run db:push`)
@@ -217,8 +266,14 @@ Branch `claude/redesign-fixes`, pushed to `origin`.
   `public/og-image.jpg` is rendered from them; swap via `src/data/images.ts` and regenerate
   the OG image once real photos arrive. The home "A hely" carousel and the About-page photos
   are still fixed in code (candidates for admin control in Phase 4).
-- **Email notifications**: `onReservationCreated()` in `src/server/notifications.ts` is the
-  hook; nothing is sent yet, so the confirmation screen says the staff will confirm.
-- Content edits show up within ~30 s (server cache); a visitor's open tab refreshes site info
-  after 5 minutes. Phase 4 admin saves should call `clearCache()`.
+- **SMTP provider for the booking emails**: needs the user's choice and credentials
+  (`SMTP_*` in Coolify). Until then the log shows every email as "Nem ment ki".
+- **Apply Phase 4 to the real instance**: migration 0004 + seed, Auth env
+  (`GOTRUE_DISABLE_SIGNUP=true`, TOTP MFA enroll/verify on), Realtime + Storage running, then
+  `bun run admin create` for each staff member; set `SUPABASE_SERVICE_ROLE_KEY` (and
+  `SUPABASE_PUBLIC_URL` if `SUPABASE_URL` is internal) in Coolify.
+- **HTML menu vs PDF**: the Menü page still renders the database menu (no admin editing for it
+  in this phase). Decide whether the PDF should replace it or the menu gets admin editing later.
+- Admin saves clear the server content cache, so changes show on the next page load; a
+  visitor's already open tab refreshes site info (e.g. the PDF button) after 5 minutes.
 - Map: `MapPlaceholder` ("Térkép helye") still needs a real map embed or a static map.

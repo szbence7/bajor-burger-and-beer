@@ -73,24 +73,33 @@ applies: never rewrite pushed history.
 - No shadcn/ui (removed as unused in Phase 2, with its Radix etc. dependencies). Build UI from
   the brand primitives; add a headless library only when a feature genuinely needs one (e.g.
   admin dialogs).
-- Data: self-hosted Supabase via `@supabase/supabase-js`, **server-side only** in Phase 3
-  (`src/server/supabase.ts`, anon key, so RLS applies). Pages load content in route loaders
-  through server functions; the browser never talks to Supabase. Inputs and DB rows are
-  validated with `zod`. Supabase CLI runs via `bunx supabase@2.121.0` (package scripts
+- Data: self-hosted Supabase via `@supabase/supabase-js`. Public pages: **server-side only**
+  (`src/server/supabase.ts`, anon key, so RLS applies); pages load content in route loaders
+  through server functions and the visitor's browser never talks to Supabase (keep supabase-js
+  out of the public bundles). The `/admin` panel is the exception: its browser client
+  (`src/features/admin/supabase.ts`) does Auth (password + mandatory TOTP), Realtime, Storage
+  uploads and reads; **writes go through server functions** that act with the admin's access
+  token (`getUserSupabase`, RLS decides) so the server can send emails and clear the content
+  cache. The service role key is used **only** to write `notification_log`. Inputs and DB rows
+  are validated with `zod`. Supabase CLI runs via `bunx supabase@2.121.0` (package scripts
   `db:*`, `test:db`); it is not a dependency.
 - Package manager: **bun** (`bun.lock`, `bunfig.toml` has a 24 h minimum-release-age guard).
 - Prettier: printWidth 100, double quotes, trailing commas. ESLint runs Prettier as a rule.
 
 ## Environment variables
 
-| Variable            | When       | Purpose                                                                                                                                 |
-| ------------------- | ---------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| `VITE_SITE_URL`     | build time | Canonical origin for canonical URLs, OG, JSON-LD, sitemap, robots. Defaults to `https://bajorburgerandbeer.hu`. Coolify: build variable |
-| `PORT`              | runtime    | Node server port (default 3000)                                                                                                         |
-| `NOINDEX`           | runtime    | `1`/`true`/`yes` → `<meta name="robots" content="noindex">` on every page and `Disallow: /` in robots.txt. For staging                  |
-| `SUPABASE_URL`      | runtime    | Supabase API URL. Server-only (read via `process.env`)                                                                                  |
-| `SUPABASE_ANON_KEY` | runtime    | Supabase anon key. Server-only                                                                                                          |
-| `SUPABASE_DB_URL`   | local only | Postgres URL (SSH tunnel) for `bun run db:push`. Never in Coolify or git                                                                |
+| Variable                                                                            | When       | Purpose                                                                                                                                 |
+| ----------------------------------------------------------------------------------- | ---------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `VITE_SITE_URL`                                                                     | build time | Canonical origin for canonical URLs, OG, JSON-LD, sitemap, robots. Defaults to `https://bajorburgerandbeer.hu`. Coolify: build variable |
+| `PORT`                                                                              | runtime    | Node server port (default 3000)                                                                                                         |
+| `NOINDEX`                                                                           | runtime    | `1`/`true`/`yes` → `<meta name="robots" content="noindex">` on every page and `Disallow: /` in robots.txt. For staging                  |
+| `SUPABASE_URL`                                                                      | runtime    | Supabase API URL. Server-only (read via `process.env`)                                                                                  |
+| `SUPABASE_ANON_KEY`                                                                 | runtime    | Supabase anon key. Also handed to the admin panel's browser (with the URL) for Auth/Realtime/Storage                                    |
+| `SUPABASE_PUBLIC_URL`                                                               | runtime    | Optional: Supabase URL for browsers when `SUPABASE_URL` is internal-only. Defaults to `SUPABASE_URL`                                    |
+| `SUPABASE_SERVICE_ROLE_KEY`                                                         | runtime    | **Secret.** Only for writing the notification log                                                                                       |
+| `SMTP_HOST` / `SMTP_PORT` / `SMTP_SECURE` / `SMTP_USER` / `SMTP_PASS` / `SMTP_FROM` | runtime    | Booking emails. Without host + from nothing is sent; the log shows "Nem ment ki"                                                        |
+| `NOTIFY_STAFF_EMAIL`                                                                | runtime    | New-booking alerts; defaults to the venue email in `site_settings`                                                                      |
+| `SUPABASE_DB_URL`                                                                   | local only | Postgres URL (SSH tunnel) for `bun run db:push`. Never in Coolify or git                                                                |
 
 `VITE_*` values are public (inlined into the client bundle). Secrets never go in `VITE_*` or
 in git; `.env` is gitignored, `.env.example` is the template. NOINDEX is read on the server
@@ -106,7 +115,9 @@ reads the real environment).
   `HEALTHCHECK` on `/api/health` via `wget`. Image ≈ 240 MB. `.dockerignore` excludes
   `node_modules`, `.output`, `.env*`.
 - Coolify: Dockerfile build pack, port 3000, `VITE_SITE_URL` as build variable, `NOINDEX=true`
-  on staging, `SUPABASE_URL` + `SUPABASE_ANON_KEY` as runtime variables. Git push
+  on staging, `SUPABASE_URL` + `SUPABASE_ANON_KEY` + `SUPABASE_SERVICE_ROLE_KEY` + `SMTP_*`
+  as runtime variables. Supabase Auth needs signup off and TOTP MFA on (see
+  `supabase/README.md`). Git push
   auto-deploys. The rate limiter trusts `X-Real-IP` / the last `X-Forwarded-For` entry as set
   by Coolify's Traefik.
 - The Phase 2 image was verified locally: all pages 200, unknown routes 404, AVIF served,
@@ -115,24 +126,35 @@ reads the real environment).
 ## Structure
 
 - `src/routes` — `index` (Főoldal), `menu`, `galeria`, `foglalas`, `rolunk`, `adatkezeles`
-  (privacy notice, placeholder), server routes
-  `api/health`, `sitemap[.]xml`, `robots[.]txt`. `__root.tsx` holds the HTML shell, root head
+  (privacy notice, placeholder), `admin` (layout, `ssr: false`, noindex) with `admin/index`
+  (Foglalások), `admin/ajanlat` (Hónap ajánlata), `admin/etlap` (PDF menu),
+  `admin/ertesitesek` (email log); server routes `api/health`, `sitemap[.]xml`, `robots[.]txt`,
+  `etlap[.]pdf` (streams the current PDF menu from Storage; stable link for QR codes). `__root.tsx` holds the HTML shell, root head
   (fonts, icons, OG defaults, JSON-LD, NOINDEX), Header/Footer, 404 and error components.
   Routes stay thin: layout + `head`; logic lives in features.
 - `src/components` — shared brand primitives: CtaButton (`CtaLink`), Doodle, Marquee, Reveal,
   PageHero, SectionHeader, Tag, Price, Picture, BrandLogo, RautenPattern
   (+ `RautenDivider`), HoursAndMap (`HoursCard`, `MapPlaceholder`).
   `src/components/layout` — Header, Footer.
-- `src/features/menu` — MenuItemCard, BeerCard, FeaturedBurgerCard.
+- `src/features/menu` — MenuItemCard, BeerCard, SpecialCard (Hónap ajánlata).
   `src/features/booking` — BookingForm (two steps + confirmation; currently client-only).
   `src/features/gallery` — GalleryGrid (filters + lightbox), PhotoCarousel (Embla). Each
   feature's `api.ts` holds its server functions (`getMenuContent`, `getHomeContent`,
   `getGalleryContent`, `getAvailability`, `createReservation`); `booking/schema.ts` is the
   shared zod schema + error codes.
+  `src/features/admin` — the staff panel: `auth` (sign-in + TOTP enrol/verify gate),
+  `AdminShell` (nav, one Realtime channel, new-booking toast + optional chime),
+  `ReservationsBoard`, `SpecialsEditor`, `MenuPdfManager`, `NotificationLog`, `ui` (calmer
+  primitives), `upload` (shrinks images to WebP in the browser), `api` (server functions with
+  the `adminAuth` middleware that forwards the access token), `config` (runtime Supabase URL +
+  anon key for the browser), `schema` (statuses, labels, inputs).
 - `src/server` — server-only (import protection blocks it from the client): `supabase`
-  client, `content` queries (30 s in-memory cache, stale value on error), `mappers` (rows →
-  types), `booking` (availability, submit, honeypot, 5/IP/hour rate limit), `notifications`
-  (`onReservationCreated` hook, empty), `request` (client IP).
+  clients (anon, per-request user token, service role), `content` queries (30 s in-memory
+  cache, stale value on error), `mappers` (rows → types), `booking` (availability, submit,
+  honeypot, 5/IP/hour rate limit), `admin` (decisions, specials, PDF menu, resend; clear the
+  cache), `notifications` (send + log every email), `mailer` (nodemailer SMTP),
+  `email-templates` (Hungarian HTML + text, escaped), `request` (client IP, bearer token).
+- `scripts/admin.ts` — `bun run admin create|promote|reset-2fa|list` (needs the service key).
 - `src/lib` — `utils` (`cn`), `format` (`formatNumber`, `formatFt`, `formatHours`), `cta`
   (`ctaClass`, variants), `site` (`SITE_URL`, `SITE_NAME`, `DEFAULT_OG_IMAGE`, `absoluteUrl`),
   `seo`, `structured-data`, `indexing`, `error-page`, `site-info` (`getSiteInfoFn`, root loader
@@ -189,7 +211,8 @@ no red, no rotating badge, no tilted cards, one marquee per page. Never a generi
 template, never fast-food loud.
 
 Colours are Tailwind theme tokens only — **no hardcoded hex in components** (the
-self-contained `error-page.ts` and generated brand assets are the only exceptions):
+self-contained `error-page.ts`, the email templates and generated brand assets are the only
+exceptions):
 
 | Token               | Hex     | Tailwind                     |
 | ------------------- | ------- | ---------------------------- |
@@ -226,8 +249,9 @@ Signature elements:
     reserves `md:pt-[1.05em]` above itself so the burger never reaches the fixed header. On
     mobile the burger sits above the stacked headline. Parallax is a rAF-throttled `translate`
     on that slot. Re-check 375/768/1024/1280/1920 if you touch it.
-  - Featured burger cards: the title is `relative z-10` above the image layer; the image sits
-    lower in its own flex area.
+  - Hónap ajánlata cards (`SpecialCard`, staff-edited): the title is `relative z-10` above the
+    image layer; the image sits lower in its own flex area; the title steps down in size for
+    long words so admin-typed names never overflow.
 - Hand-drawn line doodles (burger, mug, foam, pretzel, fries, hop) — `Doodle`, default
   **10% opacity, used large** (`h-28`–`h-56`) as texture in dark sections (user decision),
   **at most one per section** (two in the home hero). On gold/forest sections they use the
@@ -264,8 +288,9 @@ parallax. All motion respects `prefers-reduced-motion` (CSS block at the end of
 ## Roadmap
 
 Phases 1–2 are done (design fixes; SSR on Node, Docker, cleanup, structure, images, SEO,
-NOINDEX). Phase 3 (Supabase) is implemented; see docs/PLAN.md for status and the agreed
-booking/GDPR decisions. Phase specs as given by the user:
+NOINDEX). Phase 3 (Supabase) and a reduced Phase 4 (admin: live reservations, Hónap ajánlata,
+PDF menu, email log, mandatory 2FA) are implemented; see docs/PLAN.md for status and
+decisions. Phase specs as given by the user (Phase 4 was narrowed by the user, see PLAN.md):
 
 ### Phase 3 — Supabase backend
 
@@ -303,5 +328,10 @@ design language but calmer and practical. Hungarian UI, mobile-friendly (staff u
 
 - In zsh, quote paths with brackets: `"src/routes/sitemap[.]xml.ts"`.
 - The SSR HTML is one long line; `grep -o`/`-c` on it is unreliable here — parse with Python.
+- Never name a zsh variable `path` (it is tied to `PATH`).
+- supabase-js does not pass the new aal2 token to Realtime after `mfa.challengeAndVerify`;
+  `AdminShell` calls `realtime.setAuth()` before joining, or RLS silently drops every event.
+- Local CLI: `[auth.email] enable_signup = false` disables email **sign-in** too; sign-ups are
+  closed by the top-level `[auth] enable_signup = false` instead.
 - Full-page screenshots show a horizontal band where the fixed grain overlay ends; it is a
   capture artefact, not a bug.
