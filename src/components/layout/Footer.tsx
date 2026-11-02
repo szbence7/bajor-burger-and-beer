@@ -59,7 +59,7 @@ export function Footer() {
               </li>
             ))}
             <li className="pt-2">
-              <Link to="/foglalas" className={ctaClass("gold", "mt-2 px-5 py-3")}>
+              <Link to="/" hash="foglalas" className={ctaClass("gold", "mt-2 px-5 py-3")}>
                 Asztalfoglalás
               </Link>
             </li>

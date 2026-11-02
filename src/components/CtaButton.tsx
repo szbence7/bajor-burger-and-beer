@@ -1,20 +1,22 @@
 import { Link } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 import { ctaClass, type CtaVariant } from "@/lib/cta";
+import type { SectionId } from "@/lib/sections";
 
+/** A CTA that scrolls to a section of the home page (from any page). */
 export function CtaLink({
-  to,
+  section,
   children,
   variant = "gold",
   className,
 }: {
-  to: "/" | "/menu" | "/galeria" | "/foglalas" | "/rolunk";
+  section: SectionId;
   children: ReactNode;
   variant?: CtaVariant;
   className?: string;
 }) {
   return (
-    <Link to={to} className={ctaClass(variant, className)}>
+    <Link to="/" hash={section} className={ctaClass(variant, className)}>
       {children}
     </Link>
   );

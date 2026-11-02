@@ -1,18 +1,12 @@
 import { createServerFn } from "@tanstack/react-start";
-import { getMenu, getMonthlySpecials } from "@/server/content";
+import { getMonthlySpecials } from "@/server/content";
 
-export const getMenuContent = createServerFn({ method: "GET" }).handler(() => getMenu());
-
-/** Only what the home page shows: Hónap ajánlata, the current month's name and the house beers. */
+/** What the home page loads besides the site info: Hónap ajánlata and the month's name. */
 export const getHomeContent = createServerFn({ method: "GET" }).handler(async () => {
-  const [specials, { beers }] = await Promise.all([getMonthlySpecials(), getMenu()]);
+  const specials = await getMonthlySpecials();
   const month = new Date().toLocaleDateString("hu-HU", {
     timeZone: "Europe/Budapest",
     month: "long",
   });
-  return {
-    specials,
-    month: month.charAt(0).toUpperCase() + month.slice(1),
-    houseBeers: beers.filter((b) => b.house),
-  };
+  return { specials, month: month.charAt(0).toUpperCase() + month.slice(1) };
 });

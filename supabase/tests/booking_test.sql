@@ -3,7 +3,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(47);
+select plan(50);
 
 -- Start bookings, the email log and specials from a known state, whatever local data exists.
 delete from public.notification_log;
@@ -215,6 +215,13 @@ select throws_ok($$ update public.site_settings set menu_pdf_path = '../x.pdf' $
   'the menu PDF path must be a plain file name');
 select is((select array_agg(id order by id) from storage.buckets where public), array['media', 'menu'],
   'public buckets for images and the menu PDF exist');
+select throws_ok($$ update public.site_settings set menu_pdf_pages = '[{"file":"../x.webp","small":"x-sm.webp"}]' $$,
+  '23514', null, 'menu page images must be plain file names');
+select lives_ok($$ update public.site_settings set menu_pdf_pages =
+  '[{"file":"etlap-1-1.webp","small":"etlap-1-1-sm.webp","width":1600,"height":2263,"text":""}]' $$,
+  'menu pages with plain WebP names are accepted');
+select is((select allowed_mime_types from storage.buckets where id = 'menu'),
+  array['application/pdf', 'image/webp'], 'the menu bucket takes the PDF and its page images');
 
 -- Opening hours editing ---------------------------------------------------------------------------
 select pg_temp.as_anon();

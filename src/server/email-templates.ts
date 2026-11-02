@@ -144,7 +144,7 @@ export function buildEmail(
           ...withQuote,
           rows: bookingRows(r),
           outro: [`Hívj minket a ${phone} számon, és keresünk másik időpontot.`],
-          link: { href: absoluteUrl("/foglalas"), label: "Új időpontot választok" },
+          link: { href: absoluteUrl("/#foglalas"), label: "Új időpontot választok" },
         },
         site.name,
         to,

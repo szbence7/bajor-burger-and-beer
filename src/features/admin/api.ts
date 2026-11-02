@@ -76,9 +76,7 @@ export const reorderSpecialsFn = createServerFn({ method: "POST" })
 export const setMenuPdfFn = createServerFn({ method: "POST" })
   .middleware([adminAuth])
   .inputValidator(menuPdfInput)
-  .handler(({ data, context }) =>
-    context.token ? setMenuPdf(context.token, data.path) : unauthorized,
-  );
+  .handler(({ data, context }) => (context.token ? setMenuPdf(context.token, data) : unauthorized));
 
 export const listAdminsFn = createServerFn({ method: "POST" })
   .middleware([adminAuth])

@@ -1,15 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { images, resolveImage } from "@/data/images";
-import {
-  beerRow,
-  menuItemRow,
-  openingHourRow,
-  siteSettingsRow,
-  toBeer,
-  toGalleryItems,
-  toMenuItems,
-  toSiteInfo,
-} from "./mappers";
+import { openingHourRow, siteSettingsRow, toSiteInfo } from "./mappers";
 
 describe("resolveImage", () => {
   it("maps bundled image keys, keeps absolute URLs, rejects the rest", () => {
@@ -21,32 +12,35 @@ describe("resolveImage", () => {
   });
 });
 
+const baseSettings = {
+  restaurant_name: "Bajor Burger & Beer",
+  company_name: "Bajor Kft.",
+  company_address: "1075 Budapest, Kazinczy utca 12.",
+  tax_number: "12345678-2-42",
+  company_reg_number: "01-09-123456",
+  street: "Kazinczy utca 12.",
+  postal_code: "1075",
+  city: "Budapest",
+  country: "HU",
+  phone: "+36 1 234 5678",
+  email: "hello@bajorburger.hu",
+  socials: [{ label: "Instagram", href: "https://instagram.com" }],
+  booking_slot_minutes: 30,
+  booking_duration_minutes: 90,
+  booking_capacity: 40,
+  booking_max_party_size: 8,
+  booking_days_ahead: 60,
+  booking_min_notice_minutes: 120,
+  booking_hold_minutes: 15,
+  menu_pdf_path: null,
+  menu_pdf_updated_at: null,
+  menu_pdf_pages: [],
+  updated_at: "2026-10-18T10:00:00Z",
+};
+
 describe("toSiteInfo", () => {
   it("builds contact, trims times to HH:MM and maps booking settings", () => {
-    const settings = siteSettingsRow.parse({
-      restaurant_name: "Bajor Burger & Beer",
-      company_name: "Bajor Kft.",
-      company_address: "1075 Budapest, Kazinczy utca 12.",
-      tax_number: "12345678-2-42",
-      company_reg_number: "01-09-123456",
-      street: "Kazinczy utca 12.",
-      postal_code: "1075",
-      city: "Budapest",
-      country: "HU",
-      phone: "+36 1 234 5678",
-      email: "hello@bajorburger.hu",
-      socials: [{ label: "Instagram", href: "https://instagram.com" }],
-      booking_slot_minutes: 30,
-      booking_duration_minutes: 90,
-      booking_capacity: 40,
-      booking_max_party_size: 8,
-      booking_days_ahead: 60,
-      booking_min_notice_minutes: 120,
-      booking_hold_minutes: 15,
-      menu_pdf_path: null,
-      menu_pdf_updated_at: null,
-      updated_at: "2026-10-18T10:00:00Z",
-    });
+    const settings = siteSettingsRow.parse(baseSettings);
     const hours = [
       { label: "Hétfő", days: ["Monday"], opens: null, closes: null },
       { label: "Péntek", days: ["Friday"], opens: "12:00:00", closes: "01:00:00" },
@@ -79,77 +73,44 @@ describe("toSiteInfo", () => {
   });
 });
 
-describe("toMenuItems", () => {
-  const row = (kind: "burger" | "side" | "drink", extra: object = {}) =>
-    menuItemRow.parse({
-      slug: `${kind}-1`,
-      name: kind,
-      description: "leírás",
-      ingredients: [],
-      price: 1990,
-      image: null,
-      badges: [],
-      is_featured: false,
-      menu_categories: { kind },
-      ...extra,
+describe("toSiteInfo menu pages", () => {
+  it("turns stored page file names into public Storage URLs", () => {
+    process.env["SUPABASE_URL"] = "http://db.internal:8000";
+    process.env["SUPABASE_PUBLIC_URL"] = "https://db.example.hu/";
+    const settings = siteSettingsRow.parse({
+      ...baseSettings,
+      menu_pdf_path: "etlap-1.pdf",
+      menu_pdf_updated_at: "2026-11-02T10:00:00Z",
+      menu_pdf_pages: [
+        {
+          file: "etlap-1-1.webp",
+          small: "etlap-1-1-sm.webp",
+          width: 1600,
+          height: 2263,
+          text: "Burgerek",
+        },
+      ],
     });
-
-  it("splits items by category kind into the existing types", () => {
-    const menu = toMenuItems([
-      row("burger", { image: "burgerVeggie", badges: ["Vega"], is_featured: true }),
-      row("side"),
-      row("drink", { description: "0,5 l" }),
-    ]);
-    expect(menu.burgers[0]).toMatchObject({
-      id: "burger-1",
-      image: images.burgerVeggie,
-      badges: ["Vega"],
-      featured: true,
+    expect(toSiteInfo(settings, []).menuPdf).toEqual({
+      updatedAt: "2026-11-02T10:00:00Z",
+      pages: [
+        {
+          src: "https://db.example.hu/storage/v1/object/public/menu/etlap-1-1.webp",
+          srcSmall: "https://db.example.hu/storage/v1/object/public/menu/etlap-1-1-sm.webp",
+          width: 1600,
+          height: 2263,
+          text: "Burgerek",
+        },
+      ],
     });
-    expect(menu.sides[0]).toEqual({
-      id: "side-1",
-      name: "side",
-      description: "leírás",
-      price: 1990,
-    });
-    expect(menu.drinks[0]).toEqual({ id: "drink-1", name: "drink", detail: "0,5 l", price: 1990 });
   });
 
-  it("falls back to the hero burger photo and rejects unknown badges", () => {
-    expect(toMenuItems([row("burger")]).burgers[0]?.image).toBe(images.burgerHero);
-    expect(() => row("burger", { badges: ["Akció"] })).toThrow();
-  });
-});
-
-describe("toBeer", () => {
-  it("coerces numeric ABV and omits absent optional fields", () => {
-    const beer = toBeer(
-      beerRow.parse({
-        slug: "helles",
-        name: "Bajor Helles",
-        style: "Helles Lager",
-        brewery: "Bajor Házi Főzde",
-        abv: "4.9",
-        serve: "csapolt",
-        sizes: [{ label: "0,5 l", price: 1290 }],
-        image: null,
-        is_house: false,
+  it("rejects page names that are not plain WebP file names", () => {
+    expect(() =>
+      siteSettingsRow.parse({
+        ...baseSettings,
+        menu_pdf_pages: [{ file: "../x.webp", small: "x.webp", width: 1, height: 1, text: "" }],
       }),
-    );
-    expect(beer.abv).toBe(4.9);
-    expect(beer).not.toHaveProperty("house");
-    expect(beer).not.toHaveProperty("image");
-  });
-});
-
-describe("toGalleryItems", () => {
-  it("skips rows whose image cannot be resolved", () => {
-    const items = toGalleryItems([
-      { id: "1", url: "placeTap", alt: "Csap", category: "Sörök", is_tall: true },
-      { id: "2", url: "missing", alt: "?", category: "Hely", is_tall: false },
-    ]);
-    expect(items).toEqual([
-      { id: "1", src: images.placeTap, alt: "Csap", category: "Sörök", tall: true },
-    ]);
+    ).toThrow();
   });
 });

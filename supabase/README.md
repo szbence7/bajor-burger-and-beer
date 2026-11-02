@@ -8,6 +8,7 @@ Supabase instance.
 | `migrations/0001_content.sql`               | Menu, beers, gallery, opening hours, site settings; RLS                       |
 | `migrations/0002_reservations.sql`          | Reservations, booking rules (trigger), `available_slots()`; RLS               |
 | `migrations/0003_reservation_retention.sql` | 12-month GDPR cleanup, scheduled daily with pg_cron                           |
+| `migrations/0008_menu_pages.sql`            | The menu PDF's pages as WebP images (`site_settings.menu_pdf_pages`)          |
 | `migrations/0007_capacity_overflow.sql`     | `capacity_overflow()`: seats over capacity if a booking were re-accepted      |
 | `migrations/0006_site_details.sql`          | Restaurant name + company details; `replace_opening_hours()` for the admin    |
 | `migrations/0005_admin_users.sql`           | Temporary-password accounts are not admins; account emails in the log         |
@@ -72,9 +73,13 @@ Test every new migration locally first (`bun run db:reset && bun run test:db`). 
   (they are part of the standard self-hosted stack).
 - **Live reservations:** `reservations` and `notification_log` are in the `supabase_realtime`
   publication; Realtime applies RLS, so only 2FA admins receive rows.
-- **Storage:** public buckets `menu` (PDF, ≤ 15 MB) and `media` (images, ≤ 5 MB); anyone can
-  download by URL, only admins can write. The site serves the current menu at `/etlap.pdf`
-  (path in `site_settings.menu_pdf_path`); replacing it deletes the old file.
+- **Storage:** public buckets `menu` (the PDF and its page images, ≤ 15 MB each) and `media`
+  (images, ≤ 5 MB); anyone can download by URL, only admins can write. The site serves the
+  current menu at `/etlap.pdf` (path in `site_settings.menu_pdf_path`) and shows its pages on
+  the home page (`menu_pdf_pages`: file names of a 1600 px and an 800 px WebP per page plus the
+  page text, rendered in the admin's browser at upload). Replacing the menu deletes the old
+  files. A PDF uploaded before 0008 has no pages: the home page then offers the PDF itself
+  until it is uploaded again.
 - **Notification log:** the app server writes one `notification_log` row per email (sent /
   failed / skipped) with the service role key; admins read it. Rows go with their reservation
   (GDPR retention).

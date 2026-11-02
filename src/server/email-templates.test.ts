@@ -52,7 +52,7 @@ describe("buildEmail", () => {
     );
     expect(mail.text).toContain("„Telt ház <b>van</b>”");
     expect(mail.html).toContain("Telt ház &lt;b&gt;van&lt;/b&gt;");
-    expect(mail.text).toMatch(/\/foglalas$/m);
+    expect(mail.text).toMatch(/\/#foglalas$/m);
   });
 });
 

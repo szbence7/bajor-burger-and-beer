@@ -1,6 +1,7 @@
 // Admin panel: statuses, labels and the inputs of the admin server functions. Shared by the
 // browser (forms) and the server (validation).
 import { z } from "zod";
+import { menuPageRow } from "@/lib/site-rows";
 
 export const RESERVATION_STATUSES = ["pending", "confirmed", "rejected", "cancelled"] as const;
 export type ReservationStatus = (typeof RESERVATION_STATUSES)[number];
@@ -148,13 +149,20 @@ export type SpecialInput = z.infer<typeof specialInput>;
 export const idInput = z.object({ id: uuid });
 export const reorderInput = z.object({ ids: z.array(uuid).min(1).max(50) });
 
-/** Object name in the "menu" bucket; null removes the PDF menu. */
-export const menuPdfInput = z.object({
-  path: z
-    .string()
-    .regex(/^[A-Za-z0-9._-]+\.pdf$/)
-    .nullable(),
-});
+/** The site shows the menu as page images; longer PDFs are refused (also capped in SQL). */
+export const MENU_MAX_PAGES = 40;
+
+/** Object names in the "menu" bucket: the PDF and its rendered pages; null removes the menu. */
+export const menuPdfInput = z
+  .object({
+    path: z
+      .string()
+      .regex(/^[A-Za-z0-9._-]+\.pdf$/)
+      .nullable(),
+    pages: z.array(menuPageRow).max(MENU_MAX_PAGES),
+  })
+  .refine((v) => (v.path ? v.pages.length > 0 : v.pages.length === 0));
+export type MenuPdfInput = z.infer<typeof menuPdfInput>;
 
 // Site details (Adatok) -------------------------------------------------------------------
 

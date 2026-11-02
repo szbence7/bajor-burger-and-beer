@@ -6,20 +6,39 @@ import { ctaClass } from "@/lib/cta";
 import { BrandLogo } from "@/components/BrandLogo";
 import { Collapse, Swap } from "@/components/motion";
 import { useSiteInfo } from "@/lib/site-info";
+import { SECTIONS, type SectionId } from "@/lib/sections";
 
-const nav = [
-  { to: "/", label: "Főoldal" },
-  { to: "/menu", label: "Menü" },
-  { to: "/galeria", label: "Galéria" },
-  { to: "/rolunk", label: "Rólunk & Kapcsolat" },
-] as const;
+/** The section in the middle of the screen, for highlighting its nav link. */
+function useActiveSection(ids: readonly SectionId[], enabled: boolean) {
+  const [active, setActive] = useState<SectionId | null>(null);
+  const key = ids.join(",");
+  useEffect(() => {
+    setActive(null);
+    if (!enabled) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          const id = e.target.id as SectionId;
+          setActive((current) => (e.isIntersecting ? id : current === id ? null : current));
+        }
+      },
+      { rootMargin: "-45% 0px -50% 0px" },
+    );
+    for (const id of key.split(",")) {
+      const el = document.getElementById(id);
+      if (el) io.observe(el);
+    }
+    return () => io.disconnect();
+  }, [key, enabled]);
+  return active;
+}
 
 export function Header() {
-  const { name } = useSiteInfo();
+  const { name, menuPdf } = useSiteInfo();
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
-  // Close the mobile menu on any navigation, not only via its own links.
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  // Close the mobile menu on any navigation, not only via its own links.
   useEffect(() => setOpen(false), [pathname]);
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 30);
@@ -27,6 +46,11 @@ export function Header() {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  const nav: SectionId[] = menuPdf
+    ? ["etlap", "rolunk", "hely", "kapcsolat"]
+    : ["rolunk", "hely", "kapcsolat"];
+  const active = useActiveSection(nav, pathname === "/");
 
   return (
     <header
@@ -42,31 +66,38 @@ export function Header() {
           to="/"
           aria-label={`${name} – Főoldal`}
           className="flex items-center gap-3"
-          onClick={() => setOpen(false)}
+          onClick={() => {
+            setOpen(false);
+            // Already home: back to the top.
+            if (pathname === "/") window.scrollTo({ top: 0 });
+          }}
         >
           <BrandLogo alt="" className="h-12 md:h-14" />
           <span className="font-display text-3xl leading-none text-primary md:text-4xl">Bajor</span>
         </Link>
         <nav className="hidden items-center gap-8 lg:flex">
-          {nav.map((n) => (
+          {nav.map((id) => (
             <Link
-              key={n.to}
-              to={n.to}
-              activeOptions={{ exact: true }}
-              className="text-sm font-bold uppercase tracking-widest text-foreground/80 transition-colors hover:text-primary"
-              activeProps={{ className: "text-primary" }}
+              key={id}
+              to="/"
+              hash={id}
+              className={cn(
+                "text-sm font-bold uppercase tracking-widest transition-colors hover:text-primary",
+                active === id ? "text-primary" : "text-foreground/80",
+              )}
             >
-              {n.label}
+              {SECTIONS[id]}
             </Link>
           ))}
-          <Link to="/foglalas" className={ctaClass("gold", "px-5 py-3")}>
+          <Link to="/" hash="foglalas" className={ctaClass("gold", "px-5 py-3")}>
             Asztalfoglalás
           </Link>
         </nav>
         <button
           className="text-foreground lg:hidden"
           onClick={() => setOpen((o) => !o)}
-          aria-label="Menü megnyitása"
+          aria-label={open ? "Menü bezárása" : "Menü megnyitása"}
+          aria-expanded={open}
         >
           <Swap id={open ? "close" : "open"}>
             {open ? <X className="h-8 w-8" /> : <MenuIcon className="h-8 w-8" />}
@@ -75,17 +106,23 @@ export function Header() {
       </div>
       <Collapse open={open} className="lg:hidden">
         <nav className="flex flex-col gap-2 px-5 pb-8">
-          {nav.map((n) => (
+          {nav.map((id) => (
             <Link
-              key={n.to}
-              to={n.to}
+              key={id}
+              to="/"
+              hash={id}
               onClick={() => setOpen(false)}
               className="font-display text-5xl text-foreground hover:text-primary"
             >
-              {n.label}
+              {SECTIONS[id]}
             </Link>
           ))}
-          <Link to="/foglalas" onClick={() => setOpen(false)} className={ctaClass("gold", "mt-4")}>
+          <Link
+            to="/"
+            hash="foglalas"
+            onClick={() => setOpen(false)}
+            className={ctaClass("gold", "mt-4")}
+          >
             Asztalfoglalás
           </Link>
         </nav>

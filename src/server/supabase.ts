@@ -34,16 +34,16 @@ export function getSupabase(): SupabaseClient {
   return client;
 }
 
-/**
- * A client acting as the signed-in admin whose access token the browser sent. RLS decides
- * what it may do (only two-factor admins can change anything), so a stolen password alone
- * gets nowhere. One client per request; it holds no session.
- */
 /** A throwaway anon client, e.g. to check a password without touching the shared client. */
 export function createAnonSupabase(): SupabaseClient {
   return create(env("SUPABASE_ANON_KEY"));
 }
 
+/**
+ * A client acting as the signed-in admin whose access token the browser sent. RLS decides
+ * what it may do (only two-factor admins can change anything), so a stolen password alone
+ * gets nowhere. One client per request; it holds no session.
+ */
 export function getUserSupabase(accessToken: string): SupabaseClient {
   return create(env("SUPABASE_ANON_KEY"), { Authorization: `Bearer ${accessToken}` });
 }
@@ -55,4 +55,10 @@ export function getUserSupabase(accessToken: string): SupabaseClient {
 export function getServiceSupabase(): SupabaseClient {
   serviceClient ??= create(env("SUPABASE_SERVICE_ROLE_KEY"));
   return serviceClient;
+}
+
+/** URL of a file in a public Storage bucket, as visitors' browsers reach it. */
+export function publicFileUrl(bucket: string, name: string): string {
+  const base = process.env["SUPABASE_PUBLIC_URL"] || process.env["SUPABASE_URL"] || "";
+  return `${base.replace(/\/+$/, "")}/storage/v1/object/public/${bucket}/${encodeURIComponent(name)}`;
 }

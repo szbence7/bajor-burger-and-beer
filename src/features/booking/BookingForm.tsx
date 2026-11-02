@@ -252,13 +252,13 @@ export function BookingForm() {
       <Swap id={step}>
         {step === 1 && (
           <div className="space-y-6">
-            <h2
+            <h3
               ref={headingRef}
               tabIndex={-1}
               className="font-display text-4xl outline-none sm:text-5xl"
             >
               Mikor jössz?
-            </h2>
+            </h3>
             <div>
               <p id="booking-date-label" className={labelClass}>
                 Dátum
@@ -327,13 +327,13 @@ export function BookingForm() {
         )}
         {step === 2 && (
           <form className="relative space-y-4" onSubmit={onSubmit} noValidate>
-            <h2
+            <h3
               ref={headingRef}
               tabIndex={-1}
               className="font-display text-4xl outline-none sm:text-5xl"
             >
               Az adataid
-            </h2>
+            </h3>
             <p className="text-muted-foreground">
               {formatDateHu(f.date)}, {f.time} — {f.partySize} fő
             </p>
@@ -475,13 +475,13 @@ export function BookingForm() {
             <span className="mx-auto mb-6 grid h-20 w-20 place-items-center rounded-full bg-primary text-primary-foreground">
               <Check className="h-10 w-10" />
             </span>
-            <h2
+            <h3
               ref={headingRef}
               tabIndex={-1}
               className="break-words font-display text-4xl outline-none sm:text-6xl"
             >
               Köszönjük, {f.name.trim()}!
-            </h2>
+            </h3>
             <p className="mt-4 text-muted-foreground">
               Megkaptuk a foglalásodat. Hamarosan visszaigazoljuk e-mailben vagy telefonon.
             </p>

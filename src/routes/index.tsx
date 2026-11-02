@@ -1,22 +1,29 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useRef } from "react";
-import { ArrowRight } from "lucide-react";
+import { createFileRoute, useLocation } from "@tanstack/react-router";
+import { Suspense, lazy, useEffect, useRef } from "react";
+import { Beer, FileText, Flame, Users } from "lucide-react";
 import { images } from "@/data/images";
 import { Picture } from "@/components/Picture";
 import { Marquee } from "@/components/Marquee";
 import { Doodle } from "@/components/Doodle";
 import { Reveal } from "@/components/Reveal";
 import { SectionHeader } from "@/components/SectionHeader";
-import { BeerCard } from "@/features/menu/BeerCard";
 import { CtaLink } from "@/components/CtaButton";
 import { HoursCard, MapCard } from "@/components/HoursAndMap";
 import { SpecialCard } from "@/features/menu/SpecialCard";
+import { MenuViewer } from "@/features/menu/MenuViewer";
 import { PhotoCarousel } from "@/features/gallery/PhotoCarousel";
 import { RautenDivider } from "@/components/RautenPattern";
 import { cn } from "@/lib/utils";
+import { ctaClass } from "@/lib/cta";
 import { seo } from "@/lib/seo";
 import { useSiteInfo } from "@/lib/site-info";
 import { getHomeContent } from "@/features/menu/api";
+
+// Far below the fold and the heaviest part of the page: rendered on the server as usual, but
+// its code loads after first paint instead of competing with the hero.
+const BookingForm = lazy(() =>
+  import("@/features/booking/BookingForm").then((mod) => ({ default: mod.BookingForm })),
+);
 
 export const Route = createFileRoute("/")({
   head: () =>
@@ -24,11 +31,21 @@ export const Route = createFileRoute("/")({
       path: "/",
       title: "Bajor Burger & Beer — Csapolt sör, szaftos burger | Budapest",
       description:
-        "Smash burgerek, saját főzésű bajor sörök és hosszú asztalok Budapest szívében. Nézd meg a menüt, és foglalj asztalt online a Bajor Burger & Beer-be!",
+        "Smash burgerek, saját főzésű bajor sörök és hosszú asztalok Budapest szívében. Lapozz bele az étlapba, és foglalj asztalt online a Bajor Burger & Beer-be!",
     }),
   loader: () => getHomeContent(),
   component: Index,
 });
+
+const values = [
+  {
+    icon: Flame,
+    title: "Friss hús",
+    text: "Minden reggel helyben daráljuk, soha nem fagyasztjuk.",
+  },
+  { icon: Beer, title: "Saját sör", text: "Négy házi főzésű sör, bajor receptek alapján." },
+  { icon: Users, title: "Jó társaság", text: "Hosszú asztalok, ahol a szomszédból is barát lesz." },
+];
 
 const placePhotos = [
   { src: images.placePeople, alt: "Baráti koccintás a hosszú asztalnál" },
@@ -60,6 +77,26 @@ function useParallax<T extends HTMLElement>(factor: number) {
   return ref;
 }
 
+/**
+ * Arriving from another page at /#section, the router scrolls while the page is still
+ * settling and stops short; aim again once the fonts are in and the layout is final.
+ */
+function useSectionScroll() {
+  const hash = useLocation({ select: (l) => l.hash });
+  useEffect(() => {
+    if (!hash) return;
+    let cancelled = false;
+    void document.fonts.ready.then(() =>
+      requestAnimationFrame(() => {
+        if (!cancelled) document.getElementById(hash)?.scrollIntoView();
+      }),
+    );
+    return () => {
+      cancelled = true;
+    };
+  }, [hash]);
+}
+
 function HeroBurger({ className }: { className?: string }) {
   return (
     <div className={cn("pointer-events-none", className)}>
@@ -79,8 +116,9 @@ function HeroBurger({ className }: { className?: string }) {
 
 function Index() {
   const parallaxRef = useParallax<HTMLSpanElement>(-0.08);
-  const { specials, month, houseBeers } = Route.useLoaderData();
-  const { name } = useSiteInfo();
+  useSectionScroll();
+  const { specials, month } = Route.useLoaderData();
+  const { name, contact, booking, menuPdf } = useSiteInfo();
 
   return (
     <>
@@ -110,10 +148,12 @@ function Index() {
             <span className="block text-primary">Szaftos burger.</span>
           </h1>
           <div className="relative z-20 mt-10 flex flex-wrap gap-4">
-            <CtaLink to="/foglalas">Asztalfoglalás</CtaLink>
-            <CtaLink to="/menu" variant="outline">
-              Menü
-            </CtaLink>
+            <CtaLink section="foglalas">Asztalfoglalás</CtaLink>
+            {menuPdf && (
+              <CtaLink section="etlap" variant="outline">
+                Étlap
+              </CtaLink>
+            )}
           </div>
         </div>
       </section>
@@ -122,7 +162,7 @@ function Index() {
 
       {/* HÓNAP AJÁNLATA — edited by the staff in the admin panel; hidden when empty */}
       {specials.length > 0 && (
-        <section id="honap-ajanlata" className="relative mx-auto max-w-7xl px-5 py-28">
+        <section id="ajanlat" className="relative mx-auto max-w-7xl scroll-mt-20 px-5 py-28">
           <Doodle kind="burger" className="-left-4 top-6 h-40 w-40 md:h-56 md:w-56" />
           <Reveal>
             <SectionHeader
@@ -153,30 +193,44 @@ function Index() {
         </section>
       )}
 
-      {/* HOUSE BEERS — gold */}
-      <section className="relative overflow-hidden bg-primary px-5 py-28 text-primary-foreground">
-        <Doodle
-          kind="foam"
-          className="right-[6%] top-12 h-32 w-32 text-primary-foreground opacity-20 md:h-44 md:w-44"
-        />
-        <div className="relative mx-auto max-w-7xl">
-          <Reveal>
-            <SectionHeader tone="gold" eyebrow="Saját főzésű" title="A ház sörei">
-              Négy csapon, a saját főzdénkből. Bajor hagyomány, budapesti lendület.
-            </SectionHeader>
-          </Reveal>
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {houseBeers.map((b, i) => (
-              <Reveal key={b.id} delay={i * 100} className="h-full">
-                <BeerCard beer={b} tone="onGold" />
-              </Reveal>
-            ))}
+      {/* ÉTLAP — the PDF the staff uploaded, as a page-turner; hidden until there is one */}
+      {menuPdf && (
+        <section id="etlap" className="relative scroll-mt-20 overflow-hidden px-5 py-28">
+          <Doodle kind="fries" className="right-[4%] top-16 h-36 w-36 -rotate-6 md:h-52 md:w-52" />
+          <div className="relative mx-auto max-w-7xl">
+            <Reveal>
+              <SectionHeader
+                align="center"
+                eyebrow="Étlap"
+                title={
+                  <>
+                    Lapozz <span className="font-script text-[1.15em] text-primary">bele</span>
+                  </>
+                }
+              >
+                Burgerek, köretek, desszertek és persze a sörök. Lapozd végig, vagy nyisd meg
+                nagyban.
+              </SectionHeader>
+            </Reveal>
+            {menuPdf.pages.length > 0 ? (
+              <MenuViewer pages={menuPdf.pages} />
+            ) : (
+              // A PDF uploaded before the pages were rendered: offer the file itself.
+              <div className="text-center">
+                <a href="/etlap.pdf" target="_blank" rel="noopener" className={ctaClass("gold")}>
+                  <FileText className="h-4 w-4" /> Étlap megnyitása
+                </a>
+              </div>
+            )}
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
-      {/* ABOUT */}
-      <section className="relative mx-auto grid max-w-7xl items-center gap-16 px-5 py-32 md:grid-cols-2">
+      {/* RÓLUNK */}
+      <section
+        id="rolunk"
+        className="relative mx-auto grid max-w-7xl scroll-mt-20 items-center gap-16 px-5 py-28 md:grid-cols-2"
+      >
         <Doodle kind="pretzel" className="right-2 top-8 h-36 w-36 md:h-48 md:w-48" />
         <div className="relative h-[24rem] sm:h-[28rem] md:h-[34rem]">
           <div className="unveil absolute left-0 top-0 h-[70%] w-[78%] overflow-hidden rounded-3xl shadow-2xl">
@@ -205,59 +259,122 @@ function Index() {
               </>
             }
           />
-          <p className="text-lg text-muted-foreground">
-            A {name} egy hosszú müncheni éjszakán született: sör, perec, és a kérdés, hogy miért
-            nincs ilyen hely otthon. Most van. Hosszú asztalok, hangos nevetés, és a legjobb burger,
-            amit sör mellé ehetsz.
-          </p>
-          <CtaLink to="/rolunk" variant="outline" className="mt-8">
-            A történetünk <ArrowRight className="h-4 w-4" />
-          </CtaLink>
+          <div className="space-y-4 text-lg text-muted-foreground">
+            <p>
+              A {name} egy hosszú müncheni éjszakán született: két barát, egy-egy maß, és a kérdés,
+              hogy miért nincs otthon egy hely, ahol a bajor sörkultúra találkozik a jó burgerrel.
+            </p>
+            <p>
+              Most van. Saját főzésű sörök, smash burgerek és hosszú asztalok, ahol mindenkinek jut
+              hely. A cél ma is ugyanaz: őszinte étel, friss sör, hangos este.
+            </p>
+          </div>
         </Reveal>
       </section>
 
-      {/* PLACE CAROUSEL */}
-      <section className="relative py-28">
-        <Doodle kind="hop" className="right-[5%] top-16 h-36 w-36 rotate-12 md:h-48 md:w-48" />
+      {/* VALUES — gold */}
+      <section className="relative overflow-hidden bg-primary px-5 py-24 text-primary-foreground">
+        <Doodle
+          kind="hop"
+          className="right-[5%] top-10 h-32 w-32 rotate-12 text-primary-foreground opacity-20 md:h-44 md:w-44"
+        />
+        <div className="relative mx-auto max-w-7xl">
+          <Reveal>
+            <SectionHeader tone="gold" eyebrow="Amiben hiszünk" title="Értékeink" />
+          </Reveal>
+          <div className="grid gap-6 md:grid-cols-3">
+            {values.map((v, i) => (
+              <Reveal key={v.title} delay={i * 100} className="h-full">
+                <div className="lift h-full rounded-3xl bg-background p-8 text-foreground">
+                  <v.icon className="mb-6 h-10 w-10 text-primary" />
+                  <h3 className="font-display text-4xl">{v.title}</h3>
+                  <p className="mt-3 text-lg text-muted-foreground">{v.text}</p>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* A HELY — a few photos to whet the appetite */}
+      <section id="hely" className="relative scroll-mt-20 py-28">
+        <Doodle kind="mug" className="right-[5%] top-16 h-36 w-36 rotate-6 md:h-48 md:w-48" />
         <div className="mx-auto max-w-7xl px-5">
           <Reveal>
-            <SectionHeader eyebrow="Galéria" title="A hely" className="mb-2" />
+            <SectionHeader eyebrow="Nézz be hozzánk" title="A hely" className="mb-2" />
           </Reveal>
         </div>
         <PhotoCarousel photos={placePhotos} />
-        <div className="mt-10 text-center">
-          <CtaLink to="/galeria" variant="outline">
-            Teljes galéria
-          </CtaLink>
+      </section>
+
+      {/* ASZTALFOGLALÁS — forest */}
+      <section
+        id="foglalas"
+        className="relative scroll-mt-20 overflow-hidden bg-forest px-5 py-24 text-forest-foreground"
+      >
+        <Doodle
+          kind="mug"
+          className="right-[6%] top-10 h-32 w-32 text-forest-foreground opacity-20 md:h-40 md:w-40"
+        />
+        <div className="relative mx-auto max-w-7xl">
+          <Reveal>
+            <h2 className="mb-12 font-display text-[16vw] md:text-[8rem]">Foglalj asztalt!</h2>
+          </Reveal>
+          <div className="grid gap-8 lg:grid-cols-[1.6fr_1fr]">
+            <Suspense>
+              <BookingForm />
+            </Suspense>
+            <aside className="space-y-6 text-lg">
+              <p>
+                Péntek este telt ház szokott lenni, ne maradj le a hosszú asztalról. A foglalásodat
+                e-mailben visszaigazoljuk.
+              </p>
+              <p className="rounded-3xl bg-primary p-6 font-bold text-primary-foreground">
+                Az asztalt {booking.holdMinutes} percig tartjuk. Kérdésed van? Hívj minket:{" "}
+                {contact.phone}
+              </p>
+            </aside>
+          </div>
         </div>
       </section>
 
-      <RautenDivider className="mx-auto mb-20 max-w-7xl" />
-
-      {/* HOURS + MAP */}
-      <section className="mx-auto grid max-w-7xl gap-8 px-5 pb-28 md:grid-cols-[1fr_1.4fr]">
+      {/* KAPCSOLAT */}
+      <section id="kapcsolat" className="relative mx-auto max-w-7xl scroll-mt-20 px-5 py-28">
+        <RautenDivider className="mb-20" />
         <Reveal>
-          <HoursCard />
+          <SectionHeader
+            eyebrow="Kapcsolat"
+            title={
+              <>
+                Itt <span className="text-primary">találsz</span>
+              </>
+            }
+          />
         </Reveal>
-        <Reveal delay={120} className="h-full">
-          <MapCard />
-        </Reveal>
-      </section>
-
-      {/* BOOKING CTA */}
-      <section className="relative overflow-hidden bg-forest px-5 py-24 text-forest-foreground">
-        <Doodle
-          kind="mug"
-          className="bottom-8 right-[6%] h-32 w-32 text-forest-foreground opacity-20 md:h-40 md:w-40"
-        />
-        <div className="relative mx-auto max-w-7xl text-center">
-          <h2 className="font-display text-[16vw] md:text-[10rem]">Foglalj asztalt!</h2>
-          <p className="mx-auto mt-4 max-w-lg text-lg">
-            Péntek este telt ház szokott lenni. Ne maradj le a hosszú asztalról.
-          </p>
-          <CtaLink to="/foglalas" className="mt-10">
-            Asztalfoglalás <ArrowRight className="h-4 w-4" />
-          </CtaLink>
+        <div className="grid gap-8 md:grid-cols-[1fr_1.4fr]">
+          <div className="space-y-8">
+            <Reveal>
+              <HoursCard />
+            </Reveal>
+            {contact.socials.length > 0 && (
+              <div className="flex flex-wrap gap-3">
+                {contact.socials.map((s) => (
+                  <a
+                    key={s.label}
+                    href={s.href}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="rounded-full border-2 border-primary px-5 py-2 text-sm font-extrabold uppercase tracking-widest text-primary transition-colors hover:bg-primary hover:text-primary-foreground"
+                  >
+                    {s.label}
+                  </a>
+                ))}
+              </div>
+            )}
+          </div>
+          <Reveal delay={120} className="h-full">
+            <MapCard />
+          </Reveal>
         </div>
       </section>
     </>

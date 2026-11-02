@@ -13,14 +13,13 @@ const tones = [
 
 /**
  * The staff type the names in the admin panel, so the title steps down for long words
- * instead of overflowing the card (one word per line).
+ * instead of overflowing the card.
  */
 function titleSize(name: string) {
   const longest = Math.max(...name.split(/\s+/).map((w) => w.length));
-  if (longest <= 7) return "text-7xl md:text-5xl lg:text-7xl xl:text-8xl";
-  if (longest <= 10) return "text-6xl md:text-4xl lg:text-6xl xl:text-7xl";
-  if (longest <= 12) return "text-5xl md:text-3xl lg:text-5xl xl:text-6xl";
-  return "text-[2.6rem] leading-[1.12] md:text-3xl lg:text-4xl xl:text-5xl";
+  if (longest <= 9) return "text-6xl md:text-5xl lg:text-6xl xl:text-7xl";
+  if (longest <= 12) return "text-5xl md:text-4xl lg:text-5xl xl:text-6xl";
+  return "text-4xl md:text-3xl lg:text-4xl xl:text-5xl";
 }
 
 /** Big colour-blocked Hónap ajánlata card; `index` cycles the gold / forest / dark tone. */
@@ -33,19 +32,16 @@ export function SpecialCard({ special, index }: { special: MonthlySpecial; index
         tone.card,
       )}
     >
-      {/* Title stays above the image layer so every word is always readable. */}
+      {/* The dish name in the brush script of the printed menus. It stays above the image
+          layer so every word is always readable. */}
       <h3
         lang="hu"
         className={cn(
-          "relative z-10 hyphens-auto break-words font-display",
+          "relative z-10 hyphens-auto text-balance break-words font-script",
           titleSize(special.name),
         )}
       >
-        {special.name.split(/\s+/).map((w, i) => (
-          <span key={i} className="block">
-            {w}
-          </span>
-        ))}
+        {special.name}
       </h3>
       <div className="relative -mt-6 flex min-h-40 flex-1 items-end justify-end">
         <Picture
@@ -62,7 +58,7 @@ export function SpecialCard({ special, index }: { special: MonthlySpecial; index
       )}
       <div className="relative z-10 mt-4 flex flex-wrap items-center justify-between gap-3">
         <Price value={special.price} className="font-display text-3xl" />
-        <CtaLink to="/foglalas" variant={tone.cta} className="px-5 py-3">
+        <CtaLink section="foglalas" variant={tone.cta} className="px-5 py-3">
           Foglalok <ArrowRight className="h-4 w-4" />
         </CtaLink>
       </div>

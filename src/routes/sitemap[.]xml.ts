@@ -1,8 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { absoluteUrl } from "@/lib/site";
 
-// Public, indexable pages. Add new pages here; /admin stays out (it is noindexed).
-const pages = ["/", "/menu", "/galeria", "/foglalas", "/rolunk", "/adatkezeles"];
+// Public, indexable pages. The site is one page plus the privacy notice; the old subpages
+// redirect to its sections. Add new pages here; /admin stays out (it is noindexed).
+const pages = ["/", "/adatkezeles"];
 
 export const Route = createFileRoute("/sitemap.xml")({
   server: {

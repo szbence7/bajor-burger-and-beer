@@ -58,6 +58,18 @@ export interface CompanyInfo {
   regNumber: string;
 }
 
+/** A page of the menu PDF as images (rendered when the staff uploaded it). */
+export interface MenuPage {
+  /** 1600 px wide WebP. */
+  src: string;
+  /** 800 px wide WebP. */
+  srcSmall: string;
+  width: number;
+  height: number;
+  /** The page's text, for screen readers. */
+  text: string;
+}
+
 export interface SiteInfo {
   /** The restaurant's display name, e.g. "Bajor Burger & Beer". */
   name: string;
@@ -65,6 +77,6 @@ export interface SiteInfo {
   company: CompanyInfo;
   openingHours: OpeningHour[];
   booking: BookingSettings;
-  /** The downloadable menu (served at /etlap.pdf); null until the staff upload one. */
-  menuPdf: { updatedAt: string } | null;
+  /** The menu PDF (served at /etlap.pdf); null until the staff upload one. */
+  menuPdf: { updatedAt: string; pages: MenuPage[] } | null;
 }

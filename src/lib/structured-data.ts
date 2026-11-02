@@ -2,7 +2,7 @@ import type { SiteInfo } from "@/data/info";
 import { DEFAULT_OG_IMAGE, SITE_URL, absoluteUrl } from "./site";
 
 /** schema.org Restaurant for the root <head>; built from the same data the pages show. */
-export function restaurantJsonLd({ name, company, contact, openingHours }: SiteInfo) {
+export function restaurantJsonLd({ name, company, contact, openingHours, menuPdf }: SiteInfo) {
   const { street, postalCode, city, country } = contact.addressParts;
   // Only real profile URLs belong in sameAs, not bare network homepages.
   const sameAs = contact.socials
@@ -29,8 +29,8 @@ export function restaurantJsonLd({ name, company, contact, openingHours }: SiteI
     },
     servesCuisine: ["Burger", "Bajor", "Kézműves sör"],
     priceRange: "$$",
-    hasMenu: absoluteUrl("/menu"),
-    acceptsReservations: absoluteUrl("/foglalas"),
+    ...(menuPdf && { hasMenu: absoluteUrl("/etlap.pdf") }),
+    acceptsReservations: absoluteUrl("/#foglalas"),
     openingHoursSpecification: openingHours
       .filter((h) => h.opens && h.closes)
       .map((h) => ({

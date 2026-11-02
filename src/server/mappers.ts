@@ -2,39 +2,12 @@
 // fails loudly here instead of rendering half-empty pages.
 import { z } from "zod";
 import { images, resolveImage } from "@/data/images";
-import type { Beer } from "@/data/beers";
-import type { Drink } from "@/data/drinks";
-import { galleryCategories, type GalleryItem } from "@/data/gallery";
 import type { OpeningHour, SiteInfo } from "@/data/info";
 import { openingHourRow, siteSettingsRow } from "@/lib/site-rows";
+import { publicFileUrl } from "./supabase";
 
 export { openingHourRow, siteSettingsRow };
-import { MENU_BADGES, type Burger, type Side } from "@/data/menu";
 import type { MonthlySpecial } from "@/data/specials";
-
-export const menuItemRow = z.object({
-  slug: z.string(),
-  name: z.string(),
-  description: z.string(),
-  ingredients: z.array(z.string()),
-  price: z.number().int(),
-  image: z.string().nullable(),
-  badges: z.array(z.enum(MENU_BADGES)),
-  is_featured: z.boolean(),
-  menu_categories: z.object({ kind: z.enum(["burger", "side", "drink"]) }),
-});
-
-export const beerRow = z.object({
-  slug: z.string(),
-  name: z.string(),
-  style: z.string(),
-  brewery: z.string(),
-  abv: z.coerce.number(),
-  serve: z.enum(["csapolt", "palackos"]),
-  sizes: z.array(z.object({ label: z.string(), price: z.number().int() })),
-  image: z.string().nullable(),
-  is_house: z.boolean(),
-});
 
 export const specialRow = z.object({
   id: z.string(),
@@ -42,14 +15,6 @@ export const specialRow = z.object({
   description: z.string(),
   price: z.number().int(),
   image: z.string().nullable(),
-});
-
-export const galleryImageRow = z.object({
-  id: z.string(),
-  url: z.string(),
-  alt: z.string(),
-  category: z.enum(galleryCategories),
-  is_tall: z.boolean(),
 });
 
 export function toSiteInfo(
@@ -84,57 +49,17 @@ export function toSiteInfo(
     },
     menuPdf:
       settings.menu_pdf_path && settings.menu_pdf_updated_at
-        ? { updatedAt: settings.menu_pdf_updated_at }
+        ? {
+            updatedAt: settings.menu_pdf_updated_at,
+            pages: settings.menu_pdf_pages.map((p) => ({
+              src: publicFileUrl("menu", p.file),
+              srcSmall: publicFileUrl("menu", p.small),
+              width: p.width,
+              height: p.height,
+              text: p.text,
+            })),
+          }
         : null,
-  };
-}
-
-/** Splits menu items by their category's kind, keeping the query's order. */
-export function toMenuItems(rows: z.infer<typeof menuItemRow>[]) {
-  const burgers: Burger[] = [];
-  const sides: Side[] = [];
-  const drinks: Drink[] = [];
-  for (const r of rows) {
-    const kind = r.menu_categories.kind;
-    if (kind === "burger") {
-      burgers.push({
-        id: r.slug,
-        name: r.name,
-        description: r.description,
-        ingredients: r.ingredients,
-        price: r.price,
-        // Burger cards always show a photo; fall back to the hero burger.
-        image: resolveImage(r.image) ?? images.burgerHero,
-        badges: r.badges,
-        ...(r.is_featured && { featured: true }),
-      });
-    } else if (kind === "side") {
-      sides.push({
-        id: r.slug,
-        name: r.name,
-        description: r.description,
-        price: r.price,
-        ...(r.badges.length > 0 && { badges: r.badges }),
-      });
-    } else {
-      drinks.push({ id: r.slug, name: r.name, detail: r.description, price: r.price });
-    }
-  }
-  return { burgers, sides, drinks };
-}
-
-export function toBeer(r: z.infer<typeof beerRow>): Beer {
-  const image = resolveImage(r.image);
-  return {
-    id: r.slug,
-    name: r.name,
-    style: r.style,
-    brewery: r.brewery,
-    abv: r.abv,
-    serve: r.serve,
-    sizes: r.sizes,
-    ...(r.is_house && { house: true }),
-    ...(image && { image }),
   };
 }
 
@@ -147,16 +72,4 @@ export function toSpecial(r: z.infer<typeof specialRow>): MonthlySpecial {
     // The cards always show a photo; fall back to the hero burger.
     image: resolveImage(r.image) ?? images.burgerHero,
   };
-}
-
-/** Rows whose image can't be resolved are dropped (logged) rather than rendered broken. */
-export function toGalleryItems(rows: z.infer<typeof galleryImageRow>[]): GalleryItem[] {
-  return rows.flatMap((r) => {
-    const src = resolveImage(r.url);
-    if (!src) {
-      console.warn(`Gallery image ${r.id} has an unknown image "${r.url}"; skipped`);
-      return [];
-    }
-    return [{ id: r.id, src, alt: r.alt, category: r.category, ...(r.is_tall && { tall: true }) }];
-  });
 }

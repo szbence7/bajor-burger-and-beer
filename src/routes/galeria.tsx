@@ -1,34 +1,8 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { PageHero } from "@/components/PageHero";
-import { GalleryGrid } from "@/features/gallery/GalleryGrid";
-import { seo } from "@/lib/seo";
-import { getGalleryContent } from "@/features/gallery/api";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 
+// The site is one page now; old links land on the matching section.
 export const Route = createFileRoute("/galeria")({
-  head: () =>
-    seo({
-      path: "/galeria",
-      title: "Galéria — Bajor Burger & Beer",
-      description:
-        "Nézz be hozzánk: esti hangulat, frissen sült burgerek, csapolt sörök és élőzenés estek a Bajor Burger & Beer-ben.",
-    }),
-  loader: () => getGalleryContent(),
-  component: GalleryPage,
+  beforeLoad: () => {
+    throw redirect({ to: "/", hash: "hely", statusCode: 301 });
+  },
 });
-
-function GalleryPage() {
-  const items = Route.useLoaderData();
-  return (
-    <>
-      <PageHero
-        eyebrow="Pillanatok"
-        title={
-          <>
-            Galé<span className="text-primary">ria</span>
-          </>
-        }
-      />
-      <GalleryGrid items={items} />
-    </>
-  );
-}

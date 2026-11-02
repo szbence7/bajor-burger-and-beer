@@ -9,6 +9,7 @@ import {
   type AdminErrorCode,
   type AdminResult,
   type DecisionOutcome,
+  type MenuPdfInput,
   type SetStatusInput,
   type SpecialInput,
 } from "@/features/admin/schema";
@@ -172,28 +173,53 @@ export async function reorderSpecials(token: string, ids: string[]): Promise<Adm
   return { ok: true, data: null };
 }
 
-/** Points the site at a newly uploaded menu PDF (or removes it) and deletes the old file. */
-export async function setMenuPdf(token: string, path: string | null): Promise<AdminResult> {
+/**
+ * Points the site at a newly uploaded menu PDF and its page images (or removes the menu) and
+ * deletes the previous files.
+ */
+export async function setMenuPdf(
+  token: string,
+  { path, pages }: MenuPdfInput,
+): Promise<AdminResult> {
   const db = getUserSupabase(token);
-  const current = await db.from("site_settings").select("menu_pdf_path").maybeSingle();
+  const current = await db
+    .from("site_settings")
+    .select("menu_pdf_path, menu_pdf_pages")
+    .maybeSingle();
   if (current.error) return failFrom(current.error, "menu PDF read");
-  const previous = (current.data as { menu_pdf_path: string | null } | null)?.menu_pdf_path;
+  const previous = previousMenuRow.safeParse(current.data ?? {});
 
   const { data, error } = await db
     .from("site_settings")
-    .update({ menu_pdf_path: path, menu_pdf_updated_at: path ? new Date().toISOString() : null })
+    .update({
+      menu_pdf_path: path,
+      menu_pdf_pages: pages,
+      menu_pdf_updated_at: path ? new Date().toISOString() : null,
+    })
     .eq("id", true)
     .select("id");
   if (error) return failFrom(error, "menu PDF update");
   if (!data?.length) return fail("forbidden");
   clearCache();
 
-  if (previous && previous !== path) {
-    const removed = await db.storage.from("menu").remove([previous]);
-    if (removed.error) console.warn(`Old menu PDF ${previous} not deleted:`, removed.error);
+  if (previous.success) {
+    const keep = new Set([path, ...pages.flatMap((p) => [p.file, p.small])]);
+    const { menu_pdf_path: oldPath, menu_pdf_pages: oldPages } = previous.data;
+    const stale = [oldPath, ...oldPages.flatMap((p) => [p.file, p.small])].filter(
+      (name): name is string => !!name && !keep.has(name),
+    );
+    if (stale.length) {
+      const removed = await db.storage.from("menu").remove(stale);
+      if (removed.error) console.warn("Old menu files not deleted:", stale, removed.error);
+    }
   }
   return { ok: true, data: null };
 }
+
+const previousMenuRow = z.object({
+  menu_pdf_path: z.string().nullable(),
+  menu_pdf_pages: z.array(z.object({ file: z.string(), small: z.string() })),
+});
 
 /** Adatok: contact, company, socials, opening hours and booking rules in one save. */
 export async function saveSiteDetails(

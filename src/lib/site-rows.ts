@@ -9,6 +9,21 @@ export const time = z
   .regex(/^\d{2}:\d{2}/)
   .transform((t) => t.slice(0, 5));
 
+const pageImageName = z.string().regex(/^[A-Za-z0-9._-]+\.webp$/);
+
+/** One page of the menu PDF, rendered to WebP by the admin panel at upload time. */
+export const menuPageRow = z.object({
+  /** Large image (1600 px wide) in the "menu" bucket. */
+  file: pageImageName,
+  /** Small image (800 px wide) for phones. */
+  small: pageImageName,
+  width: z.number().int().positive(),
+  height: z.number().int().positive(),
+  /** The page's text, for screen readers. */
+  text: z.string().max(20_000),
+});
+export type MenuPageRow = z.infer<typeof menuPageRow>;
+
 export const siteSettingsRow = z.object({
   restaurant_name: z.string(),
   company_name: z.string(),
@@ -31,6 +46,7 @@ export const siteSettingsRow = z.object({
   booking_hold_minutes: z.number().int(),
   menu_pdf_path: z.string().nullable(),
   menu_pdf_updated_at: z.string().nullable(),
+  menu_pdf_pages: z.array(menuPageRow),
 });
 
 export const openingHourRow = z.object({
