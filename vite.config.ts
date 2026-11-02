@@ -21,6 +21,11 @@ export default defineConfig(({ command, mode }) => {
 
 const config = (command: "build" | "serve") => ({
   server: { port: 8080 },
+  build: {
+    // Never inline fonts: small subsets (e.g. Share latin-ext) would land in the render-blocking
+    // stylesheet as data URIs, even though the browser fetches them only when a page needs them.
+    assetsInlineLimit: (file: string) => (/\.woff2?$/.test(file) ? false : undefined),
+  },
   resolve: {
     dedupe: ["react", "react-dom", "@tanstack/react-query", "@tanstack/query-core"],
   },

@@ -348,7 +348,7 @@ export function SpecialsEditor() {
                 >
                   <Thumb image={s.image} name={s.name} />
                   <div className="min-w-0 flex-1">
-                    <p className="break-words font-display text-2xl">{s.name}</p>
+                    <p className="break-words font-script text-3xl">{s.name}</p>
                     <Price value={s.price} className="font-bold text-primary" />
                     {!s.is_active && (
                       <p className="text-sm font-bold text-muted-foreground">Rejtett</p>

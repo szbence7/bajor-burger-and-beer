@@ -13,7 +13,7 @@ import type { ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import antonLatin from "@fontsource/anton/files/anton-latin-400-normal.woff2?url";
-import manropeLatin from "@fontsource-variable/manrope/files/manrope-latin-wght-normal.woff2?url";
+import shareLatin from "@fontsource/share/files/share-latin-400-normal.woff2?url";
 import oswaldLatin from "@fontsource-variable/oswald/files/oswald-latin-wght-normal.woff2?url";
 import { SITE_NAME } from "@/lib/site";
 import { getIndexing } from "@/lib/indexing";
@@ -113,7 +113,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       {
         rel: "preload",
-        href: manropeLatin,
+        href: shareLatin,
         as: "font",
         type: "font/woff2",
         crossOrigin: "anonymous",
