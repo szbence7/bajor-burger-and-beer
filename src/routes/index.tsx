@@ -9,7 +9,7 @@ import { Reveal } from "@/components/Reveal";
 import { SectionHeader } from "@/components/SectionHeader";
 import { BeerCard } from "@/features/menu/BeerCard";
 import { CtaLink } from "@/components/CtaButton";
-import { HoursCard, MapPlaceholder } from "@/components/HoursAndMap";
+import { HoursCard, MapCard } from "@/components/HoursAndMap";
 import { SpecialCard } from "@/features/menu/SpecialCard";
 import { PhotoCarousel } from "@/features/gallery/PhotoCarousel";
 import { RautenDivider } from "@/components/RautenPattern";
@@ -236,7 +236,7 @@ function Index() {
           <HoursCard />
         </Reveal>
         <Reveal delay={120} className="h-full">
-          <MapPlaceholder />
+          <MapCard />
         </Reveal>
       </section>
 

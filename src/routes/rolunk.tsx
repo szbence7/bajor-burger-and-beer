@@ -7,7 +7,7 @@ import { PageHero } from "@/components/PageHero";
 import { Reveal } from "@/components/Reveal";
 import { Doodle } from "@/components/Doodle";
 import { Marquee } from "@/components/Marquee";
-import { HoursCard, MapPlaceholder } from "@/components/HoursAndMap";
+import { HoursCard, MapCard } from "@/components/HoursAndMap";
 import { SectionHeader } from "@/components/SectionHeader";
 import { seo } from "@/lib/seo";
 
@@ -126,7 +126,7 @@ function AboutPage() {
               ))}
             </div>
           </div>
-          <MapPlaceholder />
+          <MapCard />
         </div>
       </section>
     </>
