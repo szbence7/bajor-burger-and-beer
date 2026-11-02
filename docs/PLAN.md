@@ -180,7 +180,7 @@ Agreed with the user during Phases 1–2. These override the original prompt whe
     Menu/beer/gallery editing, opening hours and contact details are **not** in this phase.
 23. **2FA = TOTP authenticator app** (Supabase Auth MFA). `is_admin()` requires
     `app_metadata.role = 'admin'` **and** `aal2`, so RLS enforces it everywhere (tables,
-    Storage, Realtime). Sign-ups are off; admins are created with `bun run admin create`.
+    Storage, Realtime). Sign-ups are off; admins are invited from the panel (decision 28).
 24. **Statuses**: `pending` → `confirmed` / `rejected`; `confirmed` → `cancelled`; a mistaken
     rejection/cancellation can be confirmed again. Only pending + confirmed hold seats. Each
     decision emails the guest, with an optional message from the staff.
@@ -195,6 +195,11 @@ Agreed with the user during Phases 1–2. These override the original prompt whe
 27. **PDF menu** at the stable address `/etlap.pdf` (good for table QR codes), streamed from
     the public `menu` bucket; the Menü page shows an "Étlap PDF-ben" button once one exists.
     The HTML menu page stays as it is.
+28. **Admin accounts from the panel** (user request, 2026-11-02): no self-registration; an
+    admin invites a colleague by email, who receives a temporary password, must set their own
+    password on first sign-in and then set up 2FA. `is_admin()` ignores accounts still on the
+    temporary password. Admins can also reset (new temporary password + 2FA removed) and
+    remove other admins; never themselves, never the last admin.
 
 ## Status
 
@@ -236,7 +241,8 @@ Branch `claude/redesign-fixes`, pushed to `origin`.
   bookings free their seats, log and specials RLS).
 - `/admin`: sign-in + mandatory TOTP enrolment/verification; Foglalások (live via Realtime,
   toast + optional chime + pending count, filters by day range and status, accept / reject /
-  cancel with a message, per-booking email log with re-send); Hónap ajánlata (add, edit,
+  cancel with a message, per-booking email log with re-send); Felhasználók (invite by email
+  with a temporary password, forced password change, then 2FA; reset; remove); Hónap ajánlata (add, edit,
   image upload shrunk to WebP in the browser, show/hide, reorder, delete); Étlap PDF
   (upload/replace/remove); Értesítések (full email log, "only failed" filter, re-send).
 - Public site: "Hónap ajánlata" section (current month as eyebrow, hidden when empty, 1–3+
@@ -270,7 +276,7 @@ Branch `claude/redesign-fixes`, pushed to `origin`.
   (`SMTP_*` in Coolify). Until then the log shows every email as "Nem ment ki".
 - **Apply Phase 4 to the real instance**: migration 0004 + seed, Auth env
   (`GOTRUE_DISABLE_SIGNUP=true`, TOTP MFA enroll/verify on), Realtime + Storage running, then
-  `bun run admin create` for each staff member; set `SUPABASE_SERVICE_ROLE_KEY` (and
+  `bun run admin create` for the first admin (the rest are invited from the panel); set `SUPABASE_SERVICE_ROLE_KEY` (and
   `SUPABASE_PUBLIC_URL` if `SUPABASE_URL` is internal) in Coolify.
 - **HTML menu vs PDF**: the Menü page still renders the database menu (no admin editing for it
   in this phase). Decide whether the PDF should replace it or the menu gets admin editing later.

@@ -80,7 +80,10 @@ applies: never rewrite pushed history.
   (`src/features/admin/supabase.ts`) does Auth (password + mandatory TOTP), Realtime, Storage
   uploads and reads; **writes go through server functions** that act with the admin's access
   token (`getUserSupabase`, RLS decides) so the server can send emails and clear the content
-  cache. The service role key is used **only** to write `notification_log`. Inputs and DB rows
+  cache. The service role key is used **only** to write `notification_log` and, in
+  `src/server/admin-users.ts`, for the Auth admin API after checking the caller with
+  `is_admin()`. Nobody gets in without a changed password **and** 2FA (enforced in
+  `is_admin()`). Inputs and DB rows
   are validated with `zod`. Supabase CLI runs via `bunx supabase@2.121.0` (package scripts
   `db:*`, `test:db`); it is not a dependency.
 - Package manager: **bun** (`bun.lock`, `bunfig.toml` has a 24 h minimum-release-age guard).
@@ -128,7 +131,7 @@ reads the real environment).
 - `src/routes` — `index` (Főoldal), `menu`, `galeria`, `foglalas`, `rolunk`, `adatkezeles`
   (privacy notice, placeholder), `admin` (layout, `ssr: false`, noindex) with `admin/index`
   (Foglalások), `admin/ajanlat` (Hónap ajánlata), `admin/etlap` (PDF menu),
-  `admin/ertesitesek` (email log); server routes `api/health`, `sitemap[.]xml`, `robots[.]txt`,
+  `admin/ertesitesek` (email log), `admin/felhasznalok` (admin accounts); server routes `api/health`, `sitemap[.]xml`, `robots[.]txt`,
   `etlap[.]pdf` (streams the current PDF menu from Storage; stable link for QR codes). `__root.tsx` holds the HTML shell, root head
   (fonts, icons, OG defaults, JSON-LD, NOINDEX), Header/Footer, 404 and error components.
   Routes stay thin: layout + `head`; logic lives in features.
@@ -144,7 +147,9 @@ reads the real environment).
   shared zod schema + error codes.
   `src/features/admin` — the staff panel: `auth` (sign-in + TOTP enrol/verify gate),
   `AdminShell` (nav, one Realtime channel, new-booking toast + optional chime),
-  `ReservationsBoard`, `SpecialsEditor`, `MenuPdfManager`, `NotificationLog`, `ui` (calmer
+  `ReservationsBoard`, `SpecialsEditor`, `MenuPdfManager`, `NotificationLog`, `UsersManager`
+  (invite / reset / remove admins; temporary password by email, forced password change, then
+  2FA), `ui` (calmer
   primitives), `upload` (shrinks images to WebP in the browser), `api` (server functions with
   the `adminAuth` middleware that forwards the access token), `config` (runtime Supabase URL +
   anon key for the browser), `schema` (statuses, labels, inputs).
@@ -152,7 +157,7 @@ reads the real environment).
   clients (anon, per-request user token, service role), `content` queries (30 s in-memory
   cache, stale value on error), `mappers` (rows → types), `booking` (availability, submit,
   honeypot, 5/IP/hour rate limit), `admin` (decisions, specials, PDF menu, resend; clear the
-  cache), `notifications` (send + log every email), `mailer` (nodemailer SMTP),
+  cache), `admin-users` (Auth admin API behind an `is_admin()` check as the caller), `notifications` (send + log every email), `mailer` (nodemailer SMTP),
   `email-templates` (Hungarian HTML + text, escaped), `request` (client IP, bearer token).
 - `scripts/admin.ts` — `bun run admin create|promote|reset-2fa|list` (needs the service key).
 - `src/lib` — `utils` (`cn`), `format` (`formatNumber`, `formatFt`, `formatHours`), `cta`
@@ -331,6 +336,9 @@ design language but calmer and practical. Hungarian UI, mobile-friendly (staff u
 - Never name a zsh variable `path` (it is tied to `PATH`).
 - supabase-js does not pass the new aal2 token to Realtime after `mfa.challengeAndVerify`;
   `AdminShell` calls `realtime.setAuth()` before joining, or RLS silently drops every event.
+- Changing a password (admin API) revokes the user's refresh tokens: after the first-sign-in
+  password change the panel signs in again with the new password instead of refreshing.
+- `auth.admin.listUsers` does not return MFA factors; use `auth.admin.mfa.listFactors`.
 - Local CLI: `[auth.email] enable_signup = false` disables email **sign-in** too; sign-ups are
   closed by the top-level `[auth] enable_signup = false` instead.
 - Full-page screenshots show a horizontal band where the fixed grain overlay ends; it is a
