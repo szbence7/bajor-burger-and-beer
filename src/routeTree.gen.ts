@@ -11,12 +11,18 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdatkezelesRouteImport } from './routes/adatkezeles'
+import { Route as AdminRouteImport } from './routes/admin'
+import { Route as EtlapDotpdfRouteImport } from './routes/etlap[.]pdf'
 import { Route as FoglalasRouteImport } from './routes/foglalas'
 import { Route as GaleriaRouteImport } from './routes/galeria'
 import { Route as MenuRouteImport } from './routes/menu'
 import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
 import { Route as RolunkRouteImport } from './routes/rolunk'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as AdminIndexRouteImport } from './routes/admin/index'
+import { Route as AdminAjanlatRouteImport } from './routes/admin/ajanlat'
+import { Route as AdminErtesitesekRouteImport } from './routes/admin/ertesitesek'
+import { Route as AdminEtlapRouteImport } from './routes/admin/etlap'
 import { Route as ApiHealthRouteImport } from './routes/api/health'
 
 const IndexRoute = IndexRouteImport.update({
@@ -27,6 +33,16 @@ const IndexRoute = IndexRouteImport.update({
 const AdatkezelesRoute = AdatkezelesRouteImport.update({
   id: '/adatkezeles',
   path: '/adatkezeles',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EtlapDotpdfRoute = EtlapDotpdfRouteImport.update({
+  id: '/etlap.pdf',
+  path: '/etlap.pdf',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FoglalasRoute = FoglalasRouteImport.update({
@@ -59,6 +75,26 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminAjanlatRoute = AdminAjanlatRouteImport.update({
+  id: '/ajanlat',
+  path: '/ajanlat',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminErtesitesekRoute = AdminErtesitesekRouteImport.update({
+  id: '/ertesitesek',
+  path: '/ertesitesek',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminEtlapRoute = AdminEtlapRouteImport.update({
+  id: '/etlap',
+  path: '/etlap',
+  getParentRoute: () => AdminRoute,
+} as any)
 const ApiHealthRoute = ApiHealthRouteImport.update({
   id: '/api/health',
   path: '/api/health',
@@ -68,76 +104,112 @@ const ApiHealthRoute = ApiHealthRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/adatkezeles': typeof AdatkezelesRoute
+  '/admin': typeof AdminRouteWithChildren
+  '/etlap.pdf': typeof EtlapDotpdfRoute
   '/foglalas': typeof FoglalasRoute
   '/galeria': typeof GaleriaRoute
   '/menu': typeof MenuRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/rolunk': typeof RolunkRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/admin/ajanlat': typeof AdminAjanlatRoute
+  '/admin/ertesitesek': typeof AdminErtesitesekRoute
+  '/admin/etlap': typeof AdminEtlapRoute
   '/api/health': typeof ApiHealthRoute
+  '/admin/': typeof AdminIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/adatkezeles': typeof AdatkezelesRoute
+  '/etlap.pdf': typeof EtlapDotpdfRoute
   '/foglalas': typeof FoglalasRoute
   '/galeria': typeof GaleriaRoute
   '/menu': typeof MenuRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/rolunk': typeof RolunkRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/admin/ajanlat': typeof AdminAjanlatRoute
+  '/admin/ertesitesek': typeof AdminErtesitesekRoute
+  '/admin/etlap': typeof AdminEtlapRoute
   '/api/health': typeof ApiHealthRoute
+  '/admin': typeof AdminIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/adatkezeles': typeof AdatkezelesRoute
+  '/admin': typeof AdminRouteWithChildren
+  '/etlap.pdf': typeof EtlapDotpdfRoute
   '/foglalas': typeof FoglalasRoute
   '/galeria': typeof GaleriaRoute
   '/menu': typeof MenuRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/rolunk': typeof RolunkRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/admin/ajanlat': typeof AdminAjanlatRoute
+  '/admin/ertesitesek': typeof AdminErtesitesekRoute
+  '/admin/etlap': typeof AdminEtlapRoute
   '/api/health': typeof ApiHealthRoute
+  '/admin/': typeof AdminIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/adatkezeles'
+    | '/admin'
+    | '/etlap.pdf'
     | '/foglalas'
     | '/galeria'
     | '/menu'
     | '/robots.txt'
     | '/rolunk'
     | '/sitemap.xml'
+    | '/admin/ajanlat'
+    | '/admin/ertesitesek'
+    | '/admin/etlap'
     | '/api/health'
+    | '/admin/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/adatkezeles'
+    | '/etlap.pdf'
     | '/foglalas'
     | '/galeria'
     | '/menu'
     | '/robots.txt'
     | '/rolunk'
     | '/sitemap.xml'
+    | '/admin/ajanlat'
+    | '/admin/ertesitesek'
+    | '/admin/etlap'
     | '/api/health'
+    | '/admin'
   id:
     | '__root__'
     | '/'
     | '/adatkezeles'
+    | '/admin'
+    | '/etlap.pdf'
     | '/foglalas'
     | '/galeria'
     | '/menu'
     | '/robots.txt'
     | '/rolunk'
     | '/sitemap.xml'
+    | '/admin/ajanlat'
+    | '/admin/ertesitesek'
+    | '/admin/etlap'
     | '/api/health'
+    | '/admin/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdatkezelesRoute: typeof AdatkezelesRoute
+  AdminRoute: typeof AdminRouteWithChildren
+  EtlapDotpdfRoute: typeof EtlapDotpdfRoute
   FoglalasRoute: typeof FoglalasRoute
   GaleriaRoute: typeof GaleriaRoute
   MenuRoute: typeof MenuRoute
@@ -161,6 +233,20 @@ declare module '@tanstack/react-router' {
       path: '/adatkezeles'
       fullPath: '/adatkezeles'
       preLoaderRoute: typeof AdatkezelesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/etlap.pdf': {
+      id: '/etlap.pdf'
+      path: '/etlap.pdf'
+      fullPath: '/etlap.pdf'
+      preLoaderRoute: typeof EtlapDotpdfRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/foglalas': {
@@ -205,6 +291,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/': {
+      id: '/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/ajanlat': {
+      id: '/admin/ajanlat'
+      path: '/ajanlat'
+      fullPath: '/admin/ajanlat'
+      preLoaderRoute: typeof AdminAjanlatRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/ertesitesek': {
+      id: '/admin/ertesitesek'
+      path: '/ertesitesek'
+      fullPath: '/admin/ertesitesek'
+      preLoaderRoute: typeof AdminErtesitesekRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/etlap': {
+      id: '/admin/etlap'
+      path: '/etlap'
+      fullPath: '/admin/etlap'
+      preLoaderRoute: typeof AdminEtlapRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/api/health': {
       id: '/api/health'
       path: '/api/health'
@@ -215,9 +329,27 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AdminRouteChildren {
+  AdminAjanlatRoute: typeof AdminAjanlatRoute
+  AdminErtesitesekRoute: typeof AdminErtesitesekRoute
+  AdminEtlapRoute: typeof AdminEtlapRoute
+  AdminIndexRoute: typeof AdminIndexRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminAjanlatRoute: AdminAjanlatRoute,
+  AdminErtesitesekRoute: AdminErtesitesekRoute,
+  AdminEtlapRoute: AdminEtlapRoute,
+  AdminIndexRoute: AdminIndexRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdatkezelesRoute: AdatkezelesRoute,
+  AdminRoute: AdminRouteWithChildren,
+  EtlapDotpdfRoute: EtlapDotpdfRoute,
   FoglalasRoute: FoglalasRoute,
   GaleriaRoute: GaleriaRoute,
   MenuRoute: MenuRoute,

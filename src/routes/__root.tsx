@@ -4,6 +4,7 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
+  useRouterState,
   HeadContent,
   Scripts,
   type ErrorComponentProps,
@@ -153,14 +154,24 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  // The admin panel has its own header and no public footer.
+  const isAdmin = useRouterState({
+    select: (s) => s.location.pathname === "/admin" || s.location.pathname.startsWith("/admin/"),
+  });
 
   return (
     <QueryClientProvider client={queryClient}>
-      <Header />
-      <main className="overflow-x-clip">
+      {isAdmin ? (
         <Outlet />
-      </main>
-      <Footer />
+      ) : (
+        <>
+          <Header />
+          <main className="overflow-x-clip">
+            <Outlet />
+          </main>
+          <Footer />
+        </>
+      )}
     </QueryClientProvider>
   );
 }

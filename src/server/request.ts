@@ -11,3 +11,8 @@ export function getClientIp(): string {
   const forwarded = getRequestHeader("x-forwarded-for")?.split(",").at(-1)?.trim();
   return forwarded || getRequestIP() || "unknown";
 }
+
+/** The admin's Supabase access token from `Authorization: Bearer …`, or "" when absent. */
+export function getBearerToken(): string {
+  return getRequestHeader("authorization")?.match(/^Bearer\s+(\S+)$/i)?.[1] ?? "";
+}
