@@ -5,6 +5,7 @@ import {
   resendNotification,
   saveSpecial,
   setMenuPdf,
+  saveSiteDetails,
   setReservationStatus,
 } from "@/server/admin";
 import {
@@ -22,6 +23,7 @@ import {
   newPasswordInput,
   reorderInput,
   setStatusInput,
+  siteDetailsInput,
   specialInput,
 } from "./schema";
 import { accessToken } from "./supabase";
@@ -111,4 +113,11 @@ export const completePasswordChangeFn = createServerFn({ method: "POST" })
     context.token
       ? completePasswordChange(context.token, data.currentPassword, data.password)
       : unauthorized,
+  );
+
+export const saveSiteDetailsFn = createServerFn({ method: "POST" })
+  .middleware([adminAuth])
+  .inputValidator(siteDetailsInput)
+  .handler(({ data, context }) =>
+    context.token ? saveSiteDetails(context.token, data) : unauthorized,
   );

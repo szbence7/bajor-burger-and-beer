@@ -1,8 +1,8 @@
 import type { SiteInfo } from "@/data/info";
-import { DEFAULT_OG_IMAGE, SITE_NAME, SITE_URL, absoluteUrl } from "./site";
+import { DEFAULT_OG_IMAGE, SITE_URL, absoluteUrl } from "./site";
 
 /** schema.org Restaurant for the root <head>; built from the same data the pages show. */
-export function restaurantJsonLd({ contact, openingHours }: SiteInfo) {
+export function restaurantJsonLd({ name, company, contact, openingHours }: SiteInfo) {
   const { street, postalCode, city, country } = contact.addressParts;
   // Only real profile URLs belong in sameAs, not bare network homepages.
   const sameAs = contact.socials
@@ -13,7 +13,9 @@ export function restaurantJsonLd({ contact, openingHours }: SiteInfo) {
     "@context": "https://schema.org",
     "@type": "Restaurant",
     "@id": `${SITE_URL}/#restaurant`,
-    name: SITE_NAME,
+    name,
+    ...(company.name && { legalName: company.name }),
+    ...(company.taxNumber && { taxID: company.taxNumber }),
     url: SITE_URL,
     image: absoluteUrl(DEFAULT_OG_IMAGE.path),
     telephone: contact.phone,

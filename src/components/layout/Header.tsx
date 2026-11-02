@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { ctaClass } from "@/lib/cta";
 import { BrandLogo } from "@/components/BrandLogo";
+import { useSiteInfo } from "@/lib/site-info";
 
 const nav = [
   { to: "/", label: "Főoldal" },
@@ -13,6 +14,7 @@ const nav = [
 ] as const;
 
 export function Header() {
+  const { name } = useSiteInfo();
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   useEffect(() => {
@@ -34,7 +36,7 @@ export function Header() {
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-5">
         <Link
           to="/"
-          aria-label="Bajor Burger & Beer – Főoldal"
+          aria-label={`${name} – Főoldal`}
           className="flex items-center gap-3"
           onClick={() => setOpen(false)}
         >

@@ -8,6 +8,7 @@ vi.mock("./supabase", () => ({
 vi.mock("./content", () => ({
   getSiteInfo: () =>
     Promise.resolve({
+      name: "Bajor Burger & Beer",
       contact: { address: "Cím", phone: "+36 1 234 5678", email: "hello@bajor.hu" },
       booking: { holdMinutes: 15 },
     }),

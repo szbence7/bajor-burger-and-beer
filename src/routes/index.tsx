@@ -15,6 +15,7 @@ import { PhotoCarousel } from "@/features/gallery/PhotoCarousel";
 import { RautenDivider } from "@/components/RautenPattern";
 import { cn } from "@/lib/utils";
 import { seo } from "@/lib/seo";
+import { useSiteInfo } from "@/lib/site-info";
 import { getHomeContent } from "@/features/menu/api";
 
 export const Route = createFileRoute("/")({
@@ -79,6 +80,7 @@ function HeroBurger({ className }: { className?: string }) {
 function Index() {
   const parallaxRef = useParallax<HTMLSpanElement>(-0.08);
   const { specials, month, houseBeers } = Route.useLoaderData();
+  const { name } = useSiteInfo();
 
   return (
     <>
@@ -200,9 +202,9 @@ function Index() {
             }
           />
           <p className="text-lg text-muted-foreground">
-            A Bajor Burger &amp; Beer egy hosszú müncheni éjszakán született: sör, perec, és a
-            kérdés, hogy miért nincs ilyen hely otthon. Most van. Hosszú asztalok, hangos nevetés,
-            és a legjobb burger, amit sör mellé ehetsz.
+            A {name} egy hosszú müncheni éjszakán született: sör, perec, és a kérdés, hogy miért
+            nincs ilyen hely otthon. Most van. Hosszú asztalok, hangos nevetés, és a legjobb burger,
+            amit sör mellé ehetsz.
           </p>
           <CtaLink to="/rolunk" variant="outline" className="mt-8">
             A történetünk <ArrowRight className="h-4 w-4" />

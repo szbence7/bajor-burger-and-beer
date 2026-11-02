@@ -3,6 +3,8 @@
 // public content cache so the site shows them at once.
 import {
   NOTIFICATION_KINDS,
+  SOCIAL_NETWORKS,
+  type SiteDetailsInput,
   isReservationKind,
   type AdminErrorCode,
   type AdminResult,
@@ -11,6 +13,7 @@ import {
   type SpecialInput,
 } from "@/features/admin/schema";
 import { z } from "zod";
+import { groupDayHours } from "@/lib/opening-hours";
 import { clearCache } from "./cache";
 import { deliver, onReservationDecided, type ReservationDetails } from "./notifications";
 import { getUserSupabase } from "./supabase";
@@ -189,5 +192,47 @@ export async function setMenuPdf(token: string, path: string | null): Promise<Ad
     const removed = await db.storage.from("menu").remove([previous]);
     if (removed.error) console.warn(`Old menu PDF ${previous} not deleted:`, removed.error);
   }
+  return { ok: true, data: null };
+}
+
+/** Adatok: contact, company, socials, opening hours and booking rules in one save. */
+export async function saveSiteDetails(
+  token: string,
+  input: SiteDetailsInput,
+): Promise<AdminResult> {
+  const db = getUserSupabase(token);
+  const { data, error } = await db
+    .from("site_settings")
+    .update({
+      restaurant_name: input.restaurantName,
+      phone: input.phone,
+      email: input.email,
+      street: input.street,
+      postal_code: input.postalCode,
+      city: input.city,
+      company_name: input.companyName,
+      company_address: input.companyAddress,
+      tax_number: input.taxNumber,
+      company_reg_number: input.regNumber,
+      socials: SOCIAL_NETWORKS.filter((n) => input.socials[n]).map((label) => ({
+        label,
+        href: input.socials[label],
+      })),
+      booking_capacity: input.booking.capacity,
+      booking_max_party_size: input.booking.maxPartySize,
+      booking_duration_minutes: input.booking.durationMinutes,
+      booking_slot_minutes: input.booking.slotMinutes,
+      booking_days_ahead: input.booking.daysAhead,
+      booking_min_notice_minutes: input.booking.minNoticeMinutes,
+      booking_hold_minutes: input.booking.holdMinutes,
+    })
+    .eq("id", true)
+    .select("id");
+  if (error) return failFrom(error, "site details save");
+  if (!data?.length) return fail("forbidden");
+
+  const hours = await db.rpc("replace_opening_hours", { p_rows: groupDayHours(input.hours) });
+  if (hours.error) return failFrom(hours.error, "opening hours save");
+  clearCache();
   return { ok: true, data: null };
 }

@@ -24,6 +24,11 @@ describe("resolveImage", () => {
 describe("toSiteInfo", () => {
   it("builds contact, trims times to HH:MM and maps booking settings", () => {
     const settings = siteSettingsRow.parse({
+      restaurant_name: "Bajor Burger & Beer",
+      company_name: "Bajor Kft.",
+      company_address: "1075 Budapest, Kazinczy utca 12.",
+      tax_number: "12345678-2-42",
+      company_reg_number: "01-09-123456",
       street: "Kazinczy utca 12.",
       postal_code: "1075",
       city: "Budapest",
@@ -58,6 +63,13 @@ describe("toSiteInfo", () => {
     });
     expect(info.booking).toMatchObject({ maxPartySize: 8, capacity: 40, holdMinutes: 15 });
     expect(info.menuPdf).toBeNull();
+    expect(info.name).toBe("Bajor Burger & Beer");
+    expect(info.company).toEqual({
+      name: "Bajor Kft.",
+      address: "1075 Budapest, Kazinczy utca 12.",
+      taxNumber: "12345678-2-42",
+      regNumber: "01-09-123456",
+    });
   });
 
   it("rejects unknown weekdays", () => {

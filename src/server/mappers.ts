@@ -5,41 +5,12 @@ import { images, resolveImage } from "@/data/images";
 import type { Beer } from "@/data/beers";
 import type { Drink } from "@/data/drinks";
 import { galleryCategories, type GalleryItem } from "@/data/gallery";
-import { WEEKDAYS, type OpeningHour, type SiteInfo } from "@/data/info";
+import type { OpeningHour, SiteInfo } from "@/data/info";
+import { openingHourRow, siteSettingsRow } from "@/lib/site-rows";
+
+export { openingHourRow, siteSettingsRow };
 import { MENU_BADGES, type Burger, type Side } from "@/data/menu";
 import type { MonthlySpecial } from "@/data/specials";
-
-/** "12:00:00" → "12:00" */
-const time = z
-  .string()
-  .regex(/^\d{2}:\d{2}/)
-  .transform((t) => t.slice(0, 5));
-
-export const siteSettingsRow = z.object({
-  street: z.string(),
-  postal_code: z.string(),
-  city: z.string(),
-  country: z.string(),
-  phone: z.string(),
-  email: z.string(),
-  socials: z.array(z.object({ label: z.string(), href: z.string().url() })),
-  booking_slot_minutes: z.number().int(),
-  booking_duration_minutes: z.number().int(),
-  booking_capacity: z.number().int(),
-  booking_max_party_size: z.number().int(),
-  booking_days_ahead: z.number().int(),
-  booking_min_notice_minutes: z.number().int(),
-  booking_hold_minutes: z.number().int(),
-  menu_pdf_path: z.string().nullable(),
-  menu_pdf_updated_at: z.string().nullable(),
-});
-
-export const openingHourRow = z.object({
-  label: z.string(),
-  days: z.array(z.enum(WEEKDAYS)),
-  opens: time.nullable(),
-  closes: time.nullable(),
-});
 
 export const menuItemRow = z.object({
   slug: z.string(),
@@ -87,6 +58,13 @@ export function toSiteInfo(
 ): SiteInfo {
   const { street, postal_code: postalCode, city, country } = settings;
   return {
+    name: settings.restaurant_name,
+    company: {
+      name: settings.company_name,
+      address: settings.company_address,
+      taxNumber: settings.tax_number,
+      regNumber: settings.company_reg_number,
+    },
     contact: {
       address: `${postalCode} ${city}, ${street}`,
       addressParts: { street, postalCode, city, country },

@@ -6,7 +6,14 @@ import { RautenPattern } from "@/components/RautenPattern";
 import { BrandLogo } from "@/components/BrandLogo";
 
 export function Footer() {
-  const { contact, openingHours } = useSiteInfo();
+  const { name, company, contact, openingHours } = useSiteInfo();
+  // Impresszum: whatever company details the admin has filled in.
+  const impressum = [
+    company.name && `Üzemeltető: ${company.name}`,
+    company.address && `Székhely: ${company.address}`,
+    company.regNumber && `Cégjegyzékszám: ${company.regNumber}`,
+    company.taxNumber && `Adószám: ${company.taxNumber}`,
+  ].filter(Boolean);
 
   return (
     <footer className="relative overflow-hidden border-t border-border bg-card pt-20">
@@ -60,10 +67,13 @@ export function Footer() {
         </div>
       </div>
       <div className="relative mx-auto mt-16 flex max-w-7xl flex-wrap gap-x-6 gap-y-2 px-5 text-xs text-muted-foreground">
-        <p>© {new Date().getFullYear()} Bajor Burger &amp; Beer. Minden jog fenntartva.</p>
+        <p>
+          © {new Date().getFullYear()} {name}. Minden jog fenntartva.
+        </p>
         <Link to="/adatkezeles" className="underline underline-offset-4 hover:text-primary">
           Adatkezelési tájékoztató
         </Link>
+        {impressum.length > 0 && <p className="basis-full">{impressum.join(" · ")}</p>}
       </div>
       <div
         aria-hidden

@@ -4,7 +4,7 @@
 import type { ReservationNotificationKind } from "@/features/admin/schema";
 import type { SiteInfo } from "@/data/info";
 import { formatDateHu } from "@/lib/date";
-import { SITE_NAME, absoluteUrl } from "@/lib/site";
+import { absoluteUrl } from "@/lib/site";
 import type { Mail } from "./mailer";
 
 export interface ReservationDetails {
@@ -40,7 +40,7 @@ interface Content {
   link?: { href: string; label: string };
 }
 
-function render(c: Content, to: string, replyTo?: string): Mail {
+function render(c: Content, siteName: string, to: string, replyTo?: string): Mail {
   const text = [
     c.heading,
     "",
@@ -52,7 +52,7 @@ function render(c: Content, to: string, replyTo?: string): Mail {
     ...c.outro,
     ...(c.link ? ["", `${c.link.label}: ${c.link.href}`] : []),
     "",
-    SITE_NAME,
+    siteName,
   ].join("\n");
 
   const p = (s: string) => `<p style="margin:0 0 14px">${escapeHtml(s)}</p>`;
@@ -60,7 +60,7 @@ function render(c: Content, to: string, replyTo?: string): Mail {
 <html lang="hu"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escapeHtml(c.subject)}</title></head>
 <body style="margin:0;padding:24px 12px;background:#121110;color:#f5efe6;font:16px/1.55 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif">
 <div style="max-width:560px;margin:0 auto;background:#1c1a18;border:1px solid #2e2a26;border-radius:20px;padding:28px">
-<p style="margin:0 0 18px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;font-size:12px;color:#d2ac66">${escapeHtml(SITE_NAME)}</p>
+<p style="margin:0 0 18px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;font-size:12px;color:#d2ac66">${escapeHtml(siteName)}</p>
 <h1 style="margin:0 0 18px;font:700 26px/1.2 'Arial Narrow',Arial,sans-serif;text-transform:uppercase;color:#f5efe6">${escapeHtml(c.heading)}</h1>
 ${c.intro.map(p).join("\n")}
 ${c.quote ? `<blockquote style="margin:0 0 16px;padding:12px 16px;border-left:3px solid #d2ac66;background:#121110;border-radius:8px;color:#f5efe6">${escapeHtml(c.quote)}</blockquote>` : ""}
@@ -103,7 +103,7 @@ export function buildEmail(
     case "guest_received":
       return render(
         {
-          subject: `Megkaptuk a foglalásodat — ${SITE_NAME}`,
+          subject: `Megkaptuk a foglalásodat — ${site.name}`,
           heading: "Megkaptuk a foglalásodat",
           intro: [
             `Kedves ${r.name}!`,
@@ -112,13 +112,14 @@ export function buildEmail(
           rows: bookingRows(r),
           outro: [callUs],
         },
+        site.name,
         to,
         venueEmail,
       );
     case "guest_confirmed":
       return render(
         {
-          subject: `Visszaigazoltuk a foglalásodat — ${SITE_NAME}`,
+          subject: `Visszaigazoltuk a foglalásodat — ${site.name}`,
           heading: "Várunk szeretettel!",
           intro: [`Kedves ${r.name}!`, "A foglalásodat visszaigazoltuk."],
           ...withQuote,
@@ -127,13 +128,14 @@ export function buildEmail(
             `Az asztalt ${site.booking.holdMinutes} percig tartjuk. Ha mégsem tudsz jönni, kérjük, szólj: ${phone}.`,
           ],
         },
+        site.name,
         to,
         venueEmail,
       );
     case "guest_rejected":
       return render(
         {
-          subject: `A foglalásodat sajnos nem tudjuk fogadni — ${SITE_NAME}`,
+          subject: `A foglalásodat sajnos nem tudjuk fogadni — ${site.name}`,
           heading: "Sajnos most nem megy",
           intro: [
             `Kedves ${r.name}!`,
@@ -144,19 +146,21 @@ export function buildEmail(
           outro: [`Hívj minket a ${phone} számon, és keresünk másik időpontot.`],
           link: { href: absoluteUrl("/foglalas"), label: "Új időpontot választok" },
         },
+        site.name,
         to,
         venueEmail,
       );
     case "guest_cancelled":
       return render(
         {
-          subject: `Foglalás lemondva — ${SITE_NAME}`,
+          subject: `Foglalás lemondva — ${site.name}`,
           heading: "Foglalás lemondva",
           intro: [`Kedves ${r.name}!`, "Az alábbi foglalásodat lemondtuk."],
           ...withQuote,
           rows: bookingRows(r),
           outro: [callUs],
         },
+        site.name,
         to,
         venueEmail,
       );
@@ -175,6 +179,7 @@ export function buildEmail(
           outro: [],
           link: { href: absoluteUrl("/admin"), label: "Megnyitom az adminban" },
         },
+        site.name,
         to,
         r.email,
       );
@@ -184,6 +189,7 @@ export function buildEmail(
 /** Invitation (or account reset) for a staff member, with the temporary password. */
 export function buildAccountEmail(
   kind: "admin_invite" | "admin_reset",
+  site: SiteInfo,
   to: string,
   temporaryPassword: string,
 ): Mail {
@@ -191,8 +197,8 @@ export function buildAccountEmail(
   return render(
     {
       subject: invite
-        ? `Meghívó a ${SITE_NAME} admin felületére`
-        : `Visszaállítottuk a ${SITE_NAME} admin fiókodat`,
+        ? `Meghívó a ${site.name} admin felületére`
+        : `Visszaállítottuk a ${site.name} admin fiókodat`,
       heading: invite ? "Meghívtak az admin felületre" : "Új ideiglenes jelszó",
       intro: [
         invite
@@ -207,6 +213,7 @@ export function buildAccountEmail(
       outro: ["Ha nem számítottál erre a levélre, töröld, és szólj a vezetőnek."],
       link: { href: absoluteUrl("/admin"), label: "Belépés" },
     },
+    site.name,
     to,
   );
 }

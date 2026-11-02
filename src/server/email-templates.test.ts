@@ -3,6 +3,7 @@ import type { SiteInfo } from "@/data/info";
 import { buildEmail, type ReservationDetails } from "./email-templates";
 
 const site = {
+  name: "Bajor Burger & Beer",
   contact: {
     address: "1075 Budapest, Kazinczy utca 12.",
     phone: "+36 1 234 5678",
@@ -58,7 +59,7 @@ describe("buildEmail", () => {
 describe("buildAccountEmail", () => {
   it("sends the temporary password and a sign-in link, and explains the 2FA step", async () => {
     const { buildAccountEmail } = await import("./email-templates");
-    const mail = buildAccountEmail("admin_invite", "uj@bajor.hu", "Abc23xyzQRst");
+    const mail = buildAccountEmail("admin_invite", site, "uj@bajor.hu", "Abc23xyzQRst");
     expect(mail.to).toBe("uj@bajor.hu");
     expect(mail.text).toContain("Ideiglenes jelszó: Abc23xyzQRst");
     expect(mail.text).toContain("hitelesítő alkalmazást");

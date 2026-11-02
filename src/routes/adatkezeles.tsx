@@ -28,7 +28,7 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
 }
 
 function PrivacyPage() {
-  const { contact } = useSiteInfo();
+  const { name, company, contact } = useSiteInfo();
 
   return (
     <>
@@ -53,8 +53,11 @@ function PrivacyPage() {
         <div className="space-y-10 rounded-3xl border border-border bg-card p-6 text-muted-foreground sm:p-10">
           <Section title="Ki kezeli az adataidat?">
             <p>
-              A Bajor Burger &amp; Beer ({contact.address}). Elérhetőségeink: {contact.email},{" "}
-              {contact.phone}.
+              {company.name || name}
+              {company.address ? ` (székhely: ${company.address}` : ` (${contact.address}`}
+              {company.regNumber && `, cégjegyzékszám: ${company.regNumber}`}
+              {company.taxNumber && `, adószám: ${company.taxNumber}`}), a(z) {name} üzemeltetője.
+              Elérhetőségeink: {contact.email}, {contact.phone}.
             </p>
           </Section>
           <Section title="Milyen adatokat kérünk?">

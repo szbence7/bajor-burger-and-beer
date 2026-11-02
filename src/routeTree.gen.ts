@@ -20,6 +20,7 @@ import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
 import { Route as RolunkRouteImport } from './routes/rolunk'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
+import { Route as AdminAdatokRouteImport } from './routes/admin/adatok'
 import { Route as AdminAjanlatRouteImport } from './routes/admin/ajanlat'
 import { Route as AdminErtesitesekRouteImport } from './routes/admin/ertesitesek'
 import { Route as AdminEtlapRouteImport } from './routes/admin/etlap'
@@ -81,6 +82,11 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminAdatokRoute = AdminAdatokRouteImport.update({
+  id: '/adatok',
+  path: '/adatok',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminAjanlatRoute = AdminAjanlatRouteImport.update({
   id: '/ajanlat',
   path: '/ajanlat',
@@ -118,6 +124,7 @@ export interface FileRoutesByFullPath {
   '/robots.txt': typeof RobotsDottxtRoute
   '/rolunk': typeof RolunkRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/admin/adatok': typeof AdminAdatokRoute
   '/admin/ajanlat': typeof AdminAjanlatRoute
   '/admin/ertesitesek': typeof AdminErtesitesekRoute
   '/admin/etlap': typeof AdminEtlapRoute
@@ -135,6 +142,7 @@ export interface FileRoutesByTo {
   '/robots.txt': typeof RobotsDottxtRoute
   '/rolunk': typeof RolunkRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/admin/adatok': typeof AdminAdatokRoute
   '/admin/ajanlat': typeof AdminAjanlatRoute
   '/admin/ertesitesek': typeof AdminErtesitesekRoute
   '/admin/etlap': typeof AdminEtlapRoute
@@ -154,6 +162,7 @@ export interface FileRoutesById {
   '/robots.txt': typeof RobotsDottxtRoute
   '/rolunk': typeof RolunkRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/admin/adatok': typeof AdminAdatokRoute
   '/admin/ajanlat': typeof AdminAjanlatRoute
   '/admin/ertesitesek': typeof AdminErtesitesekRoute
   '/admin/etlap': typeof AdminEtlapRoute
@@ -174,6 +183,7 @@ export interface FileRouteTypes {
     | '/robots.txt'
     | '/rolunk'
     | '/sitemap.xml'
+    | '/admin/adatok'
     | '/admin/ajanlat'
     | '/admin/ertesitesek'
     | '/admin/etlap'
@@ -191,6 +201,7 @@ export interface FileRouteTypes {
     | '/robots.txt'
     | '/rolunk'
     | '/sitemap.xml'
+    | '/admin/adatok'
     | '/admin/ajanlat'
     | '/admin/ertesitesek'
     | '/admin/etlap'
@@ -209,6 +220,7 @@ export interface FileRouteTypes {
     | '/robots.txt'
     | '/rolunk'
     | '/sitemap.xml'
+    | '/admin/adatok'
     | '/admin/ajanlat'
     | '/admin/ertesitesek'
     | '/admin/etlap'
@@ -310,6 +322,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/adatok': {
+      id: '/admin/adatok'
+      path: '/adatok'
+      fullPath: '/admin/adatok'
+      preLoaderRoute: typeof AdminAdatokRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/ajanlat': {
       id: '/admin/ajanlat'
       path: '/ajanlat'
@@ -349,6 +368,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AdminRouteChildren {
+  AdminAdatokRoute: typeof AdminAdatokRoute
   AdminAjanlatRoute: typeof AdminAjanlatRoute
   AdminErtesitesekRoute: typeof AdminErtesitesekRoute
   AdminEtlapRoute: typeof AdminEtlapRoute
@@ -357,6 +377,7 @@ interface AdminRouteChildren {
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
+  AdminAdatokRoute: AdminAdatokRoute,
   AdminAjanlatRoute: AdminAjanlatRoute,
   AdminErtesitesekRoute: AdminErtesitesekRoute,
   AdminEtlapRoute: AdminEtlapRoute,

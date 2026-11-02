@@ -64,8 +64,8 @@ function AboutPage() {
             burgerrel.
           </p>
           <p>
-            Egy évvel később a Kazinczy utcában megnyitottuk a Bajort: saját főzdével, smash
-            burgerekkel és hosszú asztalokkal, ahol mindenkinek jut hely.
+            Egy évvel később megnyitottuk a Bajort: saját főzdével, smash burgerekkel és hosszú
+            asztalokkal, ahol mindenkinek jut hely.
           </p>
           <p>Ma is ugyanaz a cél: őszinte étel, friss sör, hangos este.</p>
         </Reveal>

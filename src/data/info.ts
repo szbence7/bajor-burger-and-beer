@@ -50,8 +50,19 @@ export interface BookingSettings {
   holdMinutes: number;
 }
 
+/** The company that runs the restaurant (impresszum, privacy notice). Empty = not shown. */
+export interface CompanyInfo {
+  name: string;
+  address: string;
+  taxNumber: string;
+  regNumber: string;
+}
+
 export interface SiteInfo {
+  /** The restaurant's display name, e.g. "Bajor Burger & Beer". */
+  name: string;
   contact: Contact;
+  company: CompanyInfo;
   openingHours: OpeningHour[];
   booking: BookingSettings;
   /** The downloadable menu (served at /etlap.pdf); null until the staff upload one. */

@@ -87,9 +87,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { name: "theme-color", content: "#121110" },
       // Defaults; each route's seo() overrides title, description and URLs.
-      { title: SITE_NAME },
+      { title: loaderData?.site.name ?? SITE_NAME },
       { property: "og:type", content: "website" },
-      { property: "og:site_name", content: SITE_NAME },
+      { property: "og:site_name", content: loaderData?.site.name ?? SITE_NAME },
       { property: "og:locale", content: "hu_HU" },
       { name: "twitter:card", content: "summary_large_image" },
     ],

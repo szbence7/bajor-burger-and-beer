@@ -149,6 +149,82 @@ export const menuPdfInput = z.object({
     .nullable(),
 });
 
+// Site details (Adatok) -------------------------------------------------------------------
+
+const hhmm = z.string().regex(/^\d{2}:\d{2}$/, "Adj meg időpontot.");
+const optionalUrl = z
+  .string()
+  .trim()
+  .max(300)
+  .refine((v) => v === "" || /^https:\/\/\S+$/.test(v), "https:// kezdetű linket adj meg.");
+const int = (min: number, max: number) =>
+  z
+    .number({ invalid_type_error: "Adj meg egy számot." })
+    .int("Egész számot adj meg.")
+    .min(min, `Legalább ${min}.`)
+    .max(max, `Legfeljebb ${max}.`);
+
+export const SOCIAL_NETWORKS = ["Instagram", "Facebook", "TikTok"] as const;
+
+export const siteDetailsInput = z.object({
+  restaurantName: z.string().trim().min(1, "Add meg az étterem nevét.").max(80),
+  phone: z
+    .string()
+    .trim()
+    .regex(/^\+?[0-9][0-9 ()/-]{5,24}$/, "Adj meg egy érvényes telefonszámot."),
+  email: z.string().trim().email("Adj meg egy érvényes e-mail-címet.").max(254),
+  street: z.string().trim().min(1, "Add meg az utcát és a házszámot.").max(120),
+  postalCode: z
+    .string()
+    .trim()
+    .regex(/^\d{4}$/, "Négyjegyű irányítószámot adj meg."),
+  city: z.string().trim().min(1, "Add meg a várost.").max(80),
+  companyName: z.string().trim().max(120),
+  companyAddress: z.string().trim().max(200),
+  taxNumber: z
+    .string()
+    .trim()
+    .regex(/^(\d{8}-\d-\d{2})?$/, "Formátum: 12345678-1-42"),
+  regNumber: z
+    .string()
+    .trim()
+    .regex(/^(\d{2}-\d{2}-\d{6})?$/, "Formátum: 01-09-123456"),
+  socials: z.object({ Instagram: optionalUrl, Facebook: optionalUrl, TikTok: optionalUrl }),
+  hours: z
+    .array(
+      z
+        .object({
+          day: z.enum([
+            "Monday",
+            "Tuesday",
+            "Wednesday",
+            "Thursday",
+            "Friday",
+            "Saturday",
+            "Sunday",
+          ]),
+          open: z.boolean(),
+          opens: hhmm,
+          closes: hhmm,
+        })
+        .refine((d) => !d.open || d.opens !== d.closes, {
+          message: "A nyitás és a zárás nem lehet ugyanakkor.",
+          path: ["closes"],
+        }),
+    )
+    .length(7),
+  booking: z.object({
+    capacity: int(1, 1000),
+    maxPartySize: int(1, 100),
+    durationMinutes: int(15, 720),
+    slotMinutes: int(5, 240),
+    daysAhead: int(0, 366),
+    minNoticeMinutes: int(0, 10080),
+    holdMinutes: int(0, 240),
+  }),
+});
+export type SiteDetailsInput = z.infer<typeof siteDetailsInput>;
+
 // Admin accounts ------------------------------------------------------------------------------
 
 export const inviteInput = z.object({

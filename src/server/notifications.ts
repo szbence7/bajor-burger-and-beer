@@ -80,7 +80,9 @@ export async function deliverAccountEmail(
   to: string,
   temporaryPassword: string,
 ): Promise<NotificationStatus> {
-  const result = await sendMail(buildAccountEmail(kind, to, temporaryPassword));
+  const result = await sendMail(
+    buildAccountEmail(kind, await getSiteInfo(), to, temporaryPassword),
+  );
   await log(null, kind, to, result.status, "error" in result ? result.error : undefined);
   return result.status;
 }
