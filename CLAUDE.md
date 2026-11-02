@@ -34,7 +34,10 @@ applies: never rewrite pushed history.
 
 `NOINDEX=true` must stay on any public deploy until these are real:
 
-- `site_settings` + `opening_hours` (seeded from `supabase/seed.sql`): address (Kazinczy
+- Company details (cégnév, székhely, adószám, cégjegyzékszám) are empty until entered in
+  admin → Adatok; Hungarian law expects them in the footer impresszum before launch.
+- `site_settings` + `opening_hours` (seeded from `supabase/seed.sql`, edited in admin →
+  Adatok): address (Kazinczy
   utca 12., 1075 Budapest), phone (+36 1 234 5678), email (hello@bajorburger.hu), social links
   (bare network homepages, so they are left out of JSON-LD `sameAs` until they are real
   profile URLs), opening hours, booking rules (capacity 40 etc., to confirm with the
@@ -131,7 +134,8 @@ reads the real environment).
 - `src/routes` — `index` (Főoldal), `menu`, `galeria`, `foglalas`, `rolunk`, `adatkezeles`
   (privacy notice, placeholder), `admin` (layout, `ssr: false`, noindex) with `admin/index`
   (Foglalások), `admin/ajanlat` (Hónap ajánlata), `admin/etlap` (PDF menu),
-  `admin/ertesitesek` (email log), `admin/felhasznalok` (admin accounts); server routes `api/health`, `sitemap[.]xml`, `robots[.]txt`,
+  `admin/ertesitesek` (email log), `admin/adatok` (site details), `admin/felhasznalok` (admin
+  accounts); server routes `api/health`, `sitemap[.]xml`, `robots[.]txt`,
   `etlap[.]pdf` (streams the current PDF menu from Storage; stable link for QR codes). `__root.tsx` holds the HTML shell, root head
   (fonts, icons, OG defaults, JSON-LD, NOINDEX), Header/Footer, 404 and error components.
   Routes stay thin: layout + `head`; logic lives in features.
@@ -140,14 +144,17 @@ reads the real environment).
   (+ `RautenDivider`), HoursAndMap (`HoursCard`, `MapPlaceholder`).
   `src/components/layout` — Header, Footer.
 - `src/features/menu` — MenuItemCard, BeerCard, SpecialCard (Hónap ajánlata).
-  `src/features/booking` — BookingForm (two steps + confirmation; currently client-only).
+  `src/features/booking` — BookingForm (step 1: always-open month `Calendar` → time slots →
+  party size 1…max; step 2: contact details; then confirmation). No "call us above N" branch.
   `src/features/gallery` — GalleryGrid (filters + lightbox), PhotoCarousel (Embla). Each
   feature's `api.ts` holds its server functions (`getMenuContent`, `getHomeContent`,
   `getGalleryContent`, `getAvailability`, `createReservation`); `booking/schema.ts` is the
   shared zod schema + error codes.
   `src/features/admin` — the staff panel: `auth` (sign-in + TOTP enrol/verify gate),
   `AdminShell` (nav, one Realtime channel, new-booking toast + optional chime),
-  `ReservationsBoard`, `SpecialsEditor`, `MenuPdfManager`, `NotificationLog`, `UsersManager`
+  `ReservationsBoard`, `SpecialsEditor`, `MenuPdfManager`, `NotificationLog`,
+  `SiteDetailsEditor` (Adatok: name, contact, company, socials, per-weekday hours, booking
+  rules; one save), `UsersManager`
   (invite / reset / remove admins; temporary password by email, forced password change, then
   2FA), `ui` (calmer
   primitives), `upload` (shrinks images to WebP in the browser), `api` (server functions with
@@ -160,7 +167,13 @@ reads the real environment).
   cache), `admin-users` (Auth admin API behind an `is_admin()` check as the caller), `notifications` (send + log every email), `mailer` (nodemailer SMTP),
   `email-templates` (Hungarian HTML + text, escaped), `request` (client IP, bearer token).
 - `scripts/admin.ts` — `bun run admin create|promote|reset-2fa|list` (needs the service key).
-- `src/lib` — `utils` (`cn`), `format` (`formatNumber`, `formatFt`, `formatHours`), `cta`
+- **Site data has one source**: restaurant name, contact, company details, socials, opening
+  hours and booking rules live in `site_settings` / `opening_hours` (admin → Adatok) and reach
+  every page through `useSiteInfo()` (header, footer impresszum, contact cards, privacy notice,
+  booking form, JSON-LD, emails). Never hardcode them in components. Exceptions: SEO
+  titles/descriptions in route `head` (marketing copy), the static `error-page.ts`, the logo.
+- `src/lib` — `utils` (`cn`), `opening-hours` (per-weekday ⇄ grouped rows), `site-rows` (zod
+  rows of `site_settings` / `opening_hours`, shared by server and admin), `format` (`formatNumber`, `formatFt`, `formatHours`), `cta`
   (`ctaClass`, variants), `site` (`SITE_URL`, `SITE_NAME`, `DEFAULT_OG_IMAGE`, `absoluteUrl`),
   `seo`, `structured-data`, `indexing`, `error-page`, `site-info` (`getSiteInfoFn`, root loader
   data via `useSiteInfo()`), `date` (Budapest today, Hungarian date format).

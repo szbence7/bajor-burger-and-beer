@@ -201,6 +201,15 @@ Agreed with the user during Phases 1–2. These override the original prompt whe
     temporary password. Admins can also reset (new temporary password + 2FA removed) and
     remove other admins; never themselves, never the last admin.
 
+29. **Booking form order** (user request, 2026-11-02): an always-open month calendar (current
+    month, closed and out-of-range days disabled) → the day's time slots below → party size
+    below that (1…max). The "N fő felett hívj minket" branch is removed.
+30. **Adatok page** (user request, 2026-11-02): one admin page for everything the site shows
+    about the business: restaurant name, phone, email, address, company name, registered
+    office, tax number, company registration number, social links, opening hours (edited per
+    weekday, stored grouped) and booking rules. Every page reads them from the database; the
+    footer gains an impresszum line. SEO titles keep the brand name in code.
+
 ## Status
 
 _Last updated: Phase 4 (reduced admin panel) implemented, 2026-11-02._
@@ -242,7 +251,8 @@ Branch `claude/redesign-fixes`, pushed to `origin`.
 - `/admin`: sign-in + mandatory TOTP enrolment/verification; Foglalások (live via Realtime,
   toast + optional chime + pending count, filters by day range and status, accept / reject /
   cancel with a message, per-booking email log with re-send); Felhasználók (invite by email
-  with a temporary password, forced password change, then 2FA; reset; remove); Hónap ajánlata (add, edit,
+  with a temporary password, forced password change, then 2FA; reset; remove); Adatok
+  (contact, company, socials, hours, booking rules); Hónap ajánlata (add, edit,
   image upload shrunk to WebP in the browser, show/hide, reorder, delete); Étlap PDF
   (upload/replace/remove); Értesítések (full email log, "only failed" filter, re-send).
 - Public site: "Hónap ajánlata" section (current month as eyebrow, hidden when empty, 1–3+
