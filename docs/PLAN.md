@@ -217,9 +217,29 @@ Agreed with the user during Phases 1–2. These override the original prompt whe
     the gold primary button), explains that the guest already got the rejection email, and
     warns when the time window would go over capacity.
 
+### One-page site, PDF menu viewer and fonts (user request, 2026-11-02)
+
+33. **One page.** The public site is a single page with sections (hero, Hónap ajánlata, Étlap,
+    Rólunk + Értékeink, A hely, Asztalfoglalás, Kapcsolat); the header links to them as
+    `/#id`. No separate gallery ("csak a főoldalon pár kedvcsináló kép") and no HTML menu page.
+    `/menu`, `/galeria`, `/rolunk`, `/foglalas` answer 301 to their section; `/adatkezeles`
+    stays a page. Sitemap: `/` and `/adatkezeles`.
+34. **The menu is the uploaded PDF**, shown in the Étlap section as a page-turner: one page at
+    a time on phones and tablets, an open two-page book on desktops; swipe, drag, arrow keys,
+    buttons and dots; "Nagyítás" (every page full width, pinch-zoom on phones) and "PDF
+    letöltése". The admin panel renders the pages to WebP with pdf.js when the PDF is uploaded
+    (migration 0008), so visitors get plain images and no PDF renderer; each page's text goes
+    to screen readers. The section and its nav link are hidden until a menu is uploaded.
+    `menu_items`, `beers`, `gallery_images` are no longer read by the site (tables kept).
+35. **Fonts from the restaurant's printed menu**: body text in **Share** (Google Fonts; a near
+    exact match of the menu's squarish condensed sans), accent in **Norican** (closest free
+    match of the menu's brush script, which is probably a commercial font). Norican always
+    sets the Hónap ajánlata dish names, otherwise only a word in a headline. Headlines stay
+    Oswald, the hero/footer/404 stay Anton.
+
 ## Status
 
-_Last updated: Phase 4 (reduced admin panel) implemented, 2026-11-02._
+_Last updated: one-page site + PDF menu viewer + fonts, 2026-11-02._
 
 | Phase | State |
 | --- | --- |
@@ -228,6 +248,7 @@ _Last updated: Phase 4 (reduced admin panel) implemented, 2026-11-02._
 | 3 — Supabase backend | 🔍 Implemented and tested locally; awaiting review, **not yet applied to the real instance** |
 | Brand update — logo, logo gold, calmer design | 🔍 Done; awaiting review. Real venue photos pending from the restaurant |
 | 4 — Admin panel (reduced scope, decision 22) | 🔍 Implemented and tested locally; awaiting review, **not yet applied to the real instance** |
+| One-page site, PDF menu viewer, fonts (decisions 33–35) | 🔍 Implemented and tested locally; awaiting review. Migration 0008 **not yet applied to the real instance** |
 
 Branch `claude/redesign-fixes`, pushed to `origin`.
 
@@ -271,7 +292,31 @@ Branch `claude/redesign-fixes`, pushed to `origin`.
   200); production build: all pages 200, `/admin` noindexed, booking emails sent, supabase-js
   not in the public bundles; no horizontal overflow at 320–1920 px.
 
+### One-page summary
+
+- Home page = the whole site (decision 33); old subpages redirect (301) to their sections;
+  header nav highlights the section on screen; booking form, hours, socials and map moved in.
+- Étlap: `MenuViewer` + admin-side page rendering (`pdf-pages.ts`, pdf.js only in the admin
+  bundle), migration `0008_menu_pages.sql` (+3 pgTAP tests, 50 total), stale page images are
+  deleted on replace. JSON-LD `hasMenu` → `/etlap.pdf`.
+- Fonts: Share (body) and Norican (accent; Hónap ajánlata names); Manrope removed. Vite no
+  longer inlines small font files into the CSS.
+- Removed: menu/beer/gallery mappers, queries, types and components (MenuItemCard, BeerCard,
+  Tag, GalleryGrid).
+- Verified: lint (0 errors), tsc, 29 Vitest tests, build, pgTAP; in Chromium on the local stack:
+  upload of a 4-page dummy PDF in the admin (dev and production build), viewer at 375 / 768 /
+  1280 / 1920 (no horizontal overflow), paging by button, keys and dots, reading view + Escape,
+  nav anchors from another page and from the mobile menu land exactly under the header, old
+  URLs 301, booking form works (lazily hydrated); home page loads neither supabase-js nor
+  pdf.js. Lighthouse mobile (local): performance 81 vs 86–89 for the previous commit on the same
+  machine (the two extra font files), accessibility and best practices 100.
+
 ### Open items
+
+- **Apply migration 0008** to the real instance together with the rest, then upload the menu
+  PDF again in admin → Étlap PDF (a PDF uploaded before 0008 has no page images).
+- **Unused tables** `menu_categories`, `menu_items`, `beers`, `gallery_images`: drop them in a
+  later migration once the user confirms the HTML menu is gone for good.
 
 - **Apply to the real instance**: the user chooses CLI over the SSH tunnel (`bun run db:push`)
   or pasting into Studio (see `supabase/README.md`). Also set `SUPABASE_URL` and
@@ -287,7 +332,7 @@ Branch `claude/redesign-fixes`, pushed to `origin`.
 - **Privacy notice**: final text from the user for `/adatkezeles`.
 - **Real photos to come from the client.** `src/assets` holds stand-in images and
   `public/og-image.jpg` is rendered from them; swap via `src/data/images.ts` and regenerate
-  the OG image once real photos arrive. The home "A hely" carousel and the About-page photos
+  the OG image once real photos arrive. The home "A hely" carousel and the Rólunk photos
   are still fixed in code (candidates for admin control in Phase 4).
 - **SMTP provider for the booking emails**: needs the user's choice and credentials
   (`SMTP_*` in Coolify). Until then the log shows every email as "Nem ment ki".
@@ -295,8 +340,6 @@ Branch `claude/redesign-fixes`, pushed to `origin`.
   (`GOTRUE_DISABLE_SIGNUP=true`, TOTP MFA enroll/verify on), Realtime + Storage running, then
   `bun run admin create` for the first admin (the rest are invited from the panel); set `SUPABASE_SERVICE_ROLE_KEY` (and
   `SUPABASE_PUBLIC_URL` if `SUPABASE_URL` is internal) in Coolify.
-- **HTML menu vs PDF**: the Menü page still renders the database menu (no admin editing for it
-  in this phase). Decide whether the PDF should replace it or the menu gets admin editing later.
 - Admin saves clear the server content cache, so changes show on the next page load; a
   visitor's already open tab refreshes site info (e.g. the PDF button) after 5 minutes.
 - **Booking duration rules**: the restaurant to confirm real capacity and typical stay; then

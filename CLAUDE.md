@@ -44,6 +44,8 @@ applies: never rewrite pushed history.
   restaurant). These feed the footer, contact cards, booking form **and the Restaurant
   JSON-LD**.
 - Menu, beers, prices and gallery in the seed are the old mock content (some photos reused).
+  Since the one-page switch the site reads none of `menu_items`, `beers`, `gallery_images`
+  (the menu is the uploaded PDF); the tables are still in the schema.
 - `/adatkezeles` privacy notice is placeholder text; the user will supply the final version.
 - `src/assets/*`: AI-generated stand-in photos; `public/og-image.jpg` is rendered from the
   hero burger and the logo. Regenerate the OG image once real photos exist.
@@ -69,8 +71,9 @@ applies: never rewrite pushed history.
   functions.
 - Server routes: `/api/health` (healthcheck), `/sitemap.xml`, `/robots.txt`.
 - Fonts are self-hosted via Fontsource (`@fontsource/anton`, `@fontsource-variable/oswald`,
-  `@fontsource-variable/manrope`);
-  latin subsets are preloaded in `__root.tsx`. Don't reintroduce Google Fonts links.
+  `@fontsource/share` 400 + 700, `@fontsource/norican`); Anton, Oswald and Share 400 latin are
+  preloaded in `__root.tsx`. `vite.config.ts` never inlines font files (small subsets would
+  otherwise land in the render-blocking CSS as data URIs). Don't reintroduce Google Fonts links.
 - Tailwind CSS v4, theme tokens in `src/styles.css` (`@theme inline` + CSS variables).
 - No shadcn/ui (removed as unused in Phase 2, with its Radix etc. dependencies). Build UI from
   the brand primitives; add a headless library only when a feature genuinely needs one (e.g.
@@ -130,7 +133,15 @@ reads the real environment).
 
 ## Structure
 
-- `src/routes` — `index` (Főoldal), `menu`, `galeria`, `foglalas`, `rolunk`, `adatkezeles`
+- **The public site is one page** (user decision, 2026-11-02): `src/routes/index` holds every
+  section, addressed as `/#id` (ids and nav labels in `src/lib/sections.ts`): hero → `ajanlat`
+  (Hónap ajánlata) → `etlap` (the PDF menu as a page-turner) → `rolunk` (+ the gold Értékeink
+  strip) → `hely` (photo carousel) → `foglalas` (forest, BookingForm, lazily hydrated) →
+  `kapcsolat` (hours, socials, map). Links to sections use `<Link to="/" hash="…">` /
+  `CtaLink section="…"`; sections carry `scroll-mt-20` for the fixed header, and the home page
+  re-aims the scroll once fonts are in (arriving from another page). The old routes `menu`,
+  `galeria`, `rolunk`, `foglalas` only 301 to their section. No gallery page, no HTML menu.
+- `src/routes` — `index` (the one page), the redirect stubs above, `adatkezeles`
   (privacy notice, placeholder), `admin` (layout, `ssr: false`, noindex) with `admin/index`
   (Foglalások), `admin/ajanlat` (Hónap ajánlata), `admin/etlap` (PDF menu),
   `admin/ertesitesek` (email log), `admin/adatok` (site details), `admin/felhasznalok` (admin
@@ -139,20 +150,26 @@ reads the real environment).
   (fonts, icons, OG defaults, JSON-LD, NOINDEX), Header/Footer, 404 and error components.
   Routes stay thin: layout + `head`; logic lives in features.
 - `src/components` — shared brand primitives: CtaButton (`CtaLink`), Doodle, Marquee, Reveal,
-  PageHero, SectionHeader, Tag, Price, Picture, BrandLogo, RautenPattern
+  PageHero (privacy page), SectionHeader, Price, Picture, BrandLogo, RautenPattern
   (+ `RautenDivider`), HoursAndMap (`HoursCard`, `MapCard`: Google Maps of the admin-set address, loaded only on
   click and remembered in localStorage — it sends data to Google — plus a directions link).
   `src/components/layout` — Header, Footer.
-- `src/features/menu` — MenuItemCard, BeerCard, SpecialCard (Hónap ajánlata).
+- `src/features/menu` — SpecialCard (Hónap ajánlata), MenuViewer (the menu PDF's pages as
+  images in an Embla page-turner: one page on phones/tablets, a two-page book spread with a
+  spine on `lg+`; swipe, drag, arrow keys, buttons, dots; "Nagyítás" opens every page full
+  width for reading, "PDF letöltése" downloads `/etlap.pdf`; each page's text is in an
+  `sr-only` paragraph; images are sized before they load so nothing jumps).
   `src/features/booking` — BookingForm (step 1: always-open month `Calendar` → time slots →
   party size 1…max; step 2: contact details; then confirmation). No "call us above N" branch.
-  `src/features/gallery` — GalleryGrid (filters + lightbox), PhotoCarousel (Embla). Each
-  feature's `api.ts` holds its server functions (`getMenuContent`, `getHomeContent`,
-  `getGalleryContent`, `getAvailability`, `createReservation`); `booking/schema.ts` is the
+  `src/features/gallery` — PhotoCarousel (Embla, home "A hely"). Each
+  feature's `api.ts` holds its server functions (`getHomeContent`, `getAvailability`,
+  `createReservation`); `booking/schema.ts` is the
   shared zod schema + error codes.
   `src/features/admin` — the staff panel: `auth` (sign-in + TOTP enrol/verify gate),
   `AdminShell` (nav, one Realtime channel, new-booking toast + optional chime),
-  `ReservationsBoard`, `SpecialsEditor`, `MenuPdfManager`, `NotificationLog`,
+  `ReservationsBoard`, `SpecialsEditor`, `MenuPdfManager` (+ `pdf-pages`: pdf.js renders
+  every page to a 1600 px and an 800 px WebP plus its text in the admin's browser at upload;
+  pdf.js never reaches the public bundles), `NotificationLog`,
   `SiteDetailsEditor` (Adatok: name, contact, company, socials, per-weekday hours, booking
   rules; one save), `UsersManager`
   (invite / reset / remove admins; temporary password by email, forced password change, then
@@ -177,7 +194,7 @@ reads the real environment).
   (`ctaClass`, variants), `site` (`SITE_URL`, `SITE_NAME`, `DEFAULT_OG_IMAGE`, `absoluteUrl`),
   `seo`, `structured-data`, `indexing`, `error-page`, `site-info` (`getSiteInfoFn`, root loader
   data via `useSiteInfo()`), `date` (Budapest today, Hungarian date format).
-- `src/data` — the content **types** (`menu`, `beers`, `drinks`, `gallery`, `info`) and
+- `src/data` — the content **types** (`info` incl. `MenuPage`, `specials`) and
   `images.ts` (+ `resolveImage()`: DB image value = bundled image key or absolute URL). The
   content itself lives in Supabase.
 - `supabase/` — numbered migrations, `seed.sql`, pgTAP tests, local CLI config; runbook in
@@ -211,14 +228,16 @@ reads the real environment).
   characters, Hungarian.
 - Root head: charset, viewport, theme-color, `og:type/site_name/locale (hu_HU)`, twitter card,
   icons, manifest, schema.org `Restaurant` JSON-LD (`restaurantJsonLd()`: address, phone,
-  email, opening hours, `hasMenu`, `acceptsReservations` → /foglalas). Data comes from
-  `src/data/info.ts` so UI and JSON-LD never disagree — keep it that way when moving to
-  Supabase.
-- `/adatkezeles` is in the sitemap. New public pages must be added to the list in
-  `src/routes/sitemap[.]xml.ts`. `/admin`
-  (Phase 4) must stay out of the sitemap and be noindexed.
-- Lighthouse (mobile, production build, end of Phase 2): performance 93–98, accessibility /
-  best practices / SEO 100 on all five pages. Don't regress it.
+  email, opening hours, `hasMenu` → /etlap.pdf when a menu is uploaded, `acceptsReservations`
+  → /#foglalas). Data comes from the site info (`useSiteInfo()`), so UI and JSON-LD never
+  disagree.
+- The sitemap lists `/` and `/adatkezeles` only. New public pages must be added to the list in
+  `src/routes/sitemap[.]xml.ts`. `/admin` must stay out of the sitemap and be noindexed.
+- Lighthouse (mobile, production build): end of Phase 2 performance 93–98, accessibility /
+  best practices / SEO 100 on all five pages. One-page site (2026-11-02, measured locally,
+  where the previous commit scored 86–89): performance 81, accessibility / best practices 100
+  (SEO only fails "is crawlable" while `NOINDEX` is set). The gap is the two extra font files
+  (Share 700, Norican). Don't regress it further.
 
 ## Design system — keep it, enforce it everywhere
 
@@ -250,7 +269,11 @@ exceptions):
   (`forest-foreground`, 8.6:1); gold on it is 4.6:1. Never use forest as text on dark.
 - Typography: `font-display` = **Oswald 600** (condensed like the logo's lettering, lighter
   than Anton) for all headlines; `font-impact` = Anton, **only** for the home hero h1, the
-  footer "BAJOR" wordmark and the 404 numerals; Manrope (`font-sans`) for body. Both set a
+  footer "BAJOR" wordmark and the 404 numerals; **Share** (`font-sans`, 400/700, the
+  squarish condensed sans of the restaurant's printed menus) for body text; **Norican**
+  (`font-script`, the brush script of the printed menus) as the accent: always the Hónap
+  ajánlata dish names, otherwise at most a word in a headline ("Lapozz _bele_"). Mixed case,
+  never tracked, 1.2 line pitch. Oswald and Anton set a
   1.12 line pitch (via `--tw-leading`, so it wins over `text-4xl…8xl`) because accented
   capitals (É, Á, Ü ~1.10em, Ő/Ű ~1.17em above the baseline) otherwise hit the line above.
   Use a tighter explicit `leading-*` only for fixed, accent-safe copy (hero: 0.94 on md+,
@@ -298,8 +321,8 @@ replaced by `id` (form steps, screens), `layoutId` pills for active tabs/filters
 cross-fade via the router's `defaultViewTransition`. All of it honours reduced motion. Also:
 scroll reveal (`Reveal`), `.unveil` photo frames (CSS scroll-driven: the frame opens
 from a rounded crop while the photo settles from a slight zoom; no JS, off for reduced motion
-and unsupported browsers; used on the home About photos, the gallery and the About page),
-the sticky story on the About page (text sticks, photos scroll), marquee, hover lift with gold glow (`lift`), hero float and
+and unsupported browsers; used on the home Rólunk photos), the menu page-turner (Embla),
+marquee, hover lift with gold glow (`lift`), hero float and
 parallax. All motion respects `prefers-reduced-motion` (CSS block at the end of
 `styles.css`; parallax checks `matchMedia`).
 
