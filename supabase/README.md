@@ -8,6 +8,7 @@ Supabase instance.
 | `migrations/0001_content.sql`               | Menu, beers, gallery, opening hours, site settings; RLS                       |
 | `migrations/0002_reservations.sql`          | Reservations, booking rules (trigger), `available_slots()`; RLS               |
 | `migrations/0003_reservation_retention.sql` | 12-month GDPR cleanup, scheduled daily with pg_cron                           |
+| `migrations/0006_site_details.sql`          | Restaurant name + company details; `replace_opening_hours()` for the admin    |
 | `migrations/0005_admin_users.sql`           | Temporary-password accounts are not admins; account emails in the log         |
 | `migrations/0004_admin.sql`                 | 2FA admins, decisions, Hónap ajánlata, PDF menu, email log, Storage, Realtime |
 | `seed.sql`                                  | Launch content (the mock data). Idempotent: never overwrites existing rows    |

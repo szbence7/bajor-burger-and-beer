@@ -3,7 +3,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(42);
+select plan(45);
 
 -- Start bookings, the email log and specials from a known state, whatever local data exists.
 delete from public.notification_log;
@@ -207,6 +207,23 @@ select throws_ok($$ update public.site_settings set menu_pdf_path = '../x.pdf' $
   'the menu PDF path must be a plain file name');
 select is((select array_agg(id order by id) from storage.buckets where public), array['media', 'menu'],
   'public buckets for images and the menu PDF exist');
+
+-- Opening hours editing ---------------------------------------------------------------------------
+select pg_temp.as_anon();
+select throws_ok($$ select public.replace_opening_hours('[]') $$, '42501', null,
+  'anon cannot replace the opening hours');
+select pg_temp.reset();
+select pg_temp.as_user('admin', 'aal1');
+select throws_ok($$ select public.replace_opening_hours('[]') $$, '42501', null,
+  'an admin without the second factor cannot replace the opening hours');
+select pg_temp.reset();
+select pg_temp.as_user('admin');
+select public.replace_opening_hours('[
+  {"label":"Hétfő – Vasárnap","days":["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],"opens":"10:00","closes":"20:00"}
+]');
+select is((select min(slot_time) from public.available_slots((select mon from d), 2)),
+  '10:00'::time, 'replaced opening hours drive the bookable slots at once');
+select pg_temp.reset();
 
 -- Retention ---------------------------------------------------------------------------------------
 insert into public.reservations (date, time, party_size, duration_minutes, name, phone, email,
