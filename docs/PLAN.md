@@ -210,6 +210,13 @@ Agreed with the user during Phases 1–2. These override the original prompt whe
     weekday, stored grouped) and booking rules. Every page reads them from the database; the
     footer gains an impresszum line. SEO titles keep the brand name in code.
 
+31. **Map** (user request, 2026-11-02): Google Maps embed of the address set in Adatok,
+    loaded on click (GDPR: it sends data to Google; also keeps the pages fast), remembered
+    in localStorage, plus an "Útvonaltervezés" link. Mention Google Maps in the privacy notice.
+32. **Re-accepting** a rejected/cancelled booking is labelled "Mégis elfogadom" (outline, not
+    the gold primary button), explains that the guest already got the rejection email, and
+    warns when the time window would go over capacity.
+
 ## Status
 
 _Last updated: Phase 4 (reduced admin panel) implemented, 2026-11-02._
@@ -292,4 +299,5 @@ Branch `claude/redesign-fixes`, pushed to `origin`.
   in this phase). Decide whether the PDF should replace it or the menu gets admin editing later.
 - Admin saves clear the server content cache, so changes show on the next page load; a
   visitor's already open tab refreshes site info (e.g. the PDF button) after 5 minutes.
-- Map: `MapPlaceholder` ("Térkép helye") still needs a real map embed or a static map.
+- **Booking duration rules**: the restaurant to confirm real capacity and typical stay; then
+  durations by time of day / weekday / party size (see the discussion of 2026-11-02).

@@ -47,7 +47,6 @@ applies: never rewrite pushed history.
 - `/adatkezeles` privacy notice is placeholder text; the user will supply the final version.
 - `src/assets/*`: AI-generated stand-in photos; `public/og-image.jpg` is rendered from the
   hero burger and the logo. Regenerate the OG image once real photos exist.
-- `MapPlaceholder` ("Térkép helye") stands in for a real map embed.
 - JSON-LD `priceRange: "$$"` and `servesCuisine` in `src/lib/structured-data.ts`.
 
 ## Stack and runtime
@@ -141,7 +140,8 @@ reads the real environment).
   Routes stay thin: layout + `head`; logic lives in features.
 - `src/components` — shared brand primitives: CtaButton (`CtaLink`), Doodle, Marquee, Reveal,
   PageHero, SectionHeader, Tag, Price, Picture, BrandLogo, RautenPattern
-  (+ `RautenDivider`), HoursAndMap (`HoursCard`, `MapPlaceholder`).
+  (+ `RautenDivider`), HoursAndMap (`HoursCard`, `MapCard`: Google Maps of the admin-set address, loaded only on
+  click and remembered in localStorage — it sends data to Google — plus a directions link).
   `src/components/layout` — Header, Footer.
 - `src/features/menu` — MenuItemCard, BeerCard, SpecialCard (Hónap ajánlata).
   `src/features/booking` — BookingForm (step 1: always-open month `Calendar` → time slots →
