@@ -3,14 +3,15 @@
 Schema, Row Level Security, booking rules and the launch content for the self-hosted
 Supabase instance.
 
-| Path                                        | What                                                                       |
-| ------------------------------------------- | -------------------------------------------------------------------------- |
-| `migrations/0001_content.sql`               | Menu, beers, gallery, opening hours, site settings; RLS                    |
-| `migrations/0002_reservations.sql`          | Reservations, booking rules (trigger), `available_slots()`; RLS            |
-| `migrations/0003_reservation_retention.sql` | 12-month GDPR cleanup, scheduled daily with pg_cron                        |
-| `seed.sql`                                  | Launch content (the mock data). Idempotent: never overwrites existing rows |
-| `tests/booking_test.sql`                    | pgTAP tests: slots, capacity, RLS, retention                               |
-| `config.toml`                               | Local stack for development and tests (Supabase CLI)                       |
+| Path                                        | What                                                                          |
+| ------------------------------------------- | ----------------------------------------------------------------------------- |
+| `migrations/0001_content.sql`               | Menu, beers, gallery, opening hours, site settings; RLS                       |
+| `migrations/0002_reservations.sql`          | Reservations, booking rules (trigger), `available_slots()`; RLS               |
+| `migrations/0003_reservation_retention.sql` | 12-month GDPR cleanup, scheduled daily with pg_cron                           |
+| `migrations/0004_admin.sql`                 | 2FA admins, decisions, Hónap ajánlata, PDF menu, email log, Storage, Realtime |
+| `seed.sql`                                  | Launch content (the mock data). Idempotent: never overwrites existing rows    |
+| `tests/booking_test.sql`                    | pgTAP tests: slots, capacity, RLS, retention                                  |
+| `config.toml`                               | Local stack for development and tests (Supabase CLI)                          |
 
 ## Local development
 
@@ -23,8 +24,11 @@ bun run db:reset   # drop everything and re-apply migrations + seed
 bun run db:stop
 ```
 
-Put the printed API URL (`http://127.0.0.1:54321`) and anon key into `.env` as
-`SUPABASE_URL` / `SUPABASE_ANON_KEY`, then `bun run dev`. Studio: http://127.0.0.1:54323.
+Put the printed API URL (`http://127.0.0.1:54321`), anon key and service role key into `.env`
+as `SUPABASE_URL` / `SUPABASE_ANON_KEY` / `SUPABASE_SERVICE_ROLE_KEY`, then `bun run dev`.
+Studio: http://127.0.0.1:54323. The local stack also runs Realtime, Storage and Mailpit: set
+`SMTP_HOST=127.0.0.1`, `SMTP_PORT=54325` and an `SMTP_FROM`, and every booking email lands in
+http://127.0.0.1:54324. Create a local admin with `bun run admin create you@example.com`.
 
 ## Applying to the real instance
 
@@ -37,18 +41,52 @@ Test every new migration locally first (`bun run db:reset && bun run test:db`). 
 - **Studio SQL editor:** paste each migration in number order, then `seed.sql`. Nothing tracks
   which ones ran, so keep a note, and keep applying later migrations by hand.
 
+## Admin panel (`/admin`)
+
+- **Who is an admin:** an Auth user with `app_metadata.role = 'admin'` **whose session passed
+  the authenticator-app check** (`aal2`). `public.is_admin()` requires both, so every RLS
+  policy (tables, Storage, Realtime) enforces 2FA; a stolen password alone sees nothing.
+- **Accounts** (sign-ups are off; run with the target instance's URL + service key in `.env`):
+
+  ```sh
+  bun run admin create anna@bajorburger.hu   # prints a generated password
+  bun run admin promote anna@bajorburger.hu  # make an existing user an admin
+  bun run admin reset-2fa anna@bajorburger.hu   # lost phone: sets up 2FA again on next sign-in
+  bun run admin list
+  ```
+
+  On the first sign-in the panel shows a QR code to link Google/Microsoft Authenticator (or
+  any TOTP app); after that every sign-in asks for the 6-digit code.
+
+- **Self-hosted Auth settings** (Coolify → Supabase service → environment), then restart Auth:
+  `GOTRUE_DISABLE_SIGNUP=true`, `GOTRUE_MFA_TOTP_ENROLL_ENABLED=true`,
+  `GOTRUE_MFA_TOTP_VERIFY_ENABLED=true`. Keep email+password sign-in enabled
+  (`GOTRUE_EXTERNAL_EMAIL_ENABLED=true`). The Realtime and Storage services must be running
+  (they are part of the standard self-hosted stack).
+- **Live reservations:** `reservations` and `notification_log` are in the `supabase_realtime`
+  publication; Realtime applies RLS, so only 2FA admins receive rows.
+- **Storage:** public buckets `menu` (PDF, ≤ 15 MB) and `media` (images, ≤ 5 MB); anyone can
+  download by URL, only admins can write. The site serves the current menu at `/etlap.pdf`
+  (path in `site_settings.menu_pdf_path`); replacing it deletes the old file.
+- **Notification log:** the app server writes one `notification_log` row per email (sent /
+  failed / skipped) with the service role key; admins read it. Rows go with their reservation
+  (GDPR retention).
+
 ## Rules worth knowing
 
 - **Roles.** Visitors use the anon key, through the app's server only. They can read active
   content and settings, can `INSERT` reservations (only the guest columns), and can never read
-  reservations. Admins are Auth users with `app_metadata.role = 'admin'` (set with the service
-  key or in Studio → Authentication) and can do everything. Admins, the service role and
+  reservations. Admins are Auth users with `app_metadata.role = 'admin'` signed in with their
+  second factor (see "Admin panel" above) and can do everything. Admins, the service role and
   direct database sessions skip the booking rules (phone bookings).
 - **Booking rules** live in `site_settings` (`booking_*` columns: slot length, dining duration,
   capacity, max party size, days ahead, minimum notice, hold time). The trigger
   `private.check_reservation()` enforces them on every public insert and raises a stable code
   (`slot_full`, `invalid_slot`, `too_late`, `date_out_of_range`, `party_too_large`,
   `consent_required`); the app maps the codes to Hungarian messages.
+- **Statuses:** `pending` → `confirmed` (accepted) or `rejected` (declined); `confirmed` →
+  `cancelled`. A mistaken rejection or cancellation can be confirmed again. Every decision
+  emails the guest, optionally with the staff's message (`decision_note`).
 - **Capacity** counts pending and confirmed bookings. Each booking occupies
   `duration_minutes` (snapshotted from the setting when it was made); a new one is accepted
   only if every overlapping slot-length window stays within `booking_capacity`.

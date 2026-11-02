@@ -1,9 +1,15 @@
--- Booking rules, RLS and retention. Run with: bun run test:db (needs the local stack).
+-- Booking rules, RLS, admin access and retention. Run with: bun run test:db (needs the local stack).
 -- Everything runs in one transaction and is rolled back.
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(30);
+select plan(41);
+
+-- Start bookings and specials from a known state, whatever local data exists.
+delete from public.reservations;
+delete from public.monthly_specials;
+insert into public.monthly_specials (name, price, sort_order)
+values ('Bajor Dupla', 4290, 1), ('Pokol Tüze', 4590, 2), ('Zöld Perec', 3890, 3);
 
 -- Fixed future dates (Europe/Budapest), 8–14 days ahead: well inside the 60-day window and
 -- clear of the 2-hour notice.
@@ -19,9 +25,11 @@ create function pg_temp.as_anon() returns void language sql as $$
   select set_config('request.jwt.claims', '{"role":"anon"}', true);
   set local role anon;
 $$;
-create function pg_temp.as_user(app_role text) returns void language sql as $$
+-- aal2 = the session passed the authenticator-app check (2FA).
+create function pg_temp.as_user(app_role text, aal text default 'aal2') returns void
+language sql as $$
   select set_config('request.jwt.claims',
-    json_build_object('role', 'authenticated', 'sub', gen_random_uuid(),
+    json_build_object('role', 'authenticated', 'sub', gen_random_uuid(), 'aal', aal,
                       'app_metadata', json_build_object('role', app_role))::text, true);
   set local role authenticated;
 $$;
@@ -117,6 +125,18 @@ select lives_ok($$
 $$, 'a booking starting when the 18:00 bookings end is accepted');
 select pg_temp.reset();
 
+-- A rejected booking frees its seats.
+select pg_temp.as_user('admin');
+update public.reservations set status = 'rejected' where name = 'Vendég 1';
+select isnt((select status_changed_at from public.reservations where name = 'Vendég 1'), null,
+  'a status change is timestamped');
+select pg_temp.as_anon();
+select lives_ok($$
+  insert into public.reservations (date, time, party_size, name, phone, email, consent_at)
+  select tue, '18:30', 8, 'Pótló', '+36301234567', 'p@example.com', now() from d
+$$, 'seats of a rejected booking can be booked again');
+select pg_temp.reset();
+
 -- Minimum notice -------------------------------------------------------------------------------
 update public.site_settings set booking_min_notice_minutes = 10080;
 select pg_temp.as_anon();
@@ -134,13 +154,50 @@ select is((select count(*)::int from public.reservations), 0,
   'a non-admin user sees no reservations');
 select pg_temp.reset();
 
+select pg_temp.as_user('admin', 'aal1');
+select is((select count(*)::int from public.reservations), 0,
+  'an admin without the second factor sees no reservations');
+update public.monthly_specials set name = 'Feltört';
+select is((select count(*)::int from public.monthly_specials where name = 'Feltört'), 0,
+  'an admin without the second factor cannot edit the monthly specials');
+select pg_temp.reset();
+
 select pg_temp.as_user('admin');
-select is((select count(*)::int from public.reservations), 6, 'admin sees all reservations');
+select is((select count(*)::int from public.reservations), 7, 'admin sees all reservations');
 select lives_ok($$
   insert into public.reservations (date, time, party_size, name, phone, email, consent_at, status)
   select tue, '18:00', 12, 'Telefonos', '+36301234567', 't@example.com', now(), 'confirmed' from d
 $$, 'admin can add a phone booking beyond the online rules');
 select pg_temp.reset();
+
+-- Hónap ajánlata, notification log, PDF menu, storage --------------------------------------------
+select pg_temp.as_user('admin');
+update public.monthly_specials set is_active = false where name = 'Zöld Perec';
+select lives_ok($$
+  insert into public.monthly_specials (name, description, price) values ('Novemberi', '', 3990)
+$$, 'admin can add a monthly special');
+select pg_temp.reset();
+select pg_temp.as_anon();
+select is((select count(*)::int from public.monthly_specials), 3,
+  'anon reads only active monthly specials');
+select throws_ok($$ select * from public.notification_log $$, '42501', null,
+  'anon cannot read the notification log');
+select pg_temp.reset();
+
+select pg_temp.as_user('admin', 'aal1');
+select is((select count(*)::int from public.notification_log), 0,
+  'an admin without the second factor cannot read the notification log');
+select pg_temp.reset();
+insert into public.notification_log (reservation_id, kind, recipient, status)
+select id, 'guest_received', email, 'sent' from public.reservations where name = 'Teszt Elek';
+select pg_temp.as_user('admin');
+select is((select count(*)::int from public.notification_log), 1, 'admin reads the notification log');
+select pg_temp.reset();
+
+select throws_ok($$ update public.site_settings set menu_pdf_path = '../x.pdf' $$, '23514', null,
+  'the menu PDF path must be a plain file name');
+select is((select array_agg(id order by id) from storage.buckets where public), array['media', 'menu'],
+  'public buckets for images and the menu PDF exist');
 
 -- Retention ---------------------------------------------------------------------------------------
 insert into public.reservations (date, time, party_size, duration_minutes, name, phone, email,

@@ -78,4 +78,13 @@ select * from (values
 ) as v (url, alt, category, is_tall, sort_order)
 where not exists (select 1 from public.gallery_images);
 
+-- Hónap ajánlata: starts with the three burgers the home page featured before.
+insert into public.monthly_specials (name, description, price, image, sort_order)
+select * from (values
+  ('Bajor Dupla', 'Két smash-elt marhapogácsa, dupla cheddar, karamellizált hagyma és házi mustáros szósz.', 4290, 'burgerHero', 1),
+  ('Pokol Tüze', 'Ropogós bacon, jalapeño, füstös chilis BBQ és pepper jack sajt — csak bátraknak.', 4590, 'burgerSpicy', 2),
+  ('Zöld Perec', 'Grillezett halloumi és házi babpogácsa perecbuciban, rukkolával és fokhagymás szósszal.', 3890, 'burgerVeggie', 3)
+) as v (name, description, price, image, sort_order)
+where not exists (select 1 from public.monthly_specials);
+
 commit;
