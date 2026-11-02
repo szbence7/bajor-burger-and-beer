@@ -38,8 +38,8 @@ function BookingPage() {
         <aside className="space-y-6">
           <HoursCard />
           <p className="rounded-3xl bg-primary p-6 font-bold text-primary-foreground">
-            {booking.maxPartySize} fő felett hívj minket telefonon: {contact.phone}. Az asztalt{" "}
-            {booking.holdMinutes} percig tartjuk.
+            Az asztalt {booking.holdMinutes} percig tartjuk. Kérdésed van? Hívj minket:{" "}
+            {contact.phone}
           </p>
         </aside>
       </section>

@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Check, Phone } from "lucide-react";
+import { Check } from "lucide-react";
 import { ctaClass } from "@/lib/cta";
 import { addDays, formatDateHu, todayInBudapest, weekdayOf } from "@/lib/date";
 import { useSiteInfo } from "@/lib/site-info";
 import { cn } from "@/lib/utils";
 import { createReservation, getAvailability } from "./api";
+import { BookingCalendar } from "./Calendar";
 import {
   BOOKING_ERRORS,
   SLOT_ERRORS,
@@ -65,7 +66,6 @@ export function BookingForm() {
   const today = useToday();
   const maxDate = today ? addDays(today, booking.daysAhead) : "";
   const [step, setStep] = useState<1 | 2 | 3>(1);
-  const [largeGroup, setLargeGroup] = useState(false);
   const [f, setF] = useState<FormState>({
     date: "",
     time: "",
@@ -96,12 +96,13 @@ export function BookingForm() {
   }, [step]);
 
   const dateInRange = Boolean(f.date && today && f.date >= today && f.date <= maxDate);
-  const closed =
-    Boolean(f.date) && !openingHours.some((h) => h.opens && h.days.includes(weekdayOf(f.date)));
+  const isClosed = (iso: string) =>
+    !openingHours.some((h) => h.opens && h.days.includes(weekdayOf(iso)));
+  const closed = Boolean(f.date) && isClosed(f.date);
   const availability = useQuery({
     queryKey: ["availability", f.date, f.partySize],
     queryFn: () => getAvailability({ data: { date: f.date, partySize: f.partySize } }),
-    enabled: step === 1 && dateInRange && !closed && !largeGroup,
+    enabled: step === 1 && dateInRange && !closed,
     staleTime: 30_000,
   });
   const slots = availability.data;
@@ -128,7 +129,7 @@ export function BookingForm() {
     onError: () => setSubmitError("unknown"),
   });
 
-  const canContinue = dateInRange && Boolean(f.time) && !largeGroup;
+  const canContinue = dateInRange && Boolean(f.time);
 
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -158,11 +159,7 @@ export function BookingForm() {
   const invalid = (name: FieldName) => (errors[name] ? true : undefined);
 
   let slotContent: ReactNode;
-  if (largeGroup) {
-    slotContent = null;
-  } else if (!f.date) {
-    slotContent = <Notice>Válassz dátumot, és megmutatjuk a szabad időpontokat.</Notice>;
-  } else if (today && !dateInRange) {
+  if (today && !dateInRange) {
     slotContent = (
       <Notice>Online ma és a következő {booking.daysAhead} nap között foglalhatsz.</Notice>
     );
@@ -231,78 +228,57 @@ export function BookingForm() {
             Mikor jössz?
           </h2>
           <div>
-            <label htmlFor="booking-date" className={labelClass}>
+            <p id="booking-date-label" className={labelClass}>
               Dátum
-            </label>
-            <input
-              id="booking-date"
-              type="date"
-              min={today}
-              max={maxDate}
-              className={field}
-              value={f.date}
-              onChange={(e) => set("date", e.target.value)}
-            />
-          </div>
-          <fieldset>
-            <legend className={labelClass}>
-              Létszám: {largeGroup ? `${booking.maxPartySize} főnél több` : `${f.partySize} fő`}
-            </legend>
-            <div className="flex flex-wrap gap-2">
-              {Array.from({ length: booking.maxPartySize }, (_, i) => i + 1).map((n) => (
-                <button
-                  key={n}
-                  type="button"
-                  aria-pressed={!largeGroup && f.partySize === n}
-                  aria-label={`${n} fő`}
-                  onClick={() => {
-                    setLargeGroup(false);
-                    set("partySize", n);
-                  }}
-                  className={cn("h-12 w-12 rounded-full", chip(!largeGroup && f.partySize === n))}
-                >
-                  {n}
-                </button>
-              ))}
-              <button
-                type="button"
-                aria-pressed={largeGroup}
-                aria-label={`${booking.maxPartySize + 1}+ fő`}
-                onClick={() => setLargeGroup(true)}
-                className={cn("h-12 rounded-full px-4", chip(largeGroup))}
-              >
-                {booking.maxPartySize + 1}+
-              </button>
+            </p>
+            <div role="group" aria-labelledby="booking-date-label">
+              <BookingCalendar
+                value={f.date}
+                min={today}
+                max={maxDate}
+                isClosed={isClosed}
+                onChange={(d) => set("date", d)}
+              />
             </div>
-          </fieldset>
-          {largeGroup ? (
-            <div className="rounded-2xl border-2 border-primary p-5" role="status">
-              <p className="font-bold">
-                {booking.maxPartySize} főnél nagyobb társaságnak telefonon foglalunk asztalt.
+            {!f.date && (
+              <p className="mt-3 text-sm text-muted-foreground">
+                Válassz egy napot, és megmutatjuk a szabad időpontokat.
               </p>
-              <a
-                href={`tel:${contact.phone.replace(/\s/g, "")}`}
-                className={ctaClass("gold", "mt-4")}
-              >
-                <Phone className="h-4 w-4" /> {contact.phone}
-              </a>
-            </div>
-          ) : (
-            <fieldset>
-              <legend className={labelClass}>Időpont</legend>
-              {slotContent}
-            </fieldset>
+            )}
+          </div>
+          {f.date && (
+            <>
+              <fieldset>
+                <legend className={labelClass}>Időpont — {formatDateHu(f.date)}</legend>
+                {slotContent}
+              </fieldset>
+              <fieldset>
+                <legend className={labelClass}>Hányan jöttök? {f.partySize} fő</legend>
+                <div className="flex flex-wrap gap-2">
+                  {Array.from({ length: booking.maxPartySize }, (_, i) => i + 1).map((n) => (
+                    <button
+                      key={n}
+                      type="button"
+                      aria-pressed={f.partySize === n}
+                      aria-label={`${n} fő`}
+                      onClick={() => set("partySize", n)}
+                      className={cn("h-12 w-12 rounded-full", chip(f.partySize === n))}
+                    >
+                      {n}
+                    </button>
+                  ))}
+                </div>
+              </fieldset>
+            </>
           )}
-          {!largeGroup && (
-            <button
-              type="button"
-              disabled={!canContinue}
-              onClick={() => setStep(2)}
-              className={ctaClass("gold", "w-full disabled:opacity-40 sm:w-auto")}
-            >
-              Tovább
-            </button>
-          )}
+          <button
+            type="button"
+            disabled={!canContinue}
+            onClick={() => setStep(2)}
+            className={ctaClass("gold", "w-full disabled:opacity-40 sm:w-auto")}
+          >
+            Tovább
+          </button>
         </div>
       )}
       {step === 2 && (
