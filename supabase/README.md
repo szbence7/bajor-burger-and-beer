@@ -24,7 +24,8 @@ Needs Docker. The CLI runs through `bunx`, no install needed.
 ```sh
 bun run db:start   # local stack; applies migrations + seed. Prints the URL and anon key
 bun run test:db    # pgTAP tests
-bun run db:reset   # drop everything and re-apply migrations + seed
+bun run db:migrate # apply new migrations, keeping the data
+bun run db:reset   # WIPES everything (accounts, bookings, uploads) and re-applies migrations + seed
 bun run db:stop
 ```
 
@@ -36,7 +37,8 @@ http://127.0.0.1:54324. Create a local admin with `bun run admin create you@exam
 
 ## Applying to the real instance
 
-Test every new migration locally first (`bun run db:reset && bun run test:db`). Then pick
+Test every new migration locally first (`bun run db:migrate && bun run test:db`; the pgTAP tests
+roll back, so they keep local data). Then pick
 **one** of the two ways and stick with it:
 
 - **CLI over an SSH tunnel:** open the tunnel, set `SUPABASE_DB_URL` in `.env` (local only),

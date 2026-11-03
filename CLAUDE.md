@@ -380,6 +380,13 @@ design language but calmer and practical. Hungarian UI, mobile-friendly (staff u
 
 ## Gotchas
 
+- **Never wipe the local database without the user's explicit OK.** `bun run db:reset`,
+  `supabase stop --no-backup` and removing Docker volumes delete the user's local admin account,
+  bookings and uploads (this happened on 2026-11-02). Apply new migrations with
+  `bun run db:migrate`; `bun run test:db` is safe (it rolls back). A PreToolUse hook
+  (`.claude/hooks/guard-db-wipe.sh`) asks before such commands. Never rename, recreate or
+  re-enrol the user's admin account (`hello@bencecodes.co.uk`) either; use a separate
+  `*@bajor.test` account for automated checks and delete it afterwards.
 - In zsh, quote paths with brackets: `"src/routes/sitemap[.]xml.ts"`.
 - The SSR HTML is one long line; `grep -o`/`-c` on it is unreliable here — parse with Python.
 - Never name a zsh variable `path` (it is tied to `PATH`).

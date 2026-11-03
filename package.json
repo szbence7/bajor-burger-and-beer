@@ -15,6 +15,7 @@
     "start": "node .output/server/index.mjs",
     "db:start": "bunx supabase@2.121.0 start",
     "db:stop": "bunx supabase@2.121.0 stop",
+    "db:migrate": "bunx supabase@2.121.0 migration up --local",
     "db:reset": "bunx supabase@2.121.0 db reset",
     "test:db": "bunx supabase@2.121.0 test db",
     "db:push": "bunx supabase@2.121.0 db push --db-url \"$SUPABASE_DB_URL\" --include-seed",
