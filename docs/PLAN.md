@@ -245,6 +245,15 @@ Agreed with the user during Phases 1–2. These override the original prompt whe
     page) was built and then removed at the user's request: guests read the beers from the
     menu. Migration 0009 was deleted before it reached the real instance. Don't add a tap
     list back.
+37. **Copy and design pass**: hero "Prost, / Budapest!" with a lead line; eyebrows only above
+    Hónap ajánlata (the month); no gold-word headings except the script "bele"; concrete copy
+    instead of clichés; Hónap ajánlata cards in one tone without a booking button; marquee
+    with concrete words; doodles only in the hero, Étlap and the gold strip, `Ambient` light
+    elsewhere; scroll reveal only on two card groups; a full-bleed photo band and an
+    asymmetric gold strip; a bigger menu booklet; the footer ends in the whole logo instead
+    of the "BAJOR" wordmark, socials only there; the site's doodles as icons; an open/closed
+    badge in the header; a weekend "Servus!" booking nudge while open. German words: only
+    "Prost" (hero) and "Servus" (nudge), both universally understood.
 
 ## Status
 

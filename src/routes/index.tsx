@@ -19,6 +19,7 @@ import { ctaClass } from "@/lib/cta";
 import { seo } from "@/lib/seo";
 import { useSiteInfo } from "@/lib/site-info";
 import { getHomeContent } from "@/features/menu/api";
+import { BookingNudge } from "@/features/booking/BookingNudge";
 
 // Far below the fold and the heaviest part of the page: rendered on the server as usual, but
 // its code loads after first paint instead of competing with the hero.
@@ -370,6 +371,7 @@ function Index() {
           </div>
         </div>
       </section>
+      <BookingNudge />
     </>
   );
 }

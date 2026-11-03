@@ -168,7 +168,9 @@ reads the real environment).
   swipe, click, arrow keys or the buttons; "Nagyítás" opens every page full width (pinch-zoom
   on phones). No download button (user decision; `/etlap.pdf` stays for QR codes). Until it is
   ready the cover shows at its final size, so nothing jumps; each page's text is `sr-only`.
-  `src/features/booking` — BookingForm (step 1: always-open month `Calendar` → time slots →
+  `src/features/booking` — BookingNudge (home only: a non-modal "Servus!" card on Saturdays and
+  Sundays while open, after 10 s or past the hero, hidden while the booking form is on screen,
+  gone for the session once closed or used), BookingForm (step 1: always-open month `Calendar` → time slots →
   party size 1…max; step 2: contact details; then confirmation). No "call us above N" branch.
   `src/features/gallery` — PhotoCarousel (Embla, home "A hely"). Each
   feature's `api.ts` holds its server functions (`getHomeContent`, `getAvailability`,

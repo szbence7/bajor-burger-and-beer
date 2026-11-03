@@ -69,7 +69,7 @@ export type OpenStatus =
   { open: true; until: string } | { open: false; next: { day: string; time: string } | null };
 
 /** Budapest weekday (Monday = 0) and "HH:MM", whatever the device's time zone. */
-function budapestClock(now: Date): { day: number; time: string } {
+export function budapestClock(now: Date): { day: number; time: string } {
   const parts = new Intl.DateTimeFormat("en-GB", {
     timeZone: "Europe/Budapest",
     weekday: "long",
