@@ -303,8 +303,8 @@ Signature elements:
     mobile the burger sits above the stacked headline. Parallax is a rAF-throttled `translate`
     on that slot. Re-check 375/768/1024/1280/1920 if you touch it.
   - Hónap ajánlata cards (`SpecialCard`, staff-edited): the title is `relative z-10` above the
-    image layer; the image sits lower in its own flex area; the title steps down in size for
-    long words so admin-typed names never overflow.
+    image layer; the image sits lower in its own flex area; every dish name is the same size
+    (`text-4xl`, user request); no auto-hyphenation, only a word wider than the card breaks.
 - Hand-drawn line doodles (burger, mug, foam, pretzel, fries, hop) — `Doodle`, default
   **10% opacity, used large** (`h-28`–`h-56`) as texture in dark sections (user decision),
   **at most one per section** and only in the home hero, Étlap and the gold strip (user decision
