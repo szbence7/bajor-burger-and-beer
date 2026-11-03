@@ -7,6 +7,7 @@ import { BrandLogo } from "@/components/BrandLogo";
 import { Collapse, Swap } from "@/components/motion";
 import { useSiteInfo } from "@/lib/site-info";
 import { SECTIONS, type SectionId } from "@/lib/sections";
+import { openStatus } from "@/lib/opening-hours";
 
 /** The section in the middle of the screen, for highlighting its nav link. */
 function useActiveSection(ids: readonly SectionId[], enabled: boolean) {
@@ -31,6 +32,50 @@ function useActiveSection(ids: readonly SectionId[], enabled: boolean) {
     return () => io.disconnect();
   }, [key, enabled]);
   return active;
+}
+
+/**
+ * "Nyitva 23:00-ig" / "Zárva · nyitás: holnap 12:00", from the admin-set opening hours in
+ * Budapest time. Rendered on the server too, so it never pops in. After hydration the badge
+ * remounts once with the browser's clock (hydration keeps the server's text, and a re-render
+ * with the same text would never patch it), then re-checks every minute.
+ */
+function OpenBadge({ className }: { className?: string }) {
+  const { openingHours } = useSiteInfo();
+  const [now, setNow] = useState<Date | null>(null);
+  useEffect(() => {
+    setNow(new Date());
+    const timer = setInterval(() => setNow(new Date()), 60_000);
+    return () => clearInterval(timer);
+  }, []);
+  if (openingHours.length === 0) return null;
+  const status = openStatus(openingHours, now ?? new Date());
+  return (
+    <Link
+      key={now ? "live" : "server"}
+      to="/"
+      hash="kapcsolat"
+      className={cn(
+        // Too tight beside the logo on the narrowest phones.
+        "hidden items-center gap-2 whitespace-nowrap text-sm font-bold text-foreground/80 transition-colors hover:text-primary min-[360px]:flex",
+        className,
+      )}
+    >
+      <span
+        aria-hidden
+        suppressHydrationWarning
+        className={cn(
+          "h-2.5 w-2.5 shrink-0 rounded-full",
+          status.open ? "bg-primary shadow-gold" : "bg-muted-foreground/60",
+        )}
+      />
+      <span suppressHydrationWarning>{status.open ? `Nyitva ${status.until}-ig` : "Zárva"}</span>
+      {/* Always rendered (only its text changes), so server and browser HTML match. */}
+      <span suppressHydrationWarning className="hidden font-normal text-muted-foreground sm:inline">
+        {!status.open && status.next ? `· nyitás: ${status.next.day} ${status.next.time}` : ""}
+      </span>
+    </Link>
+  );
 }
 
 export function Header() {
@@ -75,6 +120,7 @@ export function Header() {
           <BrandLogo alt="" className="h-12 md:h-14" />
           <span className="font-display text-3xl leading-none text-primary md:text-4xl">Bajor</span>
         </Link>
+        <OpenBadge className="ml-auto mr-5 lg:mr-8" />
         <nav className="hidden items-center gap-8 lg:flex">
           {nav.map((id) => (
             <Link

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { groupDayHours, toDayHours } from "./opening-hours";
+import { groupDayHours, openStatus, toDayHours } from "./opening-hours";
 
 const seed = [
   { label: "Hétfő", days: ["Monday" as const], opens: null, closes: null },
@@ -37,5 +37,50 @@ describe("opening hours", () => {
         closes: null,
       },
     ]);
+  });
+});
+
+describe("openStatus", () => {
+  // 2026-11-03 is a Tuesday; Budapest is UTC+1 in November.
+  const at = (iso: string) => openStatus(seed, new Date(iso));
+
+  it("is open between opening and closing time", () => {
+    expect(at("2026-11-03T15:00:00+01:00")).toEqual({ open: true, until: "23:00" });
+  });
+
+  it("opens later today before opening time", () => {
+    expect(at("2026-11-03T09:30:00+01:00")).toEqual({
+      open: false,
+      next: { day: "ma", time: "12:00" },
+    });
+  });
+
+  it("points to tomorrow after closing time", () => {
+    expect(at("2026-11-03T23:10:00+01:00")).toEqual({
+      open: false,
+      next: { day: "holnap", time: "12:00" },
+    });
+  });
+
+  it("stays open after midnight when closing is past midnight", () => {
+    // Saturday 00:30, Friday closes at 01:00.
+    expect(at("2026-11-07T00:30:00+01:00")).toEqual({ open: true, until: "01:00" });
+  });
+
+  it("skips closed days", () => {
+    // Sunday 22:30 → Monday is closed → Tuesday.
+    expect(at("2026-11-08T22:30:00+01:00")).toEqual({
+      open: false,
+      next: { day: "kedden", time: "12:00" },
+    });
+  });
+
+  it("uses Budapest time whatever the device's zone", () => {
+    // 22:30 UTC on Tuesday is 23:30 in Budapest: closed.
+    expect(at("2026-11-03T22:30:00Z")).toMatchObject({ open: false });
+  });
+
+  it("has no next opening when every day is closed", () => {
+    expect(openStatus([], new Date("2026-11-03T12:00:00Z"))).toEqual({ open: false, next: null });
   });
 });

@@ -156,7 +156,9 @@ reads the real environment).
   (lazy iframe; it sends data to Google, which the privacy notice says), as tall as the hours
   card; `DirectionsLinks`: "Vigyél oda:" Google Maps / Apple Térképek / Waze buttons with
   `simple-icons` brand marks that open the app with the admin-set address as destination).
-  `src/components/layout` — Header, Footer.
+  `src/components/layout` — Header (with the "Nyitva 23:00-ig" / "Zárva · nyitás: …" badge from
+  `openStatus()` in `lib/opening-hours`, Budapest time, SSR + remount after hydration, hidden
+  below 360 px), Footer.
 - `src/features/menu` — SpecialCard (Hónap ajánlata: compact cards, 1–5 per row by width,
   a part-filled last row centred), MenuViewer: the menu PDF's pages as a
   real booklet with curling pages (**StPageFlip**, `page-flip`, MIT; loaded only when the
