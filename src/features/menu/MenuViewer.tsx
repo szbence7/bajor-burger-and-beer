@@ -47,6 +47,9 @@ function useNearViewport<T extends HTMLElement>() {
 function pageElement(page: MenuPage, i: number): HTMLElement {
   const left = i % 2 === 1;
   const el = document.createElement("div");
+  // Every page turns like a stiff menu card: the whole page swings over in 3D, the way the
+  // cover and the back page do (user request), instead of curling like thin paper.
+  el.dataset["density"] = "hard";
   el.className = cn(
     "overflow-hidden bg-white [[data-orientation=portrait]_&]:rounded-lg",
     left ? "rounded-l-lg" : "rounded-r-lg",

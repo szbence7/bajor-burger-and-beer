@@ -225,7 +225,8 @@ Agreed with the user during Phases 1–2. These override the original prompt whe
     `/menu`, `/galeria`, `/rolunk`, `/foglalas` answer 301 to their section; `/adatkezeles`
     stays a page. Sitemap: `/` and `/adatkezeles`.
 34. **The menu is the uploaded PDF**, shown in the Étlap section as a real booklet with
-    curling pages (user request 2026-11-03: "mint egy rendes füzet"; StPageFlip, `page-flip`):
+    turning pages (user request 2026-11-03: "mint egy rendes füzet"; StPageFlip, `page-flip`;
+    every page "hard", so each turn swings the whole page over like the back cover does):
     one page on phones, an open booklet with the first page as its cover on wider screens;
     drag, swipe, click, arrow keys and buttons; "Nagyítás" shows every page full width
     (pinch-zoom on phones). No download button (user decision); `/etlap.pdf` stays for QR
