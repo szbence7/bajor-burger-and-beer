@@ -112,6 +112,7 @@ export async function saveSpecial(token: string, input: SpecialInput): Promise<A
     description: input.description,
     price: input.price,
     image: input.image,
+    spice: input.spice,
     is_active: input.isActive,
   };
   let result;

@@ -255,6 +255,10 @@ Agreed with the user during Phases 1–2. These override the original prompt whe
     of the "BAJOR" wordmark, socials only there; the site's doodles as icons; an open/closed
     badge in the header; a weekend "Servus!" booking nudge while open. German words: only
     "Prost" (hero) and "Servus" (nudge), both universally understood.
+38. **Spice level on Hónap ajánlata** (user request, 2026-11-03): `monthly_specials.spice`
+    (migration 0009: 0 = nem csípős, 1 = csípős, 2 = nagyon csípős), set in admin → Hónap
+    ajánlata; the card shows one or two red chilis (drawn after the printed menu's icon) at the
+    top right of the name. Migration 0009 **not yet applied to the real instance**.
 
 ## Status
 
@@ -332,6 +336,7 @@ Branch `claude/redesign-fixes`, pushed to `origin`.
 
 ### Open items
 
+- **Apply migration 0009** (spice level) with 0008 and the rest.
 - **Apply migration 0008** to the real instance together with the rest, then upload the menu
   PDF again in admin → Étlap PDF (a PDF uploaded before 0008 has no page images).
 - **Unused tables** `menu_categories`, `menu_items`, `beers`, `gallery_images`: drop them in a

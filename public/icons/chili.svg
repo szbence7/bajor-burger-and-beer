@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- A red chili, after the restaurant's printed menu: tip bottom left, curled stem top right. -->
+    <path fill="#D42A2A" d="M4 56C20 52 36 41 45 26c2-4 7-6 10-3s2 7 0 10C45 46 26 56 4 56z"/>
+    <path fill="none" stroke="#F4C3B3" stroke-width="1.6" stroke-linecap="round" d="M45 28c3 1 5 3 5 6"/>
+    <path fill="none" stroke="#D42A2A" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" d="M51 23c-1-6 1-11 6-12 4-1 5 3 3 5"/>
+</svg>

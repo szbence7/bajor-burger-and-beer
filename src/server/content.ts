@@ -37,7 +37,7 @@ export function getMonthlySpecials(): Promise<MonthlySpecial[]> {
   return cached("specials", TTL_MS, async () => {
     const rows = await getSupabase()
       .from("monthly_specials")
-      .select("id, name, description, price, image")
+      .select("id, name, description, price, image, spice")
       .order("sort_order")
       .order("created_at");
     return parse(z.array(specialRow), rows).map(toSpecial);

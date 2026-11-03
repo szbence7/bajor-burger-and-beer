@@ -19,7 +19,9 @@ import { adminSupabase } from "./supabase";
 import { Collapse, Swap } from "@/components/motion";
 import { useSmoothList } from "@/lib/motion";
 import { removeUploadedImage, uploadImage } from "./upload";
-import { Button, Card, PageTitle, inputClass, labelClass, useToast } from "./ui";
+import { Button, Card, Chip, PageTitle, inputClass, labelClass, useToast } from "./ui";
+import { SpiceIcon } from "@/features/menu/SpiceIcon";
+import { SPICE_LABELS, SPICE_LEVELS } from "@/data/specials";
 
 const QUERY_KEY = ["admin", "specials"];
 
@@ -29,7 +31,7 @@ function useSpecials() {
     queryFn: async () => {
       const { data, error } = await adminSupabase()
         .from("monthly_specials")
-        .select("id, name, description, price, image, sort_order, is_active")
+        .select("id, name, description, price, image, spice, sort_order, is_active")
         .order("sort_order")
         .order("created_at");
       if (error) throw error;
@@ -57,6 +59,7 @@ const toForm = (s: SpecialRow | null): FormState => ({
   description: s?.description ?? "",
   price: s ? String(s.price) : "",
   image: s?.image ?? null,
+  spice: s?.spice ?? 0,
   isActive: s?.is_active ?? true,
 });
 
@@ -222,6 +225,27 @@ function SpecialForm({ special, onDone }: { special: SpecialRow | null; onDone: 
             jelenik meg.
           </p>
         </div>
+        <div>
+          <span id="special-spice-label" className={labelClass}>
+            Csípősség
+          </span>
+          <div role="group" aria-labelledby="special-spice-label" className="flex flex-wrap gap-2">
+            {SPICE_LEVELS.map((level) => (
+              <Chip
+                key={level}
+                selected={f.spice === level}
+                onClick={() => set("spice", level)}
+                className="inline-flex items-center gap-2"
+              >
+                <SpiceIcon level={level} className="h-5" decorative />
+                {SPICE_LABELS[level]}
+              </Chip>
+            ))}
+          </div>
+          <p className="mt-2 text-sm text-muted-foreground">
+            A kártya jobb felső sarkában egy vagy két chili jelzi.
+          </p>
+        </div>
         <label className="flex cursor-pointer items-center gap-3 font-bold">
           <input
             type="checkbox"
@@ -271,6 +295,7 @@ export function SpecialsEditor() {
           description: s.description,
           price: s.price,
           image: s.image,
+          spice: s.spice,
           isActive: !s.is_active,
         },
       }),
@@ -349,7 +374,10 @@ export function SpecialsEditor() {
                   <Thumb image={s.image} name={s.name} />
                   <div className="min-w-0 flex-1">
                     <p className="break-words font-script text-3xl">{s.name}</p>
-                    <Price value={s.price} className="font-bold text-primary" />
+                    <p className="flex items-center gap-2">
+                      <Price value={s.price} className="font-bold text-primary" />
+                      <SpiceIcon level={s.spice} className="h-6" />
+                    </p>
                     {!s.is_active && (
                       <p className="text-sm font-bold text-muted-foreground">Rejtett</p>
                     )}

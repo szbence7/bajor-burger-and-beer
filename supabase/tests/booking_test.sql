@@ -3,7 +3,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(50);
+select plan(51);
 
 -- Start bookings, the email log and specials from a known state, whatever local data exists.
 delete from public.notification_log;
@@ -211,6 +211,8 @@ select pg_temp.as_user('admin');
 select is((select count(*)::int from public.notification_log), 1, 'admin reads the notification log');
 select pg_temp.reset();
 
+select throws_ok($$ update public.monthly_specials set spice = 3 $$, '23514', null,
+  'a special is at most nagyon csípős (spice 2)');
 select throws_ok($$ update public.site_settings set menu_pdf_path = '../x.pdf' $$, '23514', null,
   'the menu PDF path must be a plain file name');
 select is((select array_agg(id order by id) from storage.buckets where public), array['media', 'menu'],

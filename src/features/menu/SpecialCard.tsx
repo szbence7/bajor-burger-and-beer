@@ -1,6 +1,7 @@
-import type { MonthlySpecial } from "@/data/specials";
+import { SPICE_LABELS, type MonthlySpecial } from "@/data/specials";
 import { Price } from "@/components/Price";
 import { Picture } from "@/components/Picture";
+import { SpiceIcon } from "@/features/menu/SpiceIcon";
 
 /**
  * Compact Hónap ajánlata card. One calm tone for every card (the colour carries no meaning, so
@@ -18,7 +19,11 @@ export function SpecialCard({ special }: { special: MonthlySpecial }) {
         // wider than the card breaks.
         className="relative z-10 text-balance break-words font-script text-4xl"
       >
+        {/* How hot: one or two chilis in the top right corner. Floated, so only the first
+            line of the name makes room for them. */}
+        <SpiceIcon level={special.spice} decorative className="float-right ml-1 mt-1 h-8" />
         {special.name}
+        {special.spice > 0 && <span className="sr-only"> ({SPICE_LABELS[special.spice]})</span>}
       </h3>
       <div className="relative -mt-2 flex h-32 flex-1 items-end justify-end">
         <Picture

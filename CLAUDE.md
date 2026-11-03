@@ -159,7 +159,9 @@ reads the real environment).
   `openStatus()` in `lib/opening-hours`, Budapest time, SSR + remount after hydration, hidden
   below 360 px), Footer.
 - `src/features/menu` — SpecialCard (Hónap ajánlata: compact cards, 1–5 per row by width,
-  a part-filled last row centred; one dark tone with a gold price, no per-card booking button), MenuViewer: the menu PDF's pages as a
+  a part-filled last row centred; one dark tone with a gold price, no per-card booking button;
+  `SpiceIcon`: one or two red chilis floated at the top right of the name when the admin marks
+  the dish csípős / nagyon csípős, `monthly_specials.spice` 0–2, migration 0009), MenuViewer: the menu PDF's pages as a
   real booklet (**StPageFlip**, `page-flip`, MIT; every page, cover and back included, is set to
   `soft` after loading, so each turn curls like a sheet of paper (user request 2026-11-03); loaded only when the
   section nears the screen; its pages are DOM nodes built outside React, mounted on an element
@@ -275,7 +277,8 @@ exceptions):
 | muted               | #A89F94 | `text-muted-foreground`      |
 
 - CTAs are **gold** (`ctaClass("gold")`, the default; `dark` on gold surfaces, `outline`
-  for secondary). There is no red in the palette any more.
+  for secondary). There is no red in the palette any more; the one exception is the chili
+  icon (`public/icons/chili*.svg`, the printed menu's red, user request).
 - Forest (the banquettes' green, deepened) is for accent sections (home booking CTA) and the "Új"/"Csípős" badges. Text on it is cream
   (`forest-foreground`, 8.6:1); gold on it is 4.6:1. Never use forest as text on dark.
 - Typography: `font-display` = **Oswald 600** (condensed like the logo's lettering, lighter

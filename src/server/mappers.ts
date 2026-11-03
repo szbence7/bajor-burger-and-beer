@@ -15,6 +15,7 @@ export const specialRow = z.object({
   description: z.string(),
   price: z.number().int(),
   image: z.string().nullable(),
+  spice: z.union([z.literal(0), z.literal(1), z.literal(2)]),
 });
 
 export function toSiteInfo(
@@ -71,5 +72,6 @@ export function toSpecial(r: z.infer<typeof specialRow>): MonthlySpecial {
     price: r.price,
     // The cards always show a photo; fall back to the hero burger.
     image: resolveImage(r.image) ?? images.burgerHero,
+    spice: r.spice,
   };
 }

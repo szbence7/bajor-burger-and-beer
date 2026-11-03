@@ -115,6 +115,7 @@ export const specialRow = z.object({
   description: z.string(),
   price: z.number().int(),
   image: z.string().nullable(),
+  spice: z.union([z.literal(0), z.literal(1), z.literal(2)]),
   sort_order: z.number().int(),
   is_active: z.boolean(),
 });
@@ -142,6 +143,8 @@ export const specialInput = z.object({
     .max(1_000_000, "Túl magas ár."),
   /** A bundled image key or an absolute URL (Storage upload); null = default photo. */
   image: z.string().max(500).nullable(),
+  /** 0 = not hot, 1 = csípős, 2 = nagyon csípős. */
+  spice: z.union([z.literal(0), z.literal(1), z.literal(2)]),
   isActive: z.boolean(),
 });
 export type SpecialInput = z.infer<typeof specialInput>;
