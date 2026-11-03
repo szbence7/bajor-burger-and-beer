@@ -59,7 +59,7 @@ const values: { icon: DoodleKind; title: string; text: string }[] = [
 
 const placePhotos = [
   { src: images.placePeople, alt: "Baráti koccintás a hosszú asztalnál" },
-  { src: images.placeInterior, alt: "Az étterem esti belső tere" },
+  { src: images.placeInterior, alt: "A betonpult a Bajor felirattal és az asztalok" },
   { src: images.eventNight, alt: "Élőzenés est a Bajorban" },
   { src: images.placeTap, alt: "Csapolás a pultnál" },
 ];
@@ -265,9 +265,10 @@ function Index() {
           <div className="unveil absolute left-0 top-0 h-[70%] w-[78%] overflow-hidden rounded-3xl shadow-2xl">
             <Picture
               image={images.placeInterior}
-              alt="Az étterem belső tere"
+              alt="A Bajor pultja és asztalai"
               sizes="(min-width: 1280px) 480px, (min-width: 768px) 38vw, 78vw"
-              className="h-full w-full object-cover"
+              // The tap photo covers the right of this one: keep the "BAJOR BEER" lettering in view.
+              className="h-full w-full object-cover object-[20%_60%]"
             />
           </div>
           <div className="unveil absolute bottom-0 right-0 h-[62%] w-[52%] overflow-hidden rounded-3xl border-4 border-background shadow-2xl">
