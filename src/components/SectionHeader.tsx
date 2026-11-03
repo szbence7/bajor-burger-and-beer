@@ -13,7 +13,7 @@ export function SectionHeader({
   title: ReactNode;
   children?: ReactNode;
   align?: "left" | "center";
-  tone?: "dark" | "gold";
+  tone?: "dark" | "gold" | "concrete";
   className?: string;
 }) {
   return (
@@ -22,7 +22,11 @@ export function SectionHeader({
         <p
           className={cn(
             "mb-4 text-sm font-bold uppercase tracking-[0.3em]",
-            tone === "gold" ? "text-primary-foreground/70" : "text-primary",
+            tone === "gold"
+              ? "text-primary-foreground/70"
+              : tone === "concrete"
+                ? "text-concrete-foreground/70"
+                : "text-primary",
           )}
         >
           {eyebrow}
@@ -31,7 +35,11 @@ export function SectionHeader({
       <h2
         className={cn(
           "font-display text-6xl md:text-8xl",
-          tone === "gold" ? "text-primary-foreground" : "text-foreground",
+          tone === "gold"
+            ? "text-primary-foreground"
+            : tone === "concrete"
+              ? "text-concrete-foreground"
+              : "text-foreground",
         )}
       >
         {title}
@@ -41,7 +49,11 @@ export function SectionHeader({
           className={cn(
             "mt-5 max-w-xl text-lg",
             align === "center" && "mx-auto",
-            tone === "gold" ? "text-primary-foreground/80" : "text-muted-foreground",
+            tone === "gold"
+              ? "text-primary-foreground/80"
+              : tone === "concrete"
+                ? "text-concrete-foreground/80"
+                : "text-muted-foreground",
           )}
         >
           {children}

@@ -9,7 +9,7 @@ import { SpiceIcon } from "@/features/menu/SpiceIcon";
  */
 export function SpecialCard({ special }: { special: MonthlySpecial }) {
   return (
-    <article className="group lift relative flex h-full flex-col overflow-hidden rounded-3xl border border-border bg-card p-5 text-foreground">
+    <article className="group lift relative flex h-full flex-col overflow-hidden rounded-3xl border border-concrete/25 bg-card p-5 text-foreground">
       {/* The dish name in the brush script of the printed menus. It stays above the image
           layer so every word is always readable. */}
       <h3

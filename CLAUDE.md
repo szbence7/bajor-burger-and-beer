@@ -265,16 +265,17 @@ Colours are Tailwind theme tokens only — **no hardcoded hex in components** (t
 self-contained `error-page.ts`, the email templates and generated brand assets are the only
 exceptions):
 
-| Token               | Hex     | Tailwind                     |
-| ------------------- | ------- | ---------------------------- |
-| background          | #121110 | `bg-background`              |
-| surface             | #1C1A18 | `bg-card`                    |
-| border              | #2E2A26 | `border-border`              |
-| primary (logo gold) | #D2AC66 | `bg-primary`, `text-primary` |
-| primary tint        | #E6C88A | `primary-glow`               |
-| accent (forest)     | #2E4A2B | `bg-forest`                  |
-| text                | #F5EFE6 | `text-foreground`            |
-| muted               | #A89F94 | `text-muted-foreground`      |
+| Token               | Hex     | Tailwind                                          |
+| ------------------- | ------- | ------------------------------------------------- |
+| background          | #121110 | `bg-background`                                   |
+| surface             | #1C1A18 | `bg-card`                                         |
+| border              | #2E2A26 | `border-border`                                   |
+| primary (logo gold) | #D2AC66 | `bg-primary`, `text-primary`                      |
+| primary tint        | #E6C88A | `primary-glow`                                    |
+| accent (forest)     | #2E4A2B | `bg-forest`                                       |
+| concrete (bar)      | #C9C4BC | `bg-concrete-texture`, `text-concrete-foreground` |
+| text                | #F5EFE6 | `text-foreground`                                 |
+| muted               | #A89F94 | `text-muted-foreground`                           |
 
 - CTAs are **gold** (`ctaClass("gold")`, the default; `dark` on gold surfaces, `outline`
   for secondary). There is no red in the palette any more; the one exception is the chili
@@ -315,6 +316,10 @@ Signature elements:
   blurred pool of warm light at one side (`relative isolate` on the section). On gold/forest sections they use the
   section's foreground colour at ~20%.
 - One or two full-width gold sections per page.
+- Concrete (user request 2026-11-03, the venue's cast-concrete bar): `bg-concrete-texture`
+  (concrete colour + SVG noise grit and mottling) on the "Így megy ez nálunk" strip
+  (`SectionHeader tone="concrete"`) and the booking hold note; Hónap ajánlata cards have a
+  `border-concrete/25` edge. A surface material only, never a page background.
 - Section headings (user decision 2026-11-03): no eyebrow label unless it adds information
   (none at all on the home page; Hónap ajánlata is just its title, no month, no subtitle), and no "one word in gold" headings; the only accent
   word is the Norican "bele" in "Lapozz bele". Copy is concrete and plain: no "X szív, Y

@@ -297,15 +297,15 @@ function Index() {
       </section>
 
       {/* VALUES — gold */}
-      {/* VALUES — gold, asymmetric: the heading holds the left column, the three points
+      {/* VALUES — concrete like the bar counter, asymmetric: the heading holds the left column, the three points
           stack as rows on the right. */}
-      <section className="relative overflow-hidden bg-primary px-5 py-20 text-primary-foreground md:py-24">
+      <section className="bg-concrete-texture relative overflow-hidden px-5 py-20 text-concrete-foreground md:py-24">
         <Doodle
           kind="hop"
-          className="bottom-10 left-[5%] hidden h-40 w-40 rotate-12 text-primary-foreground opacity-20 lg:block"
+          className="bottom-10 left-[5%] hidden h-40 w-40 rotate-12 text-concrete-foreground opacity-20 lg:block"
         />
         <div className="relative mx-auto grid max-w-7xl items-start lg:grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)] lg:gap-16">
-          <SectionHeader tone="gold" title="Így megy ez nálunk" className="lg:mb-0" />
+          <SectionHeader tone="concrete" title="Így megy ez nálunk" className="lg:mb-0" />
           <div className="grid gap-4">
             {values.map((v, i) => (
               <Reveal key={v.title} delay={i * 100}>
@@ -348,7 +348,7 @@ function Index() {
                 Hétvégén gyorsan betelnek a hosszú asztalok, érdemes előre szólni. A foglalást
                 e-mailben visszaigazoljuk.
               </p>
-              <p className="rounded-3xl bg-primary p-6 font-bold text-primary-foreground">
+              <p className="bg-concrete-texture rounded-3xl p-6 font-bold text-concrete-foreground">
                 Az asztalt {booking.holdMinutes} percig tartjuk. Kérdésed van? Hívj minket:{" "}
                 {contact.phone}
               </p>
