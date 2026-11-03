@@ -334,7 +334,7 @@ strict): `Collapse` for content that opens/closes (menus, errors, panels), `Swap
 replaced by `id` (form steps, screens), `layoutId` pills for active tabs/filters, and
 `useSmoothList()` from `src/lib/motion.ts` (AutoAnimate) on list containers. Page changes
 cross-fade via the router's `defaultViewTransition`. All of it honours reduced motion. Also:
-scroll reveal (`Reveal`), `.unveil` photo frames (CSS scroll-driven: the frame opens
+scroll reveal (`Reveal`; on the home page only the Hónap ajánlata cards and the gold strip's cards, user decision 2026-11-03), `.unveil` photo frames (CSS scroll-driven: the frame opens
 from a rounded crop while the photo settles from a slight zoom; no JS, off for reduced motion
 and unsupported browsers; used on the home Rólunk photos), the menu booklet (StPageFlip),
 marquee, hover lift with gold glow (`lift`), hero float and
