@@ -180,11 +180,11 @@ function Index() {
           className="relative isolate mx-auto max-w-7xl scroll-mt-20 px-5 py-28"
         >
           <Ambient side="left" />
-          <Reveal>
-            <SectionHeader eyebrow={month} title="Hónap ajánlata">
-              Ezek csak ebben a hónapban kerülnek a platnira. Utána jön helyettük valami új.
-            </SectionHeader>
-          </Reveal>
+
+          <SectionHeader eyebrow={month} title="Hónap ajánlata">
+            Ezek csak ebben a hónapban kerülnek a platnira. Utána jön helyettük valami új.
+          </SectionHeader>
+
           {/* Compact cards: 1 / 2 / 3 / 4 / 5 per row by width; a part-filled last row (or a
               single special) sits centred. */}
           <div className="flex flex-wrap justify-center gap-5">
@@ -206,19 +206,18 @@ function Index() {
         <section id="etlap" className="relative scroll-mt-20 overflow-hidden px-5 py-28">
           <Doodle kind="fries" className="right-[4%] top-16 h-36 w-36 -rotate-6 md:h-52 md:w-52" />
           <div className="relative mx-auto max-w-7xl">
-            <Reveal>
-              <SectionHeader
-                align="center"
-                title={
-                  <>
-                    Lapozz <span className="font-script text-[1.15em] text-primary">bele</span>
-                  </>
-                }
-              >
-                Az egész étlap, ahogy az asztalon is kapod. Fogd meg a lap sarkát és lapozz, vagy
-                nyisd meg nagyban.
-              </SectionHeader>
-            </Reveal>
+            <SectionHeader
+              align="center"
+              title={
+                <>
+                  Lapozz <span className="font-script text-[1.15em] text-primary">bele</span>
+                </>
+              }
+            >
+              Az egész étlap, ahogy az asztalon is kapod. Fogd meg a lap sarkát és lapozz, vagy
+              nyisd meg nagyban.
+            </SectionHeader>
+
             {menuPdf.pages.length > 0 ? (
               <MenuViewer pages={menuPdf.pages} />
             ) : (
@@ -257,7 +256,8 @@ function Index() {
             />
           </div>
         </div>
-        <Reveal delay={150}>
+
+        <div>
           <SectionHeader title="Sörház, komoly burgerrel" />
           <div className="space-y-4 text-lg text-muted-foreground">
             <p>
@@ -269,7 +269,7 @@ function Index() {
               hely. A cél ma is ugyanaz: őszinte étel, friss sör, hangos este.
             </p>
           </div>
-        </Reveal>
+        </div>
       </section>
 
       {/* VALUES — gold */}
@@ -279,9 +279,8 @@ function Index() {
           className="right-[5%] top-10 h-32 w-32 rotate-12 text-primary-foreground opacity-20 md:h-44 md:w-44"
         />
         <div className="relative mx-auto max-w-7xl">
-          <Reveal>
-            <SectionHeader tone="gold" title="Így megy ez nálunk" />
-          </Reveal>
+          <SectionHeader tone="gold" title="Így megy ez nálunk" />
+
           <div className="grid gap-6 md:grid-cols-3">
             {values.map((v, i) => (
               <Reveal key={v.title} delay={i * 100} className="h-full">
@@ -300,9 +299,7 @@ function Index() {
       <section id="hely" className="relative isolate scroll-mt-20 py-28">
         <Ambient side="left" />
         <div className="mx-auto max-w-7xl px-5">
-          <Reveal>
-            <SectionHeader title="A hely" className="mb-2" />
-          </Reveal>
+          <SectionHeader title="A hely" className="mb-2" />
         </div>
         <PhotoCarousel photos={placePhotos} />
       </section>
@@ -313,9 +310,8 @@ function Index() {
         className="relative scroll-mt-20 overflow-hidden bg-forest px-5 py-24 text-forest-foreground"
       >
         <div className="relative mx-auto max-w-7xl">
-          <Reveal>
-            <h2 className="mb-12 font-display text-[16vw] md:text-[8rem]">Foglalj asztalt!</h2>
-          </Reveal>
+          <h2 className="mb-12 font-display text-[16vw] md:text-[8rem]">Foglalj asztalt!</h2>
+
           <div className="grid gap-8 lg:grid-cols-[1.6fr_1fr]">
             <Suspense>
               <BookingForm />
@@ -337,20 +333,20 @@ function Index() {
       {/* KAPCSOLAT */}
       <section id="kapcsolat" className="relative mx-auto max-w-7xl scroll-mt-20 px-5 py-28">
         <RautenDivider className="mb-20" />
-        <Reveal>
-          <SectionHeader title="Itt találsz" />
-        </Reveal>
+
+        <SectionHeader title="Itt találsz" />
+
         {/* Hours | map side by side at the same height; socials | directions below. */}
         <div className="grid gap-8 md:grid-cols-[1fr_1.4fr]">
-          <Reveal className="md:col-start-1 md:row-start-1">
+          <div className="md:col-start-1 md:row-start-1">
             <HoursCard />
-          </Reveal>
-          <Reveal delay={120} className="h-full md:col-start-2 md:row-start-1">
+          </div>
+          <div className="h-full md:col-start-2 md:row-start-1">
             <MapCard className="h-full" />
-          </Reveal>
-          <Reveal delay={120} className="md:col-start-2 md:row-start-2">
+          </div>
+          <div className="md:col-start-2 md:row-start-2">
             <DirectionsLinks />
-          </Reveal>
+          </div>
           {contact.socials.length > 0 && (
             <div className="md:col-start-1 md:row-start-2">
               <p className="mb-3 font-display text-2xl">Kövess minket:</p>
