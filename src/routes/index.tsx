@@ -5,6 +5,7 @@ import { images } from "@/data/images";
 import { Picture } from "@/components/Picture";
 import { Marquee } from "@/components/Marquee";
 import { Doodle } from "@/components/Doodle";
+import { Ambient } from "@/components/Ambient";
 import { Reveal } from "@/components/Reveal";
 import { SectionHeader } from "@/components/SectionHeader";
 import { CtaLink } from "@/components/CtaButton";
@@ -133,7 +134,6 @@ function Index() {
       {/* HERO — no pattern: dark base, golden glow behind the burger, global grain */}
       <section className="relative flex min-h-[100svh] items-center overflow-hidden px-5 pb-16 pt-24 md:pb-20 md:pt-28">
         <Doodle kind="mug" className="left-[3%] top-24 h-32 w-32 -rotate-12 md:h-44 md:w-44" />
-        <Doodle kind="hop" className="right-[4%] top-[60%] hidden h-36 w-36 rotate-12 md:block" />
 
         <div className="relative mx-auto w-full max-w-7xl">
           {/* Mobile: burger sits above the stacked headline and only kisses the first line. */}
@@ -175,8 +175,11 @@ function Index() {
 
       {/* HÓNAP AJÁNLATA — edited by the staff in the admin panel; hidden when empty */}
       {specials.length > 0 && (
-        <section id="ajanlat" className="relative mx-auto max-w-7xl scroll-mt-20 px-5 py-28">
-          <Doodle kind="burger" className="-left-4 top-6 h-40 w-40 md:h-56 md:w-56" />
+        <section
+          id="ajanlat"
+          className="relative isolate mx-auto max-w-7xl scroll-mt-20 px-5 py-28"
+        >
+          <Ambient side="left" />
           <Reveal>
             <SectionHeader eyebrow={month} title="Hónap ajánlata">
               Ezek csak ebben a hónapban kerülnek a platnira. Utána jön helyettük valami új.
@@ -233,9 +236,9 @@ function Index() {
       {/* RÓLUNK */}
       <section
         id="rolunk"
-        className="relative mx-auto grid max-w-7xl scroll-mt-20 items-center gap-16 px-5 py-28 md:grid-cols-2"
+        className="relative isolate mx-auto grid max-w-7xl scroll-mt-20 items-center gap-16 px-5 py-28 md:grid-cols-2"
       >
-        <Doodle kind="pretzel" className="right-2 top-8 h-36 w-36 md:h-48 md:w-48" />
+        <Ambient side="right" />
         <div className="relative h-[24rem] sm:h-[28rem] md:h-[34rem]">
           <div className="unveil absolute left-0 top-0 h-[70%] w-[78%] overflow-hidden rounded-3xl shadow-2xl">
             <Picture
@@ -294,8 +297,8 @@ function Index() {
       </section>
 
       {/* A HELY — a few photos to whet the appetite */}
-      <section id="hely" className="relative scroll-mt-20 py-28">
-        <Doodle kind="mug" className="right-[5%] top-16 h-36 w-36 rotate-6 md:h-48 md:w-48" />
+      <section id="hely" className="relative isolate scroll-mt-20 py-28">
+        <Ambient side="left" />
         <div className="mx-auto max-w-7xl px-5">
           <Reveal>
             <SectionHeader title="A hely" className="mb-2" />
@@ -309,10 +312,6 @@ function Index() {
         id="foglalas"
         className="relative scroll-mt-20 overflow-hidden bg-forest px-5 py-24 text-forest-foreground"
       >
-        <Doodle
-          kind="mug"
-          className="right-[6%] top-10 h-32 w-32 text-forest-foreground opacity-20 md:h-40 md:w-40"
-        />
         <div className="relative mx-auto max-w-7xl">
           <Reveal>
             <h2 className="mb-12 font-display text-[16vw] md:text-[8rem]">Foglalj asztalt!</h2>

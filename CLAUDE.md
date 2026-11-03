@@ -304,7 +304,9 @@ Signature elements:
     long words so admin-typed names never overflow.
 - Hand-drawn line doodles (burger, mug, foam, pretzel, fries, hop) — `Doodle`, default
   **10% opacity, used large** (`h-28`–`h-56`) as texture in dark sections (user decision),
-  **at most one per section** (two in the home hero). On gold/forest sections they use the
+  **at most one per section** and only in the home hero, Étlap and the gold strip (user decision
+  2026-11-03: not in every section). Dark sections without one get `Ambient` instead: a faint
+  blurred pool of warm light at one side (`relative isolate` on the section). On gold/forest sections they use the
   section's foreground colour at ~20%.
 - One or two full-width gold sections per page.
 - Section headings (user decision 2026-11-03): no eyebrow label unless it adds information
