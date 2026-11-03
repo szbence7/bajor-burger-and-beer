@@ -120,6 +120,15 @@ export const specialRow = z.object({
 });
 export type SpecialRow = z.infer<typeof specialRow>;
 
+export const tapRow = z.object({
+  id: z.string(),
+  name: z.string(),
+  logo: z.string(),
+  sort_order: z.number().int(),
+  is_active: z.boolean(),
+});
+export type TapRow = z.infer<typeof tapRow>;
+
 // Server function inputs ---------------------------------------------------------------------
 
 const uuid = z.string().uuid();
@@ -145,6 +154,15 @@ export const specialInput = z.object({
   isActive: z.boolean(),
 });
 export type SpecialInput = z.infer<typeof specialInput>;
+
+export const tapInput = z.object({
+  id: uuid.nullable(),
+  name: z.string().trim().min(1, "Add meg a sör nevét.").max(60, "Legfeljebb 60 karakter."),
+  /** Absolute URL of the uploaded logo. */
+  logo: z.string().url("Tölts fel egy logót.").max(500),
+  isActive: z.boolean(),
+});
+export type TapInput = z.infer<typeof tapInput>;
 
 export const idInput = z.object({ id: uuid });
 export const reorderInput = z.object({ ids: z.array(uuid).min(1).max(50) });

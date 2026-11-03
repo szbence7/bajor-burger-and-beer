@@ -43,6 +43,25 @@ export function Button({
   );
 }
 
+/** Round icon-only button (reorder, show/hide, edit, delete in lists). */
+export function IconButton({
+  label,
+  children,
+  ...props
+}: { label: string; children: ReactNode } & ButtonHTMLAttributes<HTMLButtonElement>) {
+  return (
+    <button
+      type="button"
+      aria-label={label}
+      title={label}
+      className="grid h-11 w-11 place-items-center rounded-full border-2 border-border text-foreground transition-colors hover:border-primary hover:text-primary disabled:opacity-30"
+      {...props}
+    >
+      {children}
+    </button>
+  );
+}
+
 export const inputClass =
   "w-full rounded-2xl border border-border bg-background px-4 py-3 text-base text-foreground outline-none [color-scheme:dark] focus:border-primary aria-[invalid=true]:border-primary-glow";
 export const labelClass = "mb-2 block text-sm font-bold";

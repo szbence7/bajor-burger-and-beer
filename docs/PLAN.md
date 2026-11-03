@@ -239,9 +239,17 @@ Agreed with the user during Phases 1–2. These override the original prompt whe
     sets the Hónap ajánlata dish names, otherwise only a word in a headline. Headlines stay
     Oswald, the hero/footer/404 stay Anton.
 
+### Most csapon (user request, 2026-11-03)
+
+36. **Most csapon** section after the menu: a row of gold beer taps, as many taps as beers on
+    tap, each beer's round logo on its handle; only the logos show (the name is alt text and
+    tooltip). Own `taps` table (migration 0009: name, logo URL, order, is_active; public reads
+    active rows, 2FA admins manage), edited in admin → Most csapon (logo upload to `media`,
+    reorder, take off / back on tap, delete). Hidden when no tap is active.
+
 ## Status
 
-_Last updated: one-page site + PDF menu viewer + fonts, 2026-11-02._
+_Last updated: Most csapon tap row, 2026-11-03._
 
 | Phase | State |
 | --- | --- |
@@ -251,6 +259,7 @@ _Last updated: one-page site + PDF menu viewer + fonts, 2026-11-02._
 | Brand update — logo, logo gold, calmer design | 🔍 Done; awaiting review. Real venue photos pending from the restaurant |
 | 4 — Admin panel (reduced scope, decision 22) | 🔍 Implemented and tested locally; awaiting review, **not yet applied to the real instance** |
 | One-page site, PDF menu viewer, fonts (decisions 33–35) | 🔍 Implemented and tested locally; awaiting review. Migration 0008 **not yet applied to the real instance** |
+| Most csapon tap row (decision 36) | 🔍 Implemented and tested locally; migration 0009 **not yet applied to the real instance** |
 
 Branch `claude/redesign-fixes`, pushed to `origin`.
 
@@ -315,6 +324,7 @@ Branch `claude/redesign-fixes`, pushed to `origin`.
 
 ### Open items
 
+- **Apply migration 0009** (taps) with the rest; then add the beers in admin → Most csapon.
 - **Apply migration 0008** to the real instance together with the rest, then upload the menu
   PDF again in admin → Étlap PDF (a PDF uploaded before 0008 has no page images).
 - **Unused tables** `menu_categories`, `menu_items`, `beers`, `gallery_images`: drop them in a

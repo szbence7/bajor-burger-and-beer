@@ -135,7 +135,8 @@ reads the real environment).
 
 - **The public site is one page** (user decision, 2026-11-02): `src/routes/index` holds every
   section, addressed as `/#id` (ids and nav labels in `src/lib/sections.ts`): hero → `ajanlat`
-  (Hónap ajánlata) → `etlap` (the PDF menu as a page-turner) → `rolunk` (+ the gold Értékeink
+  (Hónap ajánlata) → `etlap` (the PDF menu as a page-turner) → `csapon` (Most csapon: gold
+  tap row) → `rolunk` (+ the gold Értékeink
   strip) → `hely` (photo carousel) → `foglalas` (forest, BookingForm, lazily hydrated) →
   `kapcsolat` (hours, socials, map). Links to sections use `<Link to="/" hash="…">` /
   `CtaLink section="…"`; sections carry `scroll-mt-20` for the fixed header, and the home page
@@ -143,7 +144,7 @@ reads the real environment).
   `galeria`, `rolunk`, `foglalas` only 301 to their section. No gallery page, no HTML menu.
 - `src/routes` — `index` (the one page), the redirect stubs above, `adatkezeles`
   (privacy notice, placeholder), `admin` (layout, `ssr: false`, noindex) with `admin/index`
-  (Foglalások), `admin/ajanlat` (Hónap ajánlata), `admin/etlap` (PDF menu),
+  (Foglalások), `admin/ajanlat` (Hónap ajánlata), `admin/etlap` (PDF menu), `admin/csapon` (Most csapon),
   `admin/ertesitesek` (email log), `admin/adatok` (site details), `admin/felhasznalok` (admin
   accounts); server routes `api/health`, `sitemap[.]xml`, `robots[.]txt`,
   `etlap[.]pdf` (streams the current PDF menu from Storage; stable link for QR codes). `__root.tsx` holds the HTML shell, root head
@@ -166,6 +167,8 @@ reads the real environment).
   swipe, click, arrow keys or the buttons; "Nagyítás" opens every page full width (pinch-zoom
   on phones). No download button (user decision; `/etlap.pdf` stays for QR codes). Until it is
   ready the cover shows at its final size, so nothing jumps; each page's text is `sr-only`.
+  TapRow (Most csapon: one gold SVG tap per beer on a continuous rail, the beer's round logo
+  on the handle; rail segments overlap so wrapped lines keep rounded ends; hidden when empty).
   `src/features/booking` — BookingForm (step 1: always-open month `Calendar` → time slots →
   party size 1…max; step 2: contact details; then confirmation). No "call us above N" branch.
   `src/features/gallery` — PhotoCarousel (Embla, home "A hely"). Each
@@ -174,7 +177,7 @@ reads the real environment).
   shared zod schema + error codes.
   `src/features/admin` — the staff panel: `auth` (sign-in + TOTP enrol/verify gate),
   `AdminShell` (nav, one Realtime channel, new-booking toast + optional chime),
-  `ReservationsBoard`, `SpecialsEditor`, `MenuPdfManager` (+ `pdf-pages`: pdf.js renders
+  `ReservationsBoard`, `SpecialsEditor`, `TapsEditor` (name + round logo, order, on/off tap), `MenuPdfManager` (+ `pdf-pages`: pdf.js renders
   every page to a 1600 px and an 800 px WebP plus its text in the admin's browser at upload;
   pdf.js never reaches the public bundles), `NotificationLog`,
   `SiteDetailsEditor` (Adatok: name, contact, company, socials, per-weekday hours, booking

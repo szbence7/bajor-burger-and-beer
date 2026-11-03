@@ -11,6 +11,7 @@ import { CtaLink } from "@/components/CtaButton";
 import { DirectionsLinks, HoursCard, MapCard } from "@/components/HoursAndMap";
 import { SpecialCard } from "@/features/menu/SpecialCard";
 import { MenuViewer } from "@/features/menu/MenuViewer";
+import { TapRow } from "@/features/menu/TapRow";
 import { PhotoCarousel } from "@/features/gallery/PhotoCarousel";
 import { RautenDivider } from "@/components/RautenPattern";
 import { cn } from "@/lib/utils";
@@ -117,7 +118,7 @@ function HeroBurger({ className }: { className?: string }) {
 function Index() {
   const parallaxRef = useParallax<HTMLSpanElement>(-0.08);
   useSectionScroll();
-  const { specials, month } = Route.useLoaderData();
+  const { specials, taps, month } = Route.useLoaderData();
   const { name, contact, booking, menuPdf } = useSiteInfo();
 
   return (
@@ -221,6 +222,25 @@ function Index() {
                 </a>
               </div>
             )}
+          </div>
+        </section>
+      )}
+
+      {/* MOST CSAPON — the beers on tap, edited in the admin panel; hidden when empty */}
+      {taps.length > 0 && (
+        <section id="csapon" className="relative scroll-mt-20 px-5 py-28">
+          <div className="relative mx-auto max-w-7xl">
+            <SectionHeader
+              align="center"
+              title={
+                <>
+                  Most <span className="text-primary">csapon</span>
+                </>
+              }
+            >
+              Ami ma a csapokból folyik. A kínálat hordóról hordóra változik.
+            </SectionHeader>
+            <TapRow taps={taps} />
           </div>
         </section>
       )}

@@ -1,9 +1,12 @@
 import { createMiddleware, createServerFn } from "@tanstack/react-start";
 import {
   deleteSpecial,
+  deleteTap,
   reorderSpecials,
+  reorderTaps,
   resendNotification,
   saveSpecial,
+  saveTap,
   setMenuPdf,
   saveSiteDetails,
   setReservationStatus,
@@ -25,6 +28,7 @@ import {
   setStatusInput,
   siteDetailsInput,
   specialInput,
+  tapInput,
 } from "./schema";
 import { accessToken } from "./supabase";
 
@@ -71,6 +75,25 @@ export const reorderSpecialsFn = createServerFn({ method: "POST" })
   .inputValidator(reorderInput)
   .handler(({ data, context }) =>
     context.token ? reorderSpecials(context.token, data.ids) : unauthorized,
+  );
+
+export const saveTapFn = createServerFn({ method: "POST" })
+  .middleware([adminAuth])
+  .inputValidator(tapInput)
+  .handler(({ data, context }) => (context.token ? saveTap(context.token, data) : unauthorized));
+
+export const deleteTapFn = createServerFn({ method: "POST" })
+  .middleware([adminAuth])
+  .inputValidator(idInput)
+  .handler(({ data, context }) =>
+    context.token ? deleteTap(context.token, data.id) : unauthorized,
+  );
+
+export const reorderTapsFn = createServerFn({ method: "POST" })
+  .middleware([adminAuth])
+  .inputValidator(reorderInput)
+  .handler(({ data, context }) =>
+    context.token ? reorderTaps(context.token, data.ids) : unauthorized,
   );
 
 export const setMenuPdfFn = createServerFn({ method: "POST" })

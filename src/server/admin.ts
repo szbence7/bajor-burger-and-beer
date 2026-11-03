@@ -12,6 +12,7 @@ import {
   type MenuPdfInput,
   type SetStatusInput,
   type SpecialInput,
+  type TapInput,
 } from "@/features/admin/schema";
 import { z } from "zod";
 import { groupDayHours } from "@/lib/opening-hours";
@@ -155,23 +156,73 @@ export async function deleteSpecial(token: string, id: string): Promise<AdminRes
   return { ok: true, data: null };
 }
 
-export async function reorderSpecials(token: string, ids: string[]): Promise<AdminResult> {
+/** Saves the order of a sortable content table's rows (the ids in their new order). */
+async function reorderRows(
+  token: string,
+  table: "monthly_specials" | "taps",
+  ids: string[],
+): Promise<AdminResult> {
   const db = getUserSupabase(token);
   const results = await Promise.all(
     ids.map((id, i) =>
       db
-        .from("monthly_specials")
+        .from(table)
         .update({ sort_order: i + 1 })
         .eq("id", id)
         .select("id"),
     ),
   );
   const failed = results.find((r) => r.error);
-  if (failed?.error) return failFrom(failed.error, "special reorder");
+  if (failed?.error) return failFrom(failed.error, `${table} reorder`);
   if (results.some((r) => !r.data?.length)) return fail("forbidden");
   clearCache();
   return { ok: true, data: null };
 }
+
+export const reorderSpecials = (token: string, ids: string[]) =>
+  reorderRows(token, "monthly_specials", ids);
+
+export async function saveTap(token: string, input: TapInput): Promise<AdminResult> {
+  const db = getUserSupabase(token);
+  const values = { name: input.name, logo: input.logo, is_active: input.isActive };
+  let result;
+  let previousLogo: string | null = null;
+  if (input.id) {
+    const before = await db.from("taps").select("logo").eq("id", input.id).maybeSingle();
+    previousLogo = (before.data as { logo: string } | null)?.logo ?? null;
+    result = await db.from("taps").update(values).eq("id", input.id).select("id");
+  } else {
+    // New taps go to the end of the row.
+    const { data: last } = await db
+      .from("taps")
+      .select("sort_order")
+      .order("sort_order", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    const sortOrder = ((last as { sort_order: number } | null)?.sort_order ?? 0) + 1;
+    result = await db
+      .from("taps")
+      .insert({ ...values, sort_order: sortOrder })
+      .select("id");
+  }
+  if (result.error) return failFrom(result.error, "tap save");
+  if (!result.data?.length) return fail("forbidden");
+  clearCache();
+  if (previousLogo && previousLogo !== input.logo) await removeMedia(db, previousLogo);
+  return { ok: true, data: null };
+}
+
+export async function deleteTap(token: string, id: string): Promise<AdminResult> {
+  const db = getUserSupabase(token);
+  const { data, error } = await db.from("taps").delete().eq("id", id).select("logo");
+  if (error) return failFrom(error, "tap delete");
+  if (!data?.length) return fail("forbidden");
+  clearCache();
+  await removeMedia(db, (data[0] as { logo: string }).logo);
+  return { ok: true, data: null };
+}
+
+export const reorderTaps = (token: string, ids: string[]) => reorderRows(token, "taps", ids);
 
 /**
  * Points the site at a newly uploaded menu PDF and its page images (or removes the menu) and

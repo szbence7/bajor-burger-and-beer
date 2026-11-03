@@ -1,4 +1,4 @@
-import { useRef, useState, type ButtonHTMLAttributes, type FormEvent, type ReactNode } from "react";
+import { useRef, useState, type FormEvent } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowDown, ArrowUp, Eye, EyeOff, ImagePlus, Pencil, Plus, Trash2 } from "lucide-react";
 import { z } from "zod";
@@ -19,7 +19,7 @@ import { adminSupabase } from "./supabase";
 import { Collapse, Swap } from "@/components/motion";
 import { useSmoothList } from "@/lib/motion";
 import { removeUploadedImage, uploadImage } from "./upload";
-import { Button, Card, PageTitle, inputClass, labelClass, useToast } from "./ui";
+import { Button, Card, IconButton, PageTitle, inputClass, labelClass, useToast } from "./ui";
 
 const QUERY_KEY = ["admin", "specials"];
 
@@ -396,23 +396,5 @@ export function SpecialsEditor() {
         </ol>
       )}
     </>
-  );
-}
-
-function IconButton({
-  label,
-  children,
-  ...props
-}: { label: string; children: ReactNode } & ButtonHTMLAttributes<HTMLButtonElement>) {
-  return (
-    <button
-      type="button"
-      aria-label={label}
-      title={label}
-      className="grid h-11 w-11 place-items-center rounded-full border-2 border-border text-foreground transition-colors hover:border-primary hover:text-primary disabled:opacity-30"
-      {...props}
-    >
-      {children}
-    </button>
   );
 }

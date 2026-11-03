@@ -3,8 +3,16 @@
 import { z } from "zod";
 import type { SiteInfo } from "@/data/info";
 import type { MonthlySpecial } from "@/data/specials";
+import type { Tap } from "@/data/taps";
 import { cached } from "./cache";
-import { openingHourRow, siteSettingsRow, specialRow, toSiteInfo, toSpecial } from "./mappers";
+import {
+  openingHourRow,
+  siteSettingsRow,
+  specialRow,
+  tapRow,
+  toSiteInfo,
+  toSpecial,
+} from "./mappers";
 import { getSupabase } from "./supabase";
 
 const TTL_MS = 30_000;
@@ -41,6 +49,17 @@ export function getMonthlySpecials(): Promise<MonthlySpecial[]> {
       .order("sort_order")
       .order("created_at");
     return parse(z.array(specialRow), rows).map(toSpecial);
+  });
+}
+
+export function getTaps(): Promise<Tap[]> {
+  return cached("taps", TTL_MS, async () => {
+    const rows = await getSupabase()
+      .from("taps")
+      .select("id, name, logo")
+      .order("sort_order")
+      .order("created_at");
+    return parse(z.array(tapRow), rows);
   });
 }
 

@@ -3,7 +3,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(50);
+select plan(53);
 
 -- Start bookings, the email log and specials from a known state, whatever local data exists.
 delete from public.notification_log;
@@ -197,6 +197,24 @@ select pg_temp.reset();
 select pg_temp.as_anon();
 select is((select count(*)::int from public.monthly_specials), 3,
   'anon reads only active monthly specials');
+select pg_temp.reset();
+
+-- Most csapon
+delete from public.taps;
+select pg_temp.as_user('admin', 'aal1');
+select throws_ok($$
+  insert into public.taps (name, logo) values ('Feltört', 'https://x.hu/a.webp')
+$$, '42501', null, 'an admin without the second factor cannot add a tap');
+select pg_temp.reset();
+select pg_temp.as_user('admin');
+select lives_ok($$
+  insert into public.taps (name, logo, is_active) values
+    ('Bajor Világos', 'https://x.hu/a.webp', true), ('Rejtett', 'https://x.hu/b.webp', false)
+$$, 'admin can add taps');
+select pg_temp.reset();
+select pg_temp.as_anon();
+select is((select array_agg(name)::text from public.taps), '{"Bajor Világos"}',
+  'anon reads only active taps');
 select throws_ok($$ select * from public.notification_log $$, '42501', null,
   'anon cannot read the notification log');
 select pg_temp.reset();

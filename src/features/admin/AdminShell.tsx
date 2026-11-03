@@ -15,6 +15,7 @@ const nav = [
   { to: "/admin", label: "Foglalások" },
   { to: "/admin/ajanlat", label: "Hónap ajánlata" },
   { to: "/admin/etlap", label: "Étlap PDF" },
+  { to: "/admin/csapon", label: "Most csapon" },
   { to: "/admin/ertesitesek", label: "Értesítések" },
   { to: "/admin/adatok", label: "Adatok" },
   { to: "/admin/felhasznalok", label: "Felhasználók" },
