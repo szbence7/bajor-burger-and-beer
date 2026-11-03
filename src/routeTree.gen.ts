@@ -22,7 +22,6 @@ import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as AdminAdatokRouteImport } from './routes/admin/adatok'
 import { Route as AdminAjanlatRouteImport } from './routes/admin/ajanlat'
-import { Route as AdminCsaponRouteImport } from './routes/admin/csapon'
 import { Route as AdminErtesitesekRouteImport } from './routes/admin/ertesitesek'
 import { Route as AdminEtlapRouteImport } from './routes/admin/etlap'
 import { Route as AdminFelhasznalokRouteImport } from './routes/admin/felhasznalok'
@@ -93,11 +92,6 @@ const AdminAjanlatRoute = AdminAjanlatRouteImport.update({
   path: '/ajanlat',
   getParentRoute: () => AdminRoute,
 } as any)
-const AdminCsaponRoute = AdminCsaponRouteImport.update({
-  id: '/csapon',
-  path: '/csapon',
-  getParentRoute: () => AdminRoute,
-} as any)
 const AdminErtesitesekRoute = AdminErtesitesekRouteImport.update({
   id: '/ertesitesek',
   path: '/ertesitesek',
@@ -132,7 +126,6 @@ export interface FileRoutesByFullPath {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/adatok': typeof AdminAdatokRoute
   '/admin/ajanlat': typeof AdminAjanlatRoute
-  '/admin/csapon': typeof AdminCsaponRoute
   '/admin/ertesitesek': typeof AdminErtesitesekRoute
   '/admin/etlap': typeof AdminEtlapRoute
   '/admin/felhasznalok': typeof AdminFelhasznalokRoute
@@ -151,7 +144,6 @@ export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/adatok': typeof AdminAdatokRoute
   '/admin/ajanlat': typeof AdminAjanlatRoute
-  '/admin/csapon': typeof AdminCsaponRoute
   '/admin/ertesitesek': typeof AdminErtesitesekRoute
   '/admin/etlap': typeof AdminEtlapRoute
   '/admin/felhasznalok': typeof AdminFelhasznalokRoute
@@ -172,7 +164,6 @@ export interface FileRoutesById {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/adatok': typeof AdminAdatokRoute
   '/admin/ajanlat': typeof AdminAjanlatRoute
-  '/admin/csapon': typeof AdminCsaponRoute
   '/admin/ertesitesek': typeof AdminErtesitesekRoute
   '/admin/etlap': typeof AdminEtlapRoute
   '/admin/felhasznalok': typeof AdminFelhasznalokRoute
@@ -194,7 +185,6 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/admin/adatok'
     | '/admin/ajanlat'
-    | '/admin/csapon'
     | '/admin/ertesitesek'
     | '/admin/etlap'
     | '/admin/felhasznalok'
@@ -213,7 +203,6 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/admin/adatok'
     | '/admin/ajanlat'
-    | '/admin/csapon'
     | '/admin/ertesitesek'
     | '/admin/etlap'
     | '/admin/felhasznalok'
@@ -233,7 +222,6 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/admin/adatok'
     | '/admin/ajanlat'
-    | '/admin/csapon'
     | '/admin/ertesitesek'
     | '/admin/etlap'
     | '/admin/felhasznalok'
@@ -348,13 +336,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAjanlatRouteImport
       parentRoute: typeof AdminRoute
     }
-    '/admin/csapon': {
-      id: '/admin/csapon'
-      path: '/csapon'
-      fullPath: '/admin/csapon'
-      preLoaderRoute: typeof AdminCsaponRouteImport
-      parentRoute: typeof AdminRoute
-    }
     '/admin/ertesitesek': {
       id: '/admin/ertesitesek'
       path: '/ertesitesek'
@@ -389,7 +370,6 @@ declare module '@tanstack/react-router' {
 interface AdminRouteChildren {
   AdminAdatokRoute: typeof AdminAdatokRoute
   AdminAjanlatRoute: typeof AdminAjanlatRoute
-  AdminCsaponRoute: typeof AdminCsaponRoute
   AdminErtesitesekRoute: typeof AdminErtesitesekRoute
   AdminEtlapRoute: typeof AdminEtlapRoute
   AdminFelhasznalokRoute: typeof AdminFelhasznalokRoute
@@ -399,7 +379,6 @@ interface AdminRouteChildren {
 const AdminRouteChildren: AdminRouteChildren = {
   AdminAdatokRoute: AdminAdatokRoute,
   AdminAjanlatRoute: AdminAjanlatRoute,
-  AdminCsaponRoute: AdminCsaponRoute,
   AdminErtesitesekRoute: AdminErtesitesekRoute,
   AdminEtlapRoute: AdminEtlapRoute,
   AdminFelhasznalokRoute: AdminFelhasznalokRoute,

@@ -1,6 +1,6 @@
-import { Link, createFileRoute, useLocation } from "@tanstack/react-router";
+import { createFileRoute, useLocation } from "@tanstack/react-router";
 import { Suspense, lazy, useEffect, useRef } from "react";
-import { ArrowDown, Beer, FileText, Flame, Users } from "lucide-react";
+import { Beer, FileText, Flame, Users } from "lucide-react";
 import { images } from "@/data/images";
 import { Picture } from "@/components/Picture";
 import { Marquee } from "@/components/Marquee";
@@ -11,7 +11,6 @@ import { CtaLink } from "@/components/CtaButton";
 import { DirectionsLinks, HoursCard, MapCard } from "@/components/HoursAndMap";
 import { SpecialCard } from "@/features/menu/SpecialCard";
 import { MenuViewer } from "@/features/menu/MenuViewer";
-import { TapRow } from "@/features/menu/TapRow";
 import { PhotoCarousel } from "@/features/gallery/PhotoCarousel";
 import { RautenDivider } from "@/components/RautenPattern";
 import { cn } from "@/lib/utils";
@@ -38,8 +37,7 @@ export const Route = createFileRoute("/")({
   component: Index,
 });
 
-/** The gold strip under Rólunk; the beer card points at the tap row when there is one. */
-const values = (hasTaps: boolean) => [
+const values = [
   {
     icon: Flame,
     title: "Lapítva sütjük",
@@ -48,9 +46,7 @@ const values = (hasTaps: boolean) => [
   {
     icon: Beer,
     title: "Csapról, hidegen",
-    text: hasTaps
-      ? "Világos, búza, IPA. Hogy ma melyik folyik, azt fent, a csapokon látod."
-      : "Világos, búza, IPA. Hogy ma melyik folyik, azt a pultnál elárulják.",
+    text: "Világos, búza, IPA. Hogy ma melyik folyik, azt a pultnál elárulják.",
   },
   {
     icon: Users,
@@ -129,7 +125,7 @@ function HeroBurger({ className }: { className?: string }) {
 function Index() {
   const parallaxRef = useParallax<HTMLSpanElement>(-0.08);
   useSectionScroll();
-  const { specials, taps, month } = Route.useLoaderData();
+  const { specials, month } = Route.useLoaderData();
   const { name, contact, booking, menuPdf } = useSiteInfo();
 
   return (
@@ -172,16 +168,6 @@ function Index() {
               </CtaLink>
             )}
           </div>
-          {/* A reason to scroll, from live data: how many beers are on tap today. */}
-          {taps.length > 0 && (
-            <Link
-              to="/"
-              hash="csapon"
-              className="relative z-20 mt-10 inline-flex items-center gap-2 font-bold text-primary underline-offset-4 hover:underline"
-            >
-              Ma {taps.length} sör van csapon <ArrowDown className="h-4 w-4" aria-hidden />
-            </Link>
-          )}
         </div>
       </section>
 
@@ -244,18 +230,6 @@ function Index() {
         </section>
       )}
 
-      {/* MOST CSAPON — the beers on tap, edited in the admin panel; hidden when empty */}
-      {taps.length > 0 && (
-        <section id="csapon" className="relative scroll-mt-20 px-5 py-28">
-          <div className="relative mx-auto max-w-7xl">
-            <SectionHeader align="center" title="Most csapon">
-              Ami ma a csapokból folyik. A kínálat hordóról hordóra változik.
-            </SectionHeader>
-            <TapRow taps={taps} />
-          </div>
-        </section>
-      )}
-
       {/* RÓLUNK */}
       <section
         id="rolunk"
@@ -306,7 +280,7 @@ function Index() {
             <SectionHeader tone="gold" title="Így megy ez nálunk" />
           </Reveal>
           <div className="grid gap-6 md:grid-cols-3">
-            {values(taps.length > 0).map((v, i) => (
+            {values.map((v, i) => (
               <Reveal key={v.title} delay={i * 100} className="h-full">
                 <div className="lift h-full rounded-3xl bg-background p-8 text-foreground">
                   <v.icon className="mb-6 h-10 w-10 text-primary" />

@@ -17,8 +17,6 @@ export const specialRow = z.object({
   image: z.string().nullable(),
 });
 
-export const tapRow = z.object({ id: z.string(), name: z.string(), logo: z.string() });
-
 export function toSiteInfo(
   settings: z.infer<typeof siteSettingsRow>,
   hours: z.infer<typeof openingHourRow>[],
