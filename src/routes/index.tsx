@@ -58,7 +58,6 @@ const values = [
 
 const placePhotos = [
   { src: images.placePeople, alt: "Baráti koccintás a hosszú asztalnál" },
-  { src: images.foodTable, alt: "Burgerek, perec és sör az asztalon" },
   { src: images.placeInterior, alt: "Az étterem esti belső tere" },
   { src: images.eventNight, alt: "Élőzenés est a Bajorban" },
   { src: images.placeTap, alt: "Csapolás a pultnál" },
@@ -177,7 +176,7 @@ function Index() {
       {specials.length > 0 && (
         <section
           id="ajanlat"
-          className="relative isolate mx-auto max-w-7xl scroll-mt-20 px-5 py-28"
+          className="relative isolate mx-auto max-w-7xl scroll-mt-20 px-5 pb-24 pt-20 md:pb-28 md:pt-24"
         >
           <Ambient side="left" />
 
@@ -203,7 +202,7 @@ function Index() {
 
       {/* ÉTLAP — the PDF the staff uploaded, as a page-turner; hidden until there is one */}
       {menuPdf && (
-        <section id="etlap" className="relative scroll-mt-20 overflow-hidden px-5 py-28">
+        <section id="etlap" className="relative scroll-mt-20 overflow-hidden px-5 py-24 md:py-32">
           <Doodle kind="fries" className="right-[4%] top-16 h-36 w-36 -rotate-6 md:h-52 md:w-52" />
           <div className="relative mx-auto max-w-7xl">
             <SectionHeader
@@ -232,10 +231,25 @@ function Index() {
         </section>
       )}
 
+      {/* Full-bleed photo band: a pause between the menu and the story. Fades into the dark
+          background at both ends. */}
+      <div id="sav" className="relative h-[55svh] max-h-[44rem] min-h-80 overflow-hidden">
+        <Picture
+          image={images.foodTable}
+          alt="Burgerek, perec és sör az asztalon"
+          sizes="100vw"
+          className="h-full w-full object-cover"
+        />
+        <div
+          aria-hidden
+          className="absolute inset-0 bg-linear-to-b from-background via-transparent to-background"
+        />
+      </div>
+
       {/* RÓLUNK */}
       <section
         id="rolunk"
-        className="relative isolate mx-auto grid max-w-7xl scroll-mt-20 items-center gap-16 px-5 py-28 md:grid-cols-2"
+        className="relative isolate mx-auto grid max-w-7xl scroll-mt-20 items-center gap-16 px-5 py-24 md:grid-cols-2 md:py-36"
       >
         <Ambient side="right" />
         <div className="relative h-[24rem] sm:h-[28rem] md:h-[34rem]">
@@ -273,21 +287,24 @@ function Index() {
       </section>
 
       {/* VALUES — gold */}
-      <section className="relative overflow-hidden bg-primary px-5 py-24 text-primary-foreground">
+      {/* VALUES — gold, asymmetric: the heading holds the left column, the three points
+          stack as rows on the right. */}
+      <section className="relative overflow-hidden bg-primary px-5 py-20 text-primary-foreground md:py-24">
         <Doodle
           kind="hop"
-          className="right-[5%] top-10 h-32 w-32 rotate-12 text-primary-foreground opacity-20 md:h-44 md:w-44"
+          className="bottom-10 left-[5%] hidden h-40 w-40 rotate-12 text-primary-foreground opacity-20 lg:block"
         />
-        <div className="relative mx-auto max-w-7xl">
-          <SectionHeader tone="gold" title="Így megy ez nálunk" />
-
-          <div className="grid gap-6 md:grid-cols-3">
+        <div className="relative mx-auto grid max-w-7xl items-start lg:grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)] lg:gap-16">
+          <SectionHeader tone="gold" title="Így megy ez nálunk" className="lg:mb-0" />
+          <div className="grid gap-4">
             {values.map((v, i) => (
-              <Reveal key={v.title} delay={i * 100} className="h-full">
-                <div className="lift h-full rounded-3xl bg-background p-8 text-foreground">
-                  <v.icon className="mb-6 h-10 w-10 text-primary" />
-                  <h3 className="font-display text-4xl">{v.title}</h3>
-                  <p className="mt-3 text-lg text-muted-foreground">{v.text}</p>
+              <Reveal key={v.title} delay={i * 100}>
+                <div className="lift flex items-start gap-5 rounded-3xl bg-background p-6 text-foreground sm:gap-6 sm:p-8">
+                  <v.icon className="mt-1 h-10 w-10 shrink-0 text-primary" />
+                  <div>
+                    <h3 className="font-display text-3xl sm:text-4xl">{v.title}</h3>
+                    <p className="mt-2 text-lg text-muted-foreground">{v.text}</p>
+                  </div>
                 </div>
               </Reveal>
             ))}
@@ -296,7 +313,7 @@ function Index() {
       </section>
 
       {/* A HELY — a few photos to whet the appetite */}
-      <section id="hely" className="relative isolate scroll-mt-20 py-28">
+      <section id="hely" className="relative isolate scroll-mt-20 pb-16 pt-24 md:pb-20 md:pt-28">
         <Ambient side="left" />
         <div className="mx-auto max-w-7xl px-5">
           <SectionHeader title="A hely" className="mb-2" />
@@ -331,7 +348,10 @@ function Index() {
       </section>
 
       {/* KAPCSOLAT */}
-      <section id="kapcsolat" className="relative mx-auto max-w-7xl scroll-mt-20 px-5 py-28">
+      <section
+        id="kapcsolat"
+        className="relative mx-auto max-w-7xl scroll-mt-20 px-5 py-20 md:py-24"
+      >
         <RautenDivider className="mb-20" />
 
         <SectionHeader title="Itt találsz" />

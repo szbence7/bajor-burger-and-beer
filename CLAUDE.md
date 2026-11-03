@@ -135,8 +135,8 @@ reads the real environment).
 
 - **The public site is one page** (user decision, 2026-11-02): `src/routes/index` holds every
   section, addressed as `/#id` (ids and nav labels in `src/lib/sections.ts`): hero → `ajanlat`
-  (Hónap ajánlata) → `etlap` (the PDF menu as a page-turner) → `rolunk` (+ the gold Értékeink
-  strip) → `hely` (photo carousel) → `foglalas` (forest, BookingForm, lazily hydrated) →
+  (Hónap ajánlata) → `etlap` (the PDF menu as a page-turner) → a full-bleed photo band → `rolunk` (+ the gold "Így megy ez nálunk"
+  strip: heading left, three rows right) → `hely` (photo carousel) → `foglalas` (forest, BookingForm, lazily hydrated) →
   `kapcsolat` (hours, socials, map). Links to sections use `<Link to="/" hash="…">` /
   `CtaLink section="…"`; sections carry `scroll-mt-20` for the fixed header, and the home page
   re-aims the scroll once fonts are in (arriving from another page). The old routes `menu`,
