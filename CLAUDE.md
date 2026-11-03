@@ -336,7 +336,8 @@ Signature elements:
   currentColor, 4–5% opacity. **Only** in the footer, on the map card, and as
   `RautenDivider` (16 px strip at 12% — user approved), and in the home hero (user request
   2026-11-03: the hero felt empty) at 9%, faded in from the top-right corner by a radial mask
-  behind the burger. Not in other sections.
+  behind the burger, and the same from the top left in the Étlap section. Not in other
+  sections.
 - Hero: dark background, the faded diamonds from the top right, golden radial glow behind the
   burger, global grain (`body::after` noise).
 - Photo carousel (home "A hely"): straight rounded-3xl cards that lift with a gold glow on

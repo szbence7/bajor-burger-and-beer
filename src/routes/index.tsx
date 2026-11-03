@@ -212,6 +212,13 @@ function Index() {
           id="etlap"
           className="relative scroll-mt-20 overflow-hidden px-5 pb-24 pt-12 md:pb-28 md:pt-16"
         >
+          {/* Bavarian diamonds fading in from the top left (mirrors the hero's top right). */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 [mask-image:radial-gradient(ellipse_at_top_left,black,transparent_60%)]"
+          >
+            <RautenPattern className="opacity-[0.09]" />
+          </div>
           <Doodle kind="fries" className="right-[4%] top-16 h-36 w-36 -rotate-6 md:h-52 md:w-52" />
           <div className="relative mx-auto max-w-7xl">
             <SectionHeader
