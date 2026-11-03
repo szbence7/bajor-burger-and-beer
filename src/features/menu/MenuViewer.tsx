@@ -15,8 +15,11 @@ import { cn } from "@/lib/utils";
 
 /** Below twice this width the booklet shows one page (phones), above it an open spread. */
 const MIN_PAGE_WIDTH = 300;
-/** Room left on the screen for the heading of the section and the controls. */
-const CHROME_HEIGHT = 256;
+/**
+ * Room left on the screen besides a page: the fixed header and some air. The controls may
+ * sit just below the fold, so the pages can be as big as possible (user request).
+ */
+const CHROME_HEIGHT = 150;
 
 const arrowClass =
   "grid h-12 w-12 shrink-0 place-items-center rounded-full border-2 border-primary text-primary transition-colors hover:bg-primary hover:text-primary-foreground disabled:pointer-events-none disabled:opacity-30";
@@ -51,7 +54,7 @@ function pageElement(page: MenuPage, i: number): HTMLElement {
   const img = document.createElement("img");
   img.src = page.src;
   img.srcset = `${page.srcSmall} 800w, ${page.src} 1600w`;
-  img.sizes = "(min-width: 640px) 36rem, 92vw";
+  img.sizes = "(min-width: 640px) 48rem, 96vw";
   img.alt = `Étlap, ${i + 1}. oldal`;
   img.draggable = false;
   img.className = "pointer-events-none h-full w-full select-none object-cover";
@@ -182,7 +185,7 @@ export function MenuViewer({ pages }: { pages: MenuPage[] }) {
       <img
         src={pages[0].src}
         srcSet={`${pages[0].srcSmall} 800w, ${pages[0].src} 1600w`}
-        sizes="(min-width: 640px) 36rem, 92vw"
+        sizes="(min-width: 640px) 48rem, 96vw"
         width={pages[0].width}
         height={pages[0].height}
         alt={count > 1 ? "" : "Étlap"}
@@ -199,7 +202,7 @@ export function MenuViewer({ pages }: { pages: MenuPage[] }) {
         aria-label="Étlap"
         tabIndex={count > 1 ? 0 : undefined}
         onKeyDown={count > 1 ? onKeyDown : undefined}
-        className="relative mx-auto max-w-6xl rounded-3xl py-6 outline-none focus-visible:ring-2 focus-visible:ring-primary"
+        className="relative -mx-3 rounded-3xl py-6 outline-none sm:mx-auto sm:max-w-7xl focus-visible:ring-2 focus-visible:ring-primary"
       >
         {/* Warm light behind the pages, like the hero burger. */}
         <div aria-hidden className="glow-gold absolute inset-x-[10%] inset-y-[5%] opacity-40" />
