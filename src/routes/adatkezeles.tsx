@@ -79,6 +79,14 @@ function PrivacyPage() {
           <Section title="Meddig őrizzük?">
             <p>A foglalás dátumától számított 12 hónapig, utána a rendszer automatikusan törli.</p>
           </Section>
+          <Section title="Térkép">
+            <p>
+              A Kapcsolat részben a Google Maps térképe jelenik meg. Amikor betöltődik, a böngésződ
+              kapcsolatba lép a Google szervereivel, és a Google sütiket helyezhet el. Erre a Google
+              adatvédelmi szabályai vonatkoznak. A „Vigyél oda” gombok a Google Maps, az Apple
+              Térképek vagy a Waze oldalát nyitják meg.
+            </p>
+          </Section>
           <Section title="Milyen jogaid vannak?">
             <p>
               Kérheted az adataidhoz való hozzáférést, a helyesbítésüket vagy törlésüket, a

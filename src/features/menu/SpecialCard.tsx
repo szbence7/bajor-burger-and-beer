@@ -17,18 +17,18 @@ const tones = [
  */
 function titleSize(name: string) {
   const longest = Math.max(...name.split(/\s+/).map((w) => w.length));
-  if (longest <= 9) return "text-6xl md:text-5xl lg:text-6xl xl:text-7xl";
-  if (longest <= 12) return "text-5xl md:text-4xl lg:text-5xl xl:text-6xl";
-  return "text-4xl md:text-3xl lg:text-4xl xl:text-5xl";
+  if (longest <= 6) return "text-4xl";
+  if (longest <= 8) return "text-[1.75rem]";
+  return "text-[1.5rem]";
 }
 
-/** Big colour-blocked Hónap ajánlata card; `index` cycles the gold / forest / dark tone. */
+/** Compact colour-blocked Hónap ajánlata card; `index` cycles the gold / forest / dark tone. */
 export function SpecialCard({ special, index }: { special: MonthlySpecial; index: number }) {
   const tone = tones[index % tones.length] ?? tones[0];
   return (
     <article
       className={cn(
-        "group lift relative flex h-full min-h-[30rem] flex-col overflow-hidden rounded-3xl p-7 md:min-h-[28rem] lg:min-h-[34rem]",
+        "group lift relative flex h-full flex-col overflow-hidden rounded-3xl p-5",
         tone.card,
       )}
     >
@@ -43,22 +43,20 @@ export function SpecialCard({ special, index }: { special: MonthlySpecial; index
       >
         {special.name}
       </h3>
-      <div className="relative -mt-6 flex min-h-40 flex-1 items-end justify-end">
+      <div className="relative -mt-2 flex h-32 flex-1 items-end justify-end">
         <Picture
           image={special.image}
           alt={special.name}
-          sizes="(min-width: 768px) 22rem, 82vw"
-          className="-mr-12 max-h-72 w-[82%] max-w-[22rem] object-contain drop-shadow-2xl transition-transform duration-500 group-hover:scale-105 motion-reduce:transition-none"
+          sizes="(min-width: 640px) 14rem, 70vw"
+          className="-mr-8 h-full max-h-32 w-[75%] object-contain drop-shadow-2xl transition-transform duration-500 group-hover:scale-105 motion-reduce:transition-none"
         />
       </div>
       {special.description && (
-        <p className="relative z-10 mt-4 line-clamp-3 text-base opacity-85">
-          {special.description}
-        </p>
+        <p className="relative z-10 mt-3 line-clamp-3 text-sm opacity-85">{special.description}</p>
       )}
-      <div className="relative z-10 mt-4 flex flex-wrap items-center justify-between gap-3">
-        <Price value={special.price} className="font-display text-3xl" />
-        <CtaLink section="foglalas" variant={tone.cta} className="px-5 py-3">
+      <div className="relative z-10 mt-4 flex flex-wrap items-center justify-between gap-2">
+        <Price value={special.price} className="font-display text-2xl" />
+        <CtaLink section="foglalas" variant={tone.cta} className="px-4 py-2.5 text-xs">
           Foglalok <ArrowRight className="h-4 w-4" />
         </CtaLink>
       </div>

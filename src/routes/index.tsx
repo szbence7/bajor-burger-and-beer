@@ -8,7 +8,7 @@ import { Doodle } from "@/components/Doodle";
 import { Reveal } from "@/components/Reveal";
 import { SectionHeader } from "@/components/SectionHeader";
 import { CtaLink } from "@/components/CtaButton";
-import { HoursCard, MapCard } from "@/components/HoursAndMap";
+import { DirectionsLinks, HoursCard, MapCard } from "@/components/HoursAndMap";
 import { SpecialCard } from "@/features/menu/SpecialCard";
 import { MenuViewer } from "@/features/menu/MenuViewer";
 import { PhotoCarousel } from "@/features/gallery/PhotoCarousel";
@@ -176,16 +176,15 @@ function Index() {
               A konyha e havi kedvencei. Csak korlátozott ideig, amíg a készlet tart.
             </SectionHeader>
           </Reveal>
-          <div
-            className={cn(
-              "grid gap-8",
-              specials.length === 1 && "md:mx-auto md:max-w-md",
-              specials.length === 2 && "md:grid-cols-2 lg:mx-auto lg:max-w-5xl",
-              specials.length >= 3 && "md:grid-cols-3",
-            )}
-          >
+          {/* Compact cards: 1 / 2 / 3 / 4 / 5 per row by width; a part-filled last row (or a
+              single special) sits centred. */}
+          <div className="flex flex-wrap justify-center gap-5">
             {specials.map((s, i) => (
-              <Reveal key={s.id} delay={(i % 3) * 120} className="h-full">
+              <Reveal
+                key={s.id}
+                delay={(i % 5) * 80}
+                className="w-full max-w-sm sm:w-[calc((100%-1.25rem)/2)] md:w-[calc((100%-2.5rem)/3)] lg:w-[calc((100%-3.75rem)/4)] xl:w-[calc((100%-5rem)/5)]"
+              >
                 <SpecialCard special={s} index={i} />
               </Reveal>
             ))}
@@ -351,12 +350,20 @@ function Index() {
             }
           />
         </Reveal>
+        {/* Hours | map side by side at the same height; socials | directions below. */}
         <div className="grid gap-8 md:grid-cols-[1fr_1.4fr]">
-          <div className="space-y-8">
-            <Reveal>
-              <HoursCard />
-            </Reveal>
-            {contact.socials.length > 0 && (
+          <Reveal className="md:col-start-1 md:row-start-1">
+            <HoursCard />
+          </Reveal>
+          <Reveal delay={120} className="h-full md:col-start-2 md:row-start-1">
+            <MapCard className="h-full" />
+          </Reveal>
+          <Reveal delay={120} className="md:col-start-2 md:row-start-2">
+            <DirectionsLinks />
+          </Reveal>
+          {contact.socials.length > 0 && (
+            <div className="md:col-start-1 md:row-start-2">
+              <p className="mb-3 font-display text-2xl">Kövess minket:</p>
               <div className="flex flex-wrap gap-3">
                 {contact.socials.map((s) => (
                   <a
@@ -370,11 +377,8 @@ function Index() {
                   </a>
                 ))}
               </div>
-            )}
-          </div>
-          <Reveal delay={120} className="h-full">
-            <MapCard />
-          </Reveal>
+            </div>
+          )}
         </div>
       </section>
     </>

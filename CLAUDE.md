@@ -151,10 +151,13 @@ reads the real environment).
   Routes stay thin: layout + `head`; logic lives in features.
 - `src/components` — shared brand primitives: CtaButton (`CtaLink`), Doodle, Marquee, Reveal,
   PageHero (privacy page), SectionHeader, Price, Picture, BrandLogo, RautenPattern
-  (+ `RautenDivider`), HoursAndMap (`HoursCard`, `MapCard`: Google Maps of the admin-set address, loaded only on
-  click and remembered in localStorage — it sends data to Google — plus a directions link).
+  (+ `RautenDivider`), HoursAndMap (`HoursCard`; `MapCard`: Google Maps of the admin-set address, shown at once
+  (lazy iframe; it sends data to Google, which the privacy notice says), as tall as the hours
+  card; `DirectionsLinks`: "Vigyél oda:" Google Maps / Apple Térképek / Waze buttons with
+  `simple-icons` brand marks that open the app with the admin-set address as destination).
   `src/components/layout` — Header, Footer.
-- `src/features/menu` — SpecialCard (Hónap ajánlata), MenuViewer: the menu PDF's pages as a
+- `src/features/menu` — SpecialCard (Hónap ajánlata: compact cards, 1–5 per row by width,
+  a part-filled last row centred), MenuViewer: the menu PDF's pages as a
   real booklet with curling pages (**StPageFlip**, `page-flip`, MIT; loaded only when the
   section nears the screen; its pages are DOM nodes built outside React, mounted on an element
   the effect creates, because the library moves and removes them; types in
