@@ -21,9 +21,7 @@ export function Footer() {
       <div className="relative mx-auto grid max-w-7xl gap-12 px-5 sm:grid-cols-2 lg:grid-cols-4">
         <div>
           <BrandLogo className="h-32" />
-          <p className="mt-6 text-muted-foreground">
-            Csapolt sör, szaftos burger és jó társaság Budapest szívében.
-          </p>
+          <p className="mt-6 text-muted-foreground">Bajor sörház, smash burgerrel.</p>
         </div>
         <div>
           <h2 className="mb-4 text-sm font-extrabold uppercase tracking-widest text-primary">

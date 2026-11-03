@@ -310,6 +310,10 @@ Signature elements:
   **at most one per section** (two in the home hero). On gold/forest sections they use the
   section's foreground colour at ~20%.
 - One or two full-width gold sections per page.
+- Section headings (user decision 2026-11-03): no eyebrow label unless it adds information
+  (only the month above Hónap ajánlata), and no "one word in gold" headings; the only accent
+  word is the Norican "bele" in "Lapozz bele". Copy is concrete and plain: no "X szív, Y
+  lélek", no "Budapest szívében", no fake urgency, no slogans repeated across sections.
 - Giant "BAJOR" wordmark in the footer.
 - **The logo is fixed** (B² + vertical "BURGER & BEER", gold #D2AC66 + cream #E2CCA8 on black):
   never recolour, crop or redraw it. `public/logo.svg` is a trace of

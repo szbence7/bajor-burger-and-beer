@@ -30,22 +30,33 @@ export const Route = createFileRoute("/")({
   head: () =>
     seo({
       path: "/",
-      title: "Bajor Burger & Beer — Csapolt sör, szaftos burger | Budapest",
+      title: "Bajor Burger & Beer — Smash burger és csapolt sör | Budapest",
       description:
-        "Smash burgerek, saját főzésű bajor sörök és hosszú asztalok Budapest szívében. Lapozz bele az étlapba, és foglalj asztalt online a Bajor Burger & Beer-be!",
+        "Bajor sörház és burgerező Budapesten: smash burgerek, csapolt világos, búza és IPA, hosszú esték. Lapozz bele az étlapba, és foglalj asztalt online!",
     }),
   loader: () => getHomeContent(),
   component: Index,
 });
 
-const values = [
+/** The gold strip under Rólunk; the beer card points at the tap row when there is one. */
+const values = (hasTaps: boolean) => [
   {
     icon: Flame,
-    title: "Friss hús",
-    text: "Minden reggel helyben daráljuk, soha nem fagyasztjuk.",
+    title: "Lapítva sütjük",
+    text: "A húsgolyót forró platnin nyomjuk laposra: kívül ropogós kérget kap, belül szaftos marad.",
   },
-  { icon: Beer, title: "Saját sör", text: "Négy házi főzésű sör, bajor receptek alapján." },
-  { icon: Users, title: "Jó társaság", text: "Hosszú asztalok, ahol a szomszédból is barát lesz." },
+  {
+    icon: Beer,
+    title: "Csapról, hidegen",
+    text: hasTaps
+      ? "Világos, búza, IPA. Hogy ma melyik folyik, azt fent, a csapokon látod."
+      : "Világos, búza, IPA. Hogy ma melyik folyik, azt a pultnál elárulják.",
+  },
+  {
+    icon: Users,
+    title: "Nincs hova sietni",
+    text: "Hosszú asztalok, laza tempó. Senki nem sürget, hogy fizess és menj.",
+  },
 ];
 
 const placePhotos = [
@@ -181,15 +192,8 @@ function Index() {
         <section id="ajanlat" className="relative mx-auto max-w-7xl scroll-mt-20 px-5 py-28">
           <Doodle kind="burger" className="-left-4 top-6 h-40 w-40 md:h-56 md:w-56" />
           <Reveal>
-            <SectionHeader
-              eyebrow={month}
-              title={
-                <>
-                  Hónap <span className="text-primary">ajánlata</span>
-                </>
-              }
-            >
-              A konyha e havi kedvencei. Csak korlátozott ideig, amíg a készlet tart.
+            <SectionHeader eyebrow={month} title="Hónap ajánlata">
+              Ezek csak ebben a hónapban kerülnek a platnira. Utána jön helyettük valami új.
             </SectionHeader>
           </Reveal>
           {/* Compact cards: 1 / 2 / 3 / 4 / 5 per row by width; a part-filled last row (or a
@@ -216,15 +220,14 @@ function Index() {
             <Reveal>
               <SectionHeader
                 align="center"
-                eyebrow="Étlap"
                 title={
                   <>
                     Lapozz <span className="font-script text-[1.15em] text-primary">bele</span>
                   </>
                 }
               >
-                Burgerek, köretek, desszertek és persze a sörök. Lapozd végig, vagy nyisd meg
-                nagyban.
+                Az egész étlap, ahogy az asztalon is kapod. Fogd meg a lap sarkát és lapozz, vagy
+                nyisd meg nagyban.
               </SectionHeader>
             </Reveal>
             {menuPdf.pages.length > 0 ? (
@@ -245,14 +248,7 @@ function Index() {
       {taps.length > 0 && (
         <section id="csapon" className="relative scroll-mt-20 px-5 py-28">
           <div className="relative mx-auto max-w-7xl">
-            <SectionHeader
-              align="center"
-              title={
-                <>
-                  Most <span className="text-primary">csapon</span>
-                </>
-              }
-            >
+            <SectionHeader align="center" title="Most csapon">
               Ami ma a csapokból folyik. A kínálat hordóról hordóra változik.
             </SectionHeader>
             <TapRow taps={taps} />
@@ -285,14 +281,7 @@ function Index() {
           </div>
         </div>
         <Reveal delay={150}>
-          <SectionHeader
-            eyebrow="Rólunk"
-            title={
-              <>
-                Bajor szív, <span className="text-primary">pesti</span> lélek
-              </>
-            }
-          />
+          <SectionHeader title="Sörház, komoly burgerrel" />
           <div className="space-y-4 text-lg text-muted-foreground">
             <p>
               A {name} egy hosszú müncheni éjszakán született: két barát, egy-egy maß, és a kérdés,
@@ -314,10 +303,10 @@ function Index() {
         />
         <div className="relative mx-auto max-w-7xl">
           <Reveal>
-            <SectionHeader tone="gold" eyebrow="Amiben hiszünk" title="Értékeink" />
+            <SectionHeader tone="gold" title="Így megy ez nálunk" />
           </Reveal>
           <div className="grid gap-6 md:grid-cols-3">
-            {values.map((v, i) => (
+            {values(taps.length > 0).map((v, i) => (
               <Reveal key={v.title} delay={i * 100} className="h-full">
                 <div className="lift h-full rounded-3xl bg-background p-8 text-foreground">
                   <v.icon className="mb-6 h-10 w-10 text-primary" />
@@ -335,7 +324,7 @@ function Index() {
         <Doodle kind="mug" className="right-[5%] top-16 h-36 w-36 rotate-6 md:h-48 md:w-48" />
         <div className="mx-auto max-w-7xl px-5">
           <Reveal>
-            <SectionHeader eyebrow="Nézz be hozzánk" title="A hely" className="mb-2" />
+            <SectionHeader title="A hely" className="mb-2" />
           </Reveal>
         </div>
         <PhotoCarousel photos={placePhotos} />
@@ -360,7 +349,7 @@ function Index() {
             </Suspense>
             <aside className="space-y-6 text-lg">
               <p>
-                Péntek este telt ház szokott lenni, ne maradj le a hosszú asztalról. A foglalásodat
+                Hétvégén gyorsan betelnek a hosszú asztalok, érdemes előre szólni. A foglalást
                 e-mailben visszaigazoljuk.
               </p>
               <p className="rounded-3xl bg-primary p-6 font-bold text-primary-foreground">
@@ -376,14 +365,7 @@ function Index() {
       <section id="kapcsolat" className="relative mx-auto max-w-7xl scroll-mt-20 px-5 py-28">
         <RautenDivider className="mb-20" />
         <Reveal>
-          <SectionHeader
-            eyebrow="Kapcsolat"
-            title={
-              <>
-                Itt <span className="text-primary">találsz</span>
-              </>
-            }
-          />
+          <SectionHeader title="Itt találsz" />
         </Reveal>
         {/* Hours | map side by side at the same height; socials | directions below. */}
         <div className="grid gap-8 md:grid-cols-[1fr_1.4fr]">
