@@ -1,32 +1,27 @@
-import useEmblaCarousel from "embla-carousel-react";
-import { ChevronLeft, ChevronRight, Download, Expand, X } from "lucide-react";
-import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from "react";
+import { ChevronLeft, ChevronRight, Expand, X } from "lucide-react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+  type KeyboardEvent,
+} from "react";
+import type { FlippingState, Orientation, PageFlip } from "page-flip";
 import type { MenuPage } from "@/data/info";
 import { AnimatePresence, m } from "@/components/motion";
 import { ctaClass } from "@/lib/cta";
 import { cn } from "@/lib/utils";
 
-const PDF_PATH = "/etlap.pdf";
-const SPREAD_QUERY = "(min-width: 1024px)";
+/** Below twice this width the booklet shows one page (phones), above it an open spread. */
+const MIN_PAGE_WIDTH = 300;
+/** Room left on the screen for the heading of the section and the controls. */
+const CHROME_HEIGHT = 256;
 
 const arrowClass =
   "grid h-12 w-12 shrink-0 place-items-center rounded-full border-2 border-primary text-primary transition-colors hover:bg-primary hover:text-primary-foreground disabled:pointer-events-none disabled:opacity-30";
 
-/** Two pages side by side (an open book) on desktops, one page on phones and tablets. */
-function usePagesPerView(multi: boolean) {
-  const [perView, setPerView] = useState(1);
-  useEffect(() => {
-    if (!multi) return;
-    const query = window.matchMedia(SPREAD_QUERY);
-    const update = () => setPerView(query.matches ? 2 : 1);
-    update();
-    query.addEventListener("change", update);
-    return () => query.removeEventListener("change", update);
-  }, [multi]);
-  return perView;
-}
-
-/** True once the element comes near the viewport, so page images start loading in time. */
+/** True once the element comes near the viewport, so the booklet loads in time. */
 function useNearViewport<T extends HTMLElement>() {
   const ref = useRef<T>(null);
   const [near, setNear] = useState(false);
@@ -43,42 +38,126 @@ function useNearViewport<T extends HTMLElement>() {
 }
 
 /**
- * The menu PDF as a page-turner: swipe, drag, arrow keys or the buttons. The pages are images
- * the admin panel rendered at upload time; each page's text is there for screen readers.
- * "Nagyítás" opens every page full width for reading (pinch-zoom works on phones).
+ * A page of the booklet, built outside React: StPageFlip moves and transforms these nodes
+ * itself. In a spread, page 1 is the cover on the right, then even pages sit on the left.
+ */
+function pageElement(page: MenuPage, i: number): HTMLElement {
+  const left = i % 2 === 1;
+  const el = document.createElement("div");
+  el.className = cn(
+    "overflow-hidden bg-white [[data-orientation=portrait]_&]:rounded-lg",
+    left ? "rounded-l-lg" : "rounded-r-lg",
+  );
+  const img = document.createElement("img");
+  img.src = page.src;
+  img.srcset = `${page.srcSmall} 800w, ${page.src} 1600w`;
+  img.sizes = "(min-width: 640px) 36rem, 92vw";
+  img.alt = `Étlap, ${i + 1}. oldal`;
+  img.draggable = false;
+  img.className = "pointer-events-none h-full w-full select-none object-cover";
+  // The fold in the middle of an open booklet; hidden when one page is shown.
+  const spine = document.createElement("div");
+  spine.className = cn(
+    "pointer-events-none absolute inset-y-0 w-10 from-black/25 to-transparent [[data-orientation=portrait]_&]:hidden",
+    left ? "right-0 bg-gradient-to-l" : "left-0 bg-gradient-to-r",
+  );
+  el.append(img, spine);
+  return el;
+}
+
+/** "1", "2–3", … : the pages on screen. */
+function pagesLabel(index: number, count: number, spread: boolean) {
+  return spread && index > 0 && index < count - 1 ? `${index + 1}–${index + 2}` : `${index + 1}`;
+}
+
+/**
+ * The menu PDF as a real booklet (StPageFlip): the pages curl as they turn, by dragging a
+ * corner, swiping, clicking a page, the arrow keys or the buttons. Phones show one page,
+ * wider screens an open booklet with the first page as its cover. The pages are images the
+ * admin panel rendered at upload time; each page's text is there for screen readers.
+ * "Nagyítás" opens every page full width for reading (pinch-zoom works on phones). No download
+ * button here (user decision); /etlap.pdf stays for QR codes.
  */
 export function MenuViewer({ pages }: { pages: MenuPage[] }) {
-  const multi = pages.length > 1;
-  const perView = usePagesPerView(multi);
+  const count = pages.length;
+  const ratio = (pages[0]?.width ?? 1) / (pages[0]?.height ?? 1.414);
   const [rootRef, near] = useNearViewport<HTMLDivElement>();
-  const [viewportRef, embla] = useEmblaCarousel({
-    align: "start",
-    slidesToScroll: "auto",
-    // Keep spreads paired (1–2, 3–4, …) even when the last one has a single page.
-    containScroll: false,
-    duration: 32,
-    active: multi,
-  });
-  const [selected, setSelected] = useState(0);
-  const [snapCount, setSnapCount] = useState(1);
+  const hostRef = useRef<HTMLDivElement>(null);
+  const bookRef = useRef<PageFlip | null>(null);
+  const [ready, setReady] = useState(false);
+  /** The booklet's widest size (an open spread), so the cover shift is relative to it. */
+  const [maxBookWidth, setMaxBookWidth] = useState<number | null>(null);
+  const [index, setIndex] = useState(0);
+  const [orientation, setOrientation] = useState<Orientation>("landscape");
+  const [state, setState] = useState<FlippingState>("read");
   const [reading, setReading] = useState<number | null>(null);
   const closeReading = useCallback(() => setReading(null), []);
 
   useEffect(() => {
-    if (!embla) return;
-    const onSelect = () => {
-      setSelected(embla.selectedScrollSnap());
-      setSnapCount(embla.scrollSnapList().length);
-    };
-    onSelect();
-    embla.on("select", onSelect).on("reInit", onSelect);
+    const host = hostRef.current;
+    if (!host || !near || count < 2) return;
+    let cancelled = false;
+    let book: PageFlip | null = null;
+    void import("page-flip").then(({ PageFlip }) => {
+      if (cancelled) return;
+      // The library owns (and on destroy removes) its element, so give it its own.
+      const block = document.createElement("div");
+      host.append(block);
+      const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      // As wide as the column allows while a whole page still fits on the screen.
+      const maxWidth = Math.max(
+        MIN_PAGE_WIDTH,
+        Math.floor((window.innerHeight - CHROME_HEIGHT) * ratio),
+      );
+      setMaxBookWidth(maxWidth * 2);
+      book = new PageFlip(block, {
+        width: 800,
+        height: Math.round(800 / ratio),
+        size: "stretch",
+        minWidth: MIN_PAGE_WIDTH,
+        maxWidth,
+        minHeight: Math.round(MIN_PAGE_WIDTH / ratio),
+        maxHeight: Math.round(maxWidth / ratio),
+        showCover: true,
+        usePortrait: true,
+        mobileScrollSupport: true,
+        maxShadowOpacity: 0.45,
+        flippingTime: reduced ? 350 : 900,
+      });
+      book.on("init", (e) => {
+        setOrientation(e.data.mode);
+        setIndex(e.data.page);
+        setReady(true);
+      });
+      book.on("flip", (e) => setIndex(e.data));
+      book.on("changeOrientation", (e) => setOrientation(e.data));
+      book.on("changeState", (e) => setState(e.data));
+      book.loadFromHTML(pages.map(pageElement));
+      bookRef.current = book;
+    });
     return () => {
-      embla.off("select", onSelect).off("reInit", onSelect);
+      cancelled = true;
+      book?.destroy();
+      bookRef.current = null;
+      setReady(false);
     };
-  }, [embla]);
+  }, [near, pages, count, ratio]);
 
-  const prev = useCallback(() => embla?.scrollPrev(), [embla]);
-  const next = useCallback(() => embla?.scrollNext(), [embla]);
+  const spread = orientation === "landscape";
+  // In a spread the cover (and an even booklet's back page) is alone on one half: slide the
+  // booklet so that page sits in the middle, and back as soon as it opens.
+  const shift =
+    spread && (state === "read" || state === "fold_corner")
+      ? index === 0
+        ? "-25%"
+        : index === count - 1 && count % 2 === 0
+          ? "25%"
+          : "0%"
+      : "0%";
+  const atEnd = spread ? index + (index === 0 ? 1 : 2) >= count : index >= count - 1;
+
+  const prev = useCallback(() => bookRef.current?.flipPrev(), []);
+  const next = useCallback(() => bookRef.current?.flipNext(), []);
   const onKeyDown = (e: KeyboardEvent) => {
     if (e.key === "ArrowLeft") prev();
     else if (e.key === "ArrowRight") next();
@@ -86,108 +165,91 @@ export function MenuViewer({ pages }: { pages: MenuPage[] }) {
     e.preventDefault();
   };
 
-  const first = selected * perView;
-  const last = Math.min(first + perView, pages.length) - 1;
-  const spread = perView === 2 && last > first;
+  // Shown until the booklet is ready (and without JS): the cover, centred, at the size the
+  // booklet will give it, so nothing jumps.
+  const cover = pages[0] && (
+    <div
+      className="mx-auto flex aspect-[var(--page-ratio)] w-full max-w-[var(--page-max)] justify-center sm:aspect-[var(--spread-ratio)] sm:max-w-[var(--spread-max)]"
+      style={
+        {
+          "--page-ratio": `${ratio}`,
+          "--spread-ratio": `${ratio * 2}`,
+          "--page-max": `calc((100svh - ${CHROME_HEIGHT}px) * ${ratio})`,
+          "--spread-max": `calc((100svh - ${CHROME_HEIGHT}px) * ${ratio * 2})`,
+        } as CSSProperties
+      }
+    >
+      <img
+        src={pages[0].src}
+        srcSet={`${pages[0].srcSmall} 800w, ${pages[0].src} 1600w`}
+        sizes="(min-width: 640px) 36rem, 92vw"
+        width={pages[0].width}
+        height={pages[0].height}
+        alt={count > 1 ? "" : "Étlap"}
+        className="h-full w-auto rounded-lg bg-white object-contain shadow-2xl shadow-black/60"
+      />
+    </div>
+  );
 
   return (
     <div ref={rootRef}>
       <div
         role="region"
-        aria-roledescription="carousel"
+        aria-roledescription="lapozható étlap"
         aria-label="Étlap"
-        tabIndex={multi ? 0 : undefined}
-        onKeyDown={multi ? onKeyDown : undefined}
-        className="relative mx-auto max-w-6xl rounded-3xl outline-none focus-visible:ring-2 focus-visible:ring-primary"
+        tabIndex={count > 1 ? 0 : undefined}
+        onKeyDown={count > 1 ? onKeyDown : undefined}
+        className="relative mx-auto max-w-6xl rounded-3xl py-6 outline-none focus-visible:ring-2 focus-visible:ring-primary"
       >
         {/* Warm light behind the pages, like the hero burger. */}
         <div aria-hidden className="glow-gold absolute inset-x-[10%] inset-y-[5%] opacity-40" />
-        <div ref={viewportRef} className="relative overflow-hidden">
-          <div
-            className={cn(
-              "flex touch-pan-y touch-pinch-zoom",
-              multi ? "cursor-grab active:cursor-grabbing" : "justify-center",
-            )}
-          >
-            {pages.map((page, i) => {
-              const side = perView === 2 ? (i % 2 === 0 ? "left" : "right") : "single";
-              const soon = near && i >= first - perView && i <= last + perView;
-              return (
-                <div
-                  key={page.src}
-                  role="group"
-                  aria-roledescription="slide"
-                  aria-label={`${i + 1}. oldal / ${pages.length}`}
-                  className={cn(
-                    "flex min-w-0 shrink-0 grow-0 py-6",
-                    multi ? "basis-full lg:basis-1/2" : "basis-full",
-                    side === "left" && "justify-end",
-                    side === "right" && "justify-start",
-                    side === "single" && "justify-center px-1",
-                  )}
-                >
-                  <img
-                    src={page.src}
-                    srcSet={`${page.srcSmall} 800w, ${page.src} 1600w`}
-                    sizes="(min-width: 1024px) 36rem, 92vw"
-                    width={page.width}
-                    height={page.height}
-                    alt={`Étlap, ${i + 1}. oldal`}
-                    loading={soon ? "eager" : "lazy"}
-                    decoding="async"
-                    draggable={false}
-                    // Sized before it loads (no jump while scrolling past): as wide as the
-                    // slide allows while the whole page still fits on the screen.
-                    style={{
-                      width: `min(100%, calc((100svh - 16rem) * ${page.width / page.height}))`,
-                      aspectRatio: `${page.width} / ${page.height}`,
-                    }}
-                    className={cn(
-                      "h-auto select-none bg-white shadow-2xl shadow-black/60",
-                      side === "left"
-                        ? "rounded-l-xl"
-                        : side === "right"
-                          ? "rounded-r-xl"
-                          : "rounded-xl",
-                    )}
-                  />
-                  <p className="sr-only">{page.text}</p>
-                </div>
-              );
-            })}
-          </div>
-          {/* The spine of the open book. */}
-          {spread && (
+        <div className="relative">
+          {!ready && cover}
+          {count > 1 && (
             <div
-              aria-hidden
-              className="pointer-events-none absolute inset-y-6 left-1/2 w-10 -translate-x-1/2 bg-gradient-to-r from-transparent via-black/30 to-transparent"
+              ref={hostRef}
+              data-orientation={orientation}
+              className={cn(
+                "mx-auto transition-[translate,opacity] duration-700 ease-out motion-reduce:transition-none [&_.stf__item]:shadow-2xl [&_.stf__item]:shadow-black/50",
+                ready ? "opacity-100" : "pointer-events-none absolute inset-x-0 top-0 opacity-0",
+              )}
+              style={{
+                translate: `${shift} 0`,
+                ...(maxBookWidth && { maxWidth: maxBookWidth }),
+              }}
             />
           )}
+        </div>
+        {/* What the pages say, for screen readers and search engines. */}
+        <div className="sr-only">
+          {pages.map((page, i) => (
+            <p key={page.src}>
+              {i + 1}. oldal: {page.text}
+            </p>
+          ))}
         </div>
       </div>
 
       <div className="mt-6 flex flex-col items-center gap-6">
-        {multi && (
+        {count > 1 && (
           <div className="flex items-center gap-5">
             <button
               type="button"
               onClick={prev}
-              disabled={selected === 0}
+              disabled={!ready || index === 0}
               className={arrowClass}
               aria-label="Előző oldal"
             >
               <ChevronLeft className="h-6 w-6" />
             </button>
             <p className="min-w-28 text-center font-display text-2xl" aria-live="polite">
-              <span className="text-primary">
-                {spread ? `${first + 1}–${last + 1}` : first + 1}
-              </span>
-              <span className="text-muted-foreground"> / {pages.length}</span>
+              <span className="text-primary">{pagesLabel(index, count, spread)}</span>
+              <span className="text-muted-foreground"> / {count}</span>
             </p>
             <button
               type="button"
               onClick={next}
-              disabled={selected >= snapCount - 1}
+              disabled={!ready || atEnd}
               className={arrowClass}
               aria-label="Következő oldal"
             >
@@ -195,42 +257,14 @@ export function MenuViewer({ pages }: { pages: MenuPage[] }) {
             </button>
           </div>
         )}
-        {snapCount > 1 && (
-          <div className="flex gap-1">
-            {Array.from({ length: snapCount }, (_, i) => (
-              <button
-                key={i}
-                type="button"
-                onClick={() => embla?.scrollTo(i)}
-                aria-label={`Ugrás: ${i * perView + 1}. oldal`}
-                aria-current={i === selected}
-                className="grid h-6 min-w-6 place-items-center px-1"
-              >
-                <span
-                  className={cn(
-                    "block h-2 rounded-full transition-all duration-300",
-                    i === selected ? "w-8 bg-primary" : "w-2 bg-border",
-                  )}
-                />
-              </button>
-            ))}
-          </div>
-        )}
         <div className="flex flex-wrap justify-center gap-3">
           <button
             type="button"
-            onClick={() => setReading(first)}
+            onClick={() => setReading(index)}
             className={ctaClass("outline", "px-5 py-3")}
           >
             <Expand className="h-4 w-4" /> Nagyítás
           </button>
-          <a
-            href={PDF_PATH}
-            download="bajor-etlap.pdf"
-            className={ctaClass("outline", "px-5 py-3")}
-          >
-            <Download className="h-4 w-4" /> PDF letöltése
-          </a>
         </div>
       </div>
 
@@ -291,14 +325,6 @@ function ReadingView({
           )}
         </p>
         <div className="flex items-center gap-3">
-          <a
-            href={PDF_PATH}
-            download="bajor-etlap.pdf"
-            className="grid h-11 w-11 place-items-center rounded-full text-foreground hover:text-primary"
-            aria-label="PDF letöltése"
-          >
-            <Download className="h-6 w-6" />
-          </a>
           <button
             ref={closeRef}
             type="button"

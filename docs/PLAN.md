@@ -224,10 +224,12 @@ Agreed with the user during Phases 1–2. These override the original prompt whe
     `/#id`. No separate gallery ("csak a főoldalon pár kedvcsináló kép") and no HTML menu page.
     `/menu`, `/galeria`, `/rolunk`, `/foglalas` answer 301 to their section; `/adatkezeles`
     stays a page. Sitemap: `/` and `/adatkezeles`.
-34. **The menu is the uploaded PDF**, shown in the Étlap section as a page-turner: one page at
-    a time on phones and tablets, an open two-page book on desktops; swipe, drag, arrow keys,
-    buttons and dots; "Nagyítás" (every page full width, pinch-zoom on phones) and "PDF
-    letöltése". The admin panel renders the pages to WebP with pdf.js when the PDF is uploaded
+34. **The menu is the uploaded PDF**, shown in the Étlap section as a real booklet with
+    curling pages (user request 2026-11-03: "mint egy rendes füzet"; StPageFlip, `page-flip`):
+    one page on phones, an open booklet with the first page as its cover on wider screens;
+    drag, swipe, click, arrow keys and buttons; "Nagyítás" shows every page full width
+    (pinch-zoom on phones). No download button (user decision); `/etlap.pdf` stays for QR
+    codes. The admin panel renders the pages to WebP with pdf.js when the PDF is uploaded
     (migration 0008), so visitors get plain images and no PDF renderer; each page's text goes
     to screen readers. The section and its nav link are hidden until a menu is uploaded.
     `menu_items`, `beers`, `gallery_images` are no longer read by the site (tables kept).
@@ -296,7 +298,7 @@ Branch `claude/redesign-fixes`, pushed to `origin`.
 
 - Home page = the whole site (decision 33); old subpages redirect (301) to their sections;
   header nav highlights the section on screen; booking form, hours, socials and map moved in.
-- Étlap: `MenuViewer` + admin-side page rendering (`pdf-pages.ts`, pdf.js only in the admin
+- Étlap: `MenuViewer` (StPageFlip booklet) + admin-side page rendering (`pdf-pages.ts`, pdf.js only in the admin
   bundle), migration `0008_menu_pages.sql` (+3 pgTAP tests, 50 total), stale page images are
   deleted on replace. JSON-LD `hasMenu` → `/etlap.pdf`.
 - Fonts: Share (body) and Norican (accent; Hónap ajánlata names); Manrope removed. Vite no
@@ -305,7 +307,7 @@ Branch `claude/redesign-fixes`, pushed to `origin`.
   Tag, GalleryGrid).
 - Verified: lint (0 errors), tsc, 29 Vitest tests, build, pgTAP; in Chromium on the local stack:
   upload of a 4-page dummy PDF in the admin (dev and production build), viewer at 375 / 768 /
-  1280 / 1920 (no horizontal overflow), paging by button, keys and dots, reading view + Escape,
+  1280 / 1920 (no horizontal overflow), page turns with the curl animation, reading view + Escape,
   nav anchors from another page and from the mobile menu land exactly under the header, old
   URLs 301, booking form works (lazily hydrated); home page loads neither supabase-js nor
   pdf.js. Lighthouse mobile (local): performance 81 vs 86–89 for the previous commit on the same

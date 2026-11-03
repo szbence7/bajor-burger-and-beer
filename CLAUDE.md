@@ -154,11 +154,15 @@ reads the real environment).
   (+ `RautenDivider`), HoursAndMap (`HoursCard`, `MapCard`: Google Maps of the admin-set address, loaded only on
   click and remembered in localStorage — it sends data to Google — plus a directions link).
   `src/components/layout` — Header, Footer.
-- `src/features/menu` — SpecialCard (Hónap ajánlata), MenuViewer (the menu PDF's pages as
-  images in an Embla page-turner: one page on phones/tablets, a two-page book spread with a
-  spine on `lg+`; swipe, drag, arrow keys, buttons, dots; "Nagyítás" opens every page full
-  width for reading, "PDF letöltése" downloads `/etlap.pdf`; each page's text is in an
-  `sr-only` paragraph; images are sized before they load so nothing jumps).
+- `src/features/menu` — SpecialCard (Hónap ajánlata), MenuViewer: the menu PDF's pages as a
+  real booklet with curling pages (**StPageFlip**, `page-flip`, MIT; loaded only when the
+  section nears the screen; its pages are DOM nodes built outside React, mounted on an element
+  the effect creates, because the library moves and removes them; types in
+  `src/page-flip.d.ts`). Phones (< 640 px) show one page, wider screens an open booklet whose
+  first page is the cover (the closed cover/back page slides to the centre). Drag a corner,
+  swipe, click, arrow keys or the buttons; "Nagyítás" opens every page full width (pinch-zoom
+  on phones). No download button (user decision; `/etlap.pdf` stays for QR codes). Until it is
+  ready the cover shows at its final size, so nothing jumps; each page's text is `sr-only`.
   `src/features/booking` — BookingForm (step 1: always-open month `Calendar` → time slots →
   party size 1…max; step 2: contact details; then confirmation). No "call us above N" branch.
   `src/features/gallery` — PhotoCarousel (Embla, home "A hely"). Each
@@ -321,7 +325,7 @@ replaced by `id` (form steps, screens), `layoutId` pills for active tabs/filters
 cross-fade via the router's `defaultViewTransition`. All of it honours reduced motion. Also:
 scroll reveal (`Reveal`), `.unveil` photo frames (CSS scroll-driven: the frame opens
 from a rounded crop while the photo settles from a slight zoom; no JS, off for reduced motion
-and unsupported browsers; used on the home Rólunk photos), the menu page-turner (Embla),
+and unsupported browsers; used on the home Rólunk photos), the menu booklet (StPageFlip),
 marquee, hover lift with gold glow (`lift`), hero float and
 parallax. All motion respects `prefers-reduced-motion` (CSS block at the end of
 `styles.css`; parallax checks `matchMedia`).
