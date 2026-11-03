@@ -126,7 +126,7 @@ function HeroBurger({ className }: { className?: string }) {
 function Index() {
   const parallaxRef = useParallax<HTMLSpanElement>(-0.08);
   useSectionScroll();
-  const { specials, month } = Route.useLoaderData();
+  const { specials } = Route.useLoaderData();
   const { name, contact, booking, menuPdf } = useSiteInfo();
 
   return (
@@ -188,9 +188,7 @@ function Index() {
         >
           <Ambient side="left" />
 
-          <SectionHeader eyebrow={month} title="Hónap ajánlata">
-            Ezek csak ebben a hónapban kerülnek a platnira. Utána jön helyettük valami új.
-          </SectionHeader>
+          <SectionHeader title="Hónap ajánlata" />
 
           {/* Compact cards: 1 / 2 / 3 / 4 / 5 per row by width; a part-filled last row (or a
               single special) sits centred. */}

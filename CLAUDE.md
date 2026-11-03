@@ -313,7 +313,7 @@ Signature elements:
   section's foreground colour at ~20%.
 - One or two full-width gold sections per page.
 - Section headings (user decision 2026-11-03): no eyebrow label unless it adds information
-  (only the month above Hónap ajánlata), and no "one word in gold" headings; the only accent
+  (none at all on the home page; Hónap ajánlata is just its title, no month, no subtitle), and no "one word in gold" headings; the only accent
   word is the Norican "bele" in "Lapozz bele". Copy is concrete and plain: no "X szív, Y
   lélek", no "Budapest szívében", no fake urgency, no slogans repeated across sections.
 - The whole logo, large and centred, at the bottom of the footer (replaced the giant "BAJOR"
