@@ -20,8 +20,8 @@ export function Footer() {
       <RautenPattern />
       <div className="relative mx-auto grid max-w-7xl gap-12 px-5 sm:grid-cols-2 lg:grid-cols-4">
         <div>
-          <BrandLogo className="h-32" />
-          <p className="mt-6 text-muted-foreground">Bajor sörház, smash burgerrel.</p>
+          <p className="font-display text-2xl text-foreground">{name}</p>
+          <p className="mt-3 text-muted-foreground">Bajor sörház, smash burgerrel.</p>
         </div>
         <div>
           <h2 className="mb-4 text-sm font-extrabold uppercase tracking-widest text-primary">
@@ -64,20 +64,18 @@ export function Footer() {
           </ul>
         </div>
       </div>
-      <div className="relative mx-auto mt-16 flex max-w-7xl flex-wrap gap-x-6 gap-y-2 px-5 text-xs text-muted-foreground">
+      {/* The whole logo, large: the footer's signature (it is never cropped or redrawn). */}
+      <div className="relative mt-16 flex justify-center px-5">
+        <BrandLogo className="h-48 md:h-64" />
+      </div>
+      <div className="relative mx-auto mt-12 flex max-w-7xl flex-wrap justify-center gap-x-6 gap-y-2 px-5 pb-10 text-center text-xs text-muted-foreground">
         <p>
-          © {new Date().getFullYear()} {name}. Minden jog fenntartva.
+          © {new Date().getFullYear()} {name}
         </p>
         <Link to="/adatkezeles" className="underline underline-offset-4 hover:text-primary">
           Adatkezelési tájékoztató
         </Link>
         {impressum.length > 0 && <p className="basis-full">{impressum.join(" · ")}</p>}
-      </div>
-      <div
-        aria-hidden
-        className="relative -mb-[0.12em] mt-6 select-none text-center font-impact text-[27vw] leading-[0.78] text-primary"
-      >
-        Bajor
       </div>
     </footer>
   );

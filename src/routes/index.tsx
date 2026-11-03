@@ -356,7 +356,8 @@ function Index() {
 
         <SectionHeader title="Itt találsz" />
 
-        {/* Hours | map side by side at the same height; socials | directions below. */}
+        {/* Hours | map side by side at the same height; directions under the map. The social
+            links live in the footer. */}
         <div className="grid gap-8 md:grid-cols-[1fr_1.4fr]">
           <div className="md:col-start-1 md:row-start-1">
             <HoursCard />
@@ -367,24 +368,6 @@ function Index() {
           <div className="md:col-start-2 md:row-start-2">
             <DirectionsLinks />
           </div>
-          {contact.socials.length > 0 && (
-            <div className="md:col-start-1 md:row-start-2">
-              <p className="mb-3 font-display text-2xl">Kövess minket:</p>
-              <div className="flex flex-wrap gap-3">
-                {contact.socials.map((s) => (
-                  <a
-                    key={s.label}
-                    href={s.href}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="rounded-full border-2 border-primary px-5 py-2 text-sm font-extrabold uppercase tracking-widest text-primary transition-colors hover:bg-primary hover:text-primary-foreground"
-                  >
-                    {s.label}
-                  </a>
-                ))}
-              </div>
-            </div>
-          )}
         </div>
       </section>
     </>

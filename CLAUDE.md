@@ -137,7 +137,7 @@ reads the real environment).
   section, addressed as `/#id` (ids and nav labels in `src/lib/sections.ts`): hero → `ajanlat`
   (Hónap ajánlata) → `etlap` (the PDF menu as a page-turner) → a full-bleed photo band → `rolunk` (+ the gold "Így megy ez nálunk"
   strip: heading left, three rows right) → `hely` (photo carousel) → `foglalas` (forest, BookingForm, lazily hydrated) →
-  `kapcsolat` (hours, socials, map). Links to sections use `<Link to="/" hash="…">` /
+  `kapcsolat` (hours, map, directions). Links to sections use `<Link to="/" hash="…">` /
   `CtaLink section="…"`; sections carry `scroll-mt-20` for the fixed header, and the home page
   re-aims the scroll once fonts are in (arriving from another page). The old routes `menu`,
   `galeria`, `rolunk`, `foglalas` only 301 to their section. No gallery page, no HTML menu.
@@ -276,8 +276,8 @@ exceptions):
 - Forest (the banquettes' green, deepened) is for accent sections (home booking CTA) and the "Új"/"Csípős" badges. Text on it is cream
   (`forest-foreground`, 8.6:1); gold on it is 4.6:1. Never use forest as text on dark.
 - Typography: `font-display` = **Oswald 600** (condensed like the logo's lettering, lighter
-  than Anton) for all headlines; `font-impact` = Anton, **only** for the home hero h1, the
-  footer "BAJOR" wordmark and the 404 numerals; **Share** (`font-sans`, 400/700, the
+  than Anton) for all headlines; `font-impact` = Anton, **only** for the home hero h1 and the
+  404 numerals; **Share** (`font-sans`, 400/700, the
   squarish condensed sans of the restaurant's printed menus) for body text; **Norican**
   (`font-script`, the brush script of the printed menus) as the accent: always the Hónap
   ajánlata dish names, otherwise at most a word in a headline ("Lapozz _bele_"). Mixed case,
@@ -313,7 +313,9 @@ Signature elements:
   (only the month above Hónap ajánlata), and no "one word in gold" headings; the only accent
   word is the Norican "bele" in "Lapozz bele". Copy is concrete and plain: no "X szív, Y
   lélek", no "Budapest szívében", no fake urgency, no slogans repeated across sections.
-- Giant "BAJOR" wordmark in the footer.
+- The whole logo, large and centred, at the bottom of the footer (replaced the giant "BAJOR"
+  wordmark, user decision 2026-11-03). The footer has the only social links on the page and
+  ends with "© year name · Adatkezelési tájékoztató" (no "Minden jog fenntartva").
 - **The logo is fixed** (B² + vertical "BURGER & BEER", gold #D2AC66 + cream #E2CCA8 on black):
   never recolour, crop or redraw it. `public/logo.svg` is a trace of
   `docs/brand/logo-original.png`; render it with `<BrandLogo>` (header: logo + "Bajor"
