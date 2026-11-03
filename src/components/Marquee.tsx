@@ -9,7 +9,7 @@ interface MarqueeProps {
 }
 
 export function Marquee({
-  words = ["Sör", "Burger", "Jó társaság"],
+  words = ["Smash burger", "Csapolt sör", "Perecbuci", "Hosszú asztalok", "Késő estig"],
   tilt = "left",
   variant = "gold",
   className,
