@@ -1,4 +1,4 @@
-import { Beer, Hamburger } from "lucide-react";
+import { DoodleIcon } from "@/components/Doodle";
 import { cn } from "@/lib/utils";
 
 interface MarqueeProps {
@@ -38,11 +38,10 @@ export function Marquee({
                 className="flex items-center gap-6 px-6 font-display text-3xl md:text-4xl"
               >
                 {w}
-                {icon === "burger" ? (
-                  <Hamburger className="h-6 w-6 md:h-8 md:w-8" strokeWidth={2} />
-                ) : (
-                  <Beer className="h-6 w-6 md:h-8 md:w-8" strokeWidth={2} />
-                )}
+                <DoodleIcon
+                  kind={icon === "burger" ? "burger" : "mug"}
+                  className="h-8 w-8 md:h-10 md:w-10"
+                />
               </span>
             ))}
           </div>

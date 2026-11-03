@@ -50,17 +50,40 @@ const paths: Record<DoodleKind, React.ReactNode> = {
   ),
 };
 
+/** Large, faint background texture in a section (absolutely positioned). */
 export function Doodle({ kind, className }: { kind: DoodleKind; className?: string }) {
+  return (
+    <DoodleIcon
+      kind={kind}
+      strokeWidth={2.2}
+      className={cn("pointer-events-none absolute h-20 w-20 text-primary opacity-10", className)}
+    />
+  );
+}
+
+/**
+ * The same hand-drawn shapes as a small inline icon (the site's own marks instead of a
+ * generic icon set), with a heavier stroke so they hold up at 24–40 px.
+ */
+export function DoodleIcon({
+  kind,
+  className,
+  strokeWidth = 5,
+}: {
+  kind: DoodleKind;
+  className?: string;
+  strokeWidth?: number;
+}) {
   return (
     <svg
       viewBox="0 0 80 80"
       fill="none"
       stroke="currentColor"
-      strokeWidth="2.2"
+      strokeWidth={strokeWidth}
       strokeLinecap="round"
       strokeLinejoin="round"
       aria-hidden
-      className={cn("pointer-events-none absolute h-20 w-20 text-primary opacity-10", className)}
+      className={className}
     >
       {paths[kind]}
     </svg>

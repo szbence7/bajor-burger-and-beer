@@ -1,10 +1,10 @@
 import { createFileRoute, useLocation } from "@tanstack/react-router";
 import { Suspense, lazy, useEffect, useRef } from "react";
-import { Beer, FileText, Flame, Users } from "lucide-react";
+import { FileText } from "lucide-react";
 import { images } from "@/data/images";
 import { Picture } from "@/components/Picture";
 import { Marquee } from "@/components/Marquee";
-import { Doodle } from "@/components/Doodle";
+import { Doodle, DoodleIcon, type DoodleKind } from "@/components/Doodle";
 import { Ambient } from "@/components/Ambient";
 import { Reveal } from "@/components/Reveal";
 import { SectionHeader } from "@/components/SectionHeader";
@@ -38,19 +38,19 @@ export const Route = createFileRoute("/")({
   component: Index,
 });
 
-const values = [
+const values: { icon: DoodleKind; title: string; text: string }[] = [
   {
-    icon: Flame,
+    icon: "burger",
     title: "Lapítva sütjük",
     text: "A húsgolyót forró platnin nyomjuk laposra: kívül ropogós kérget kap, belül szaftos marad.",
   },
   {
-    icon: Beer,
+    icon: "mug",
     title: "Csapról, hidegen",
     text: "Világos, búza, IPA. Hogy ma melyik folyik, azt a pultnál elárulják.",
   },
   {
-    icon: Users,
+    icon: "pretzel",
     title: "Nincs hova sietni",
     text: "Hosszú asztalok, laza tempó. Senki nem sürget, hogy fizess és menj.",
   },
@@ -300,7 +300,7 @@ function Index() {
             {values.map((v, i) => (
               <Reveal key={v.title} delay={i * 100}>
                 <div className="lift flex items-start gap-5 rounded-3xl bg-background p-6 text-foreground sm:gap-6 sm:p-8">
-                  <v.icon className="mt-1 h-10 w-10 shrink-0 text-primary" />
+                  <DoodleIcon kind={v.icon} className="mt-1 h-12 w-12 shrink-0 text-primary" />
                   <div>
                     <h3 className="font-display text-3xl sm:text-4xl">{v.title}</h3>
                     <p className="mt-2 text-lg text-muted-foreground">{v.text}</p>

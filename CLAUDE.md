@@ -149,7 +149,7 @@ reads the real environment).
   `etlap[.]pdf` (streams the current PDF menu from Storage; stable link for QR codes). `__root.tsx` holds the HTML shell, root head
   (fonts, icons, OG defaults, JSON-LD, NOINDEX), Header/Footer, 404 and error components.
   Routes stay thin: layout + `head`; logic lives in features.
-- `src/components` — shared brand primitives: CtaButton (`CtaLink`), Doodle, Marquee, Reveal,
+- `src/components` — shared brand primitives: CtaButton (`CtaLink`), Doodle (+ `DoodleIcon`: the same drawings as small inline icons in the marquee and the gold strip, instead of Lucide), Marquee, Reveal,
   PageHero (privacy page), SectionHeader, Price, Picture, BrandLogo, RautenPattern
   (+ `RautenDivider`), HoursAndMap (`HoursCard`; `MapCard`: Google Maps of the admin-set address, shown at once
   (lazy iframe; it sends data to Google, which the privacy notice says), as tall as the hours
