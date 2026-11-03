@@ -191,7 +191,7 @@ function Index() {
                 delay={(i % 5) * 80}
                 className="w-full max-w-sm sm:w-[calc((100%-1.25rem)/2)] md:w-[calc((100%-2.5rem)/3)] lg:w-[calc((100%-3.75rem)/4)] xl:w-[calc((100%-5rem)/5)]"
               >
-                <SpecialCard special={s} index={i} />
+                <SpecialCard special={s} />
               </Reveal>
             ))}
           </div>

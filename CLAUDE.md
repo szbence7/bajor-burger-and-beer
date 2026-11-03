@@ -159,7 +159,7 @@ reads the real environment).
   `openStatus()` in `lib/opening-hours`, Budapest time, SSR + remount after hydration, hidden
   below 360 px), Footer.
 - `src/features/menu` — SpecialCard (Hónap ajánlata: compact cards, 1–5 per row by width,
-  a part-filled last row centred), MenuViewer: the menu PDF's pages as a
+  a part-filled last row centred; one dark tone with a gold price, no per-card booking button), MenuViewer: the menu PDF's pages as a
   real booklet with curling pages (**StPageFlip**, `page-flip`, MIT; loaded only when the
   section nears the screen; its pages are DOM nodes built outside React, mounted on an element
   the effect creates, because the library moves and removes them; types in
@@ -273,8 +273,7 @@ exceptions):
 
 - CTAs are **gold** (`ctaClass("gold")`, the default; `dark` on gold surfaces, `outline`
   for secondary). There is no red in the palette any more.
-- Forest (the banquettes' green, deepened) is for accent sections (home booking CTA), the
-  second featured burger card and the "Új"/"Csípős" badges. Text on it is cream
+- Forest (the banquettes' green, deepened) is for accent sections (home booking CTA) and the "Új"/"Csípős" badges. Text on it is cream
   (`forest-foreground`, 8.6:1); gold on it is 4.6:1. Never use forest as text on dark.
 - Typography: `font-display` = **Oswald 600** (condensed like the logo's lettering, lighter
   than Anton) for all headlines; `font-impact` = Anton, **only** for the home hero h1, the
