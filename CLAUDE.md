@@ -326,9 +326,11 @@ Signature elements:
   vertical text is illegible at icon sizes). The primary token is the logo's gold.
 - Bavarian diamond (Rautenmuster) — `RautenPattern`: crisp 45° diamonds as an SVG mask in
   currentColor, 4–5% opacity. **Only** in the footer, on the map card, and as
-  `RautenDivider` (16 px strip at 12% — user approved). Never in the hero or other sections.
-- Hero: no pattern; dark background, golden radial glow behind the burger, global grain
-  (`body::after` noise).
+  `RautenDivider` (16 px strip at 12% — user approved), and in the home hero (user request
+  2026-11-03: the hero felt empty) at 9%, faded in from the top-right corner by a radial mask
+  behind the burger. Not in other sections.
+- Hero: dark background, the faded diamonds from the top right, golden radial glow behind the
+  burger, global grain (`body::after` noise).
 - Photo carousel (home "A hely"): straight rounded-3xl cards that lift with a gold glow on
   hover. Photos and burgers are never rotated (the hero burger's gentle float is the only
   tilt).

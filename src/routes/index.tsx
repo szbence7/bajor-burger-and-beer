@@ -13,7 +13,7 @@ import { DirectionsLinks, HoursCard, MapCard } from "@/components/HoursAndMap";
 import { SpecialCard } from "@/features/menu/SpecialCard";
 import { MenuViewer } from "@/features/menu/MenuViewer";
 import { PhotoCarousel } from "@/features/gallery/PhotoCarousel";
-import { RautenDivider } from "@/components/RautenPattern";
+import { RautenDivider, RautenPattern } from "@/components/RautenPattern";
 import { cn } from "@/lib/utils";
 import { ctaClass } from "@/lib/cta";
 import { seo } from "@/lib/seo";
@@ -131,8 +131,15 @@ function Index() {
 
   return (
     <>
-      {/* HERO — no pattern: dark base, golden glow behind the burger, global grain */}
+      {/* HERO — dark base, faded diamonds from the top right, golden glow behind the burger */}
       <section className="relative flex min-h-[100svh] items-center overflow-hidden px-5 pb-16 pt-24 md:pb-20 md:pt-28">
+        {/* Bavarian diamonds fading in from the top right, behind the burger (user request). */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 [mask-image:radial-gradient(ellipse_at_top_right,black,transparent_65%)]"
+        >
+          <RautenPattern className="opacity-[0.09]" />
+        </div>
         <Doodle kind="mug" className="left-[3%] top-24 h-32 w-32 -rotate-12 md:h-44 md:w-44" />
 
         <div className="relative mx-auto w-full max-w-7xl">
@@ -177,7 +184,7 @@ function Index() {
       {specials.length > 0 && (
         <section
           id="ajanlat"
-          className="relative isolate mx-auto max-w-7xl scroll-mt-20 px-5 pb-24 pt-20 md:pb-28 md:pt-24"
+          className="relative isolate mx-auto max-w-7xl scroll-mt-20 px-5 pb-12 pt-20 md:pb-16 md:pt-24"
         >
           <Ambient side="left" />
 
@@ -203,7 +210,10 @@ function Index() {
 
       {/* ÉTLAP — the PDF the staff uploaded, as a page-turner; hidden until there is one */}
       {menuPdf && (
-        <section id="etlap" className="relative scroll-mt-20 overflow-hidden px-5 py-24 md:py-32">
+        <section
+          id="etlap"
+          className="relative scroll-mt-20 overflow-hidden px-5 pb-24 pt-12 md:pb-28 md:pt-16"
+        >
           <Doodle kind="fries" className="right-[4%] top-16 h-36 w-36 -rotate-6 md:h-52 md:w-52" />
           <div className="relative mx-auto max-w-7xl">
             <SectionHeader
@@ -250,7 +260,7 @@ function Index() {
       {/* RÓLUNK */}
       <section
         id="rolunk"
-        className="relative isolate mx-auto grid max-w-7xl scroll-mt-20 items-center gap-16 px-5 py-24 md:grid-cols-2 md:py-36"
+        className="relative isolate mx-auto grid max-w-7xl scroll-mt-20 items-center gap-16 px-5 pb-20 pt-24 md:grid-cols-2 md:pb-24 md:pt-28"
       >
         <Ambient side="right" />
         <div className="relative h-[24rem] sm:h-[28rem] md:h-[34rem]">
@@ -314,7 +324,7 @@ function Index() {
       </section>
 
       {/* A HELY — a few photos to whet the appetite */}
-      <section id="hely" className="relative isolate scroll-mt-20 pb-16 pt-24 md:pb-20 md:pt-28">
+      <section id="hely" className="relative isolate scroll-mt-20 pb-16 pt-20 md:pb-20 md:pt-24">
         <Ambient side="left" />
         <div className="mx-auto max-w-7xl px-5">
           <SectionHeader title="A hely" className="mb-2" />
@@ -351,9 +361,9 @@ function Index() {
       {/* KAPCSOLAT */}
       <section
         id="kapcsolat"
-        className="relative mx-auto max-w-7xl scroll-mt-20 px-5 py-20 md:py-24"
+        className="relative mx-auto max-w-7xl scroll-mt-20 px-5 pb-20 pt-14 md:pb-24 md:pt-16"
       >
-        <RautenDivider className="mb-20" />
+        <RautenDivider className="mb-14" />
 
         <SectionHeader title="Itt találsz" />
 
