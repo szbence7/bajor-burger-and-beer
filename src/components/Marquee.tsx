@@ -29,7 +29,8 @@ export function Marquee({
         className,
       )}
     >
-      <div className="flex w-max animate-marquee">
+      {/* The keyframes cover the whole (now longer) word list; this keeps it calm to read. */}
+      <div className="flex w-max animate-marquee" style={{ animationDuration: "70s" }}>
         {[0, 1].map((dup) => (
           <div key={dup} className="flex shrink-0 items-center" aria-hidden={dup === 1}>
             {row.map(({ w, icon, key }) => (
