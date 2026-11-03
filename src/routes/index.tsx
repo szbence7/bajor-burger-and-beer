@@ -1,6 +1,6 @@
-import { createFileRoute, useLocation } from "@tanstack/react-router";
+import { Link, createFileRoute, useLocation } from "@tanstack/react-router";
 import { Suspense, lazy, useEffect, useRef } from "react";
-import { Beer, FileText, Flame, Users } from "lucide-react";
+import { ArrowDown, Beer, FileText, Flame, Users } from "lucide-react";
 import { images } from "@/data/images";
 import { Picture } from "@/components/Picture";
 import { Marquee } from "@/components/Marquee";
@@ -132,23 +132,28 @@ function Index() {
           {/* Mobile: burger sits above the stacked headline and only kisses the first line. */}
           <HeroBurger className="relative z-10 -mb-[9vw] ml-auto mr-[-4%] w-[74vw] max-w-sm md:hidden" />
 
-          {/* md+: the burger lives in a slot right after line one, sized in em of the
-              headline so it tracks the text at every width. The h1 reserves room above
-              itself, so the burger never reaches the fixed header. */}
+          {/* md+: the burger lives in a slot right after line two, sized in em of the
+              headline so it tracks the text at every width. It rises into the free space
+              beside the short first line; the h1 reserves room above itself, so the burger
+              never reaches the fixed header. */}
           <h1 className="relative font-impact text-[19vw] leading-[1.1] md:pt-[1.05em] md:leading-[0.94] md:text-[12vw] xl:text-[10.5rem]">
+            <span className="block">Prost,</span>
             <span className="flex items-end">
-              <span className="md:whitespace-nowrap">Csapolt sör.</span>
+              <span className="text-primary md:whitespace-nowrap">Budapest!</span>
               <span
                 ref={parallaxRef}
                 aria-hidden
                 className="relative hidden flex-1 self-stretch md:block"
               >
-                <HeroBurger className="absolute -bottom-[0.3em] left-[0.08em] z-10 w-[2.6em] xl:w-[2.2em]" />
+                <HeroBurger className="absolute bottom-0 left-[0.15em] z-10 w-[2.6em] xl:w-[2.2em]" />
               </span>
             </span>
-            <span className="block text-primary">Szaftos burger.</span>
           </h1>
-          <div className="relative z-20 mt-10 flex flex-wrap gap-4">
+          <p className="relative z-20 mt-6 max-w-xl text-lg text-muted-foreground md:text-xl">
+            Hideg sör csapról, smash burger forrón. Beugrasz egy korsóra, aztán itt ragadsz egész
+            estére.
+          </p>
+          <div className="relative z-20 mt-8 flex flex-wrap gap-4">
             <CtaLink section="foglalas">Asztalfoglalás</CtaLink>
             {menuPdf && (
               <CtaLink section="etlap" variant="outline">
@@ -156,6 +161,16 @@ function Index() {
               </CtaLink>
             )}
           </div>
+          {/* A reason to scroll, from live data: how many beers are on tap today. */}
+          {taps.length > 0 && (
+            <Link
+              to="/"
+              hash="csapon"
+              className="relative z-20 mt-10 inline-flex items-center gap-2 font-bold text-primary underline-offset-4 hover:underline"
+            >
+              Ma {taps.length} sör van csapon <ArrowDown className="h-4 w-4" aria-hidden />
+            </Link>
+          )}
         </div>
       </section>
 

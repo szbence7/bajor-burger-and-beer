@@ -287,7 +287,7 @@ exceptions):
   1.12 line pitch (via `--tw-leading`, so it wins over `text-4xl…8xl`) because accented
   capitals (É, Á, Ü ~1.10em, Ő/Ű ~1.17em above the baseline) otherwise hit the line above.
   Use a tighter explicit `leading-*` only for fixed, accent-safe copy (hero: 0.94 on md+,
-  1.1 on mobile where "Csapolt sör." wraps).
+  1.1 on mobile).
 
 Signature elements:
 
@@ -295,8 +295,10 @@ Signature elements:
   burger/beer icons) — `Marquee`. **At most one per page.**
 - Cut-out burgers overlapping giant type with a warm golden glow (`glow-gold`). Overlap is a
   stylistic touch only: **never hide whole words** and never cover the header.
-  - Home hero geometry: on md+ the burger sits in a flex slot right after "Csapolt sör.",
-    sized in `em` of the headline (`w-[2.6em]`, `xl:w-[2.2em]`, `-bottom-[0.3em]`); the h1
+  - Home hero ("Prost, / Budapest!", lead line, CTAs, a "Ma N sör van csapon" link to
+    `#csapon` when taps exist) geometry: on md+ the burger sits in a flex slot right after
+    "Budapest!" and rises beside the short first line, sized in `em` of the headline
+    (`w-[2.6em]`, `xl:w-[2.2em]`, `bottom-0`); the h1
     reserves `md:pt-[1.05em]` above itself so the burger never reaches the fixed header. On
     mobile the burger sits above the stacked headline. Parallax is a rAF-throttled `translate`
     on that slot. Re-check 375/768/1024/1280/1920 if you touch it.
