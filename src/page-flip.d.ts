@@ -43,6 +43,7 @@ declare module "page-flip" {
     turnToPage(page: number): void;
     getCurrentPageIndex(): number;
     getPageCount(): number;
+    getPage(index: number): { setDensity(density: "soft" | "hard"): void };
     getOrientation(): Orientation;
     update(): void;
     destroy(): void;

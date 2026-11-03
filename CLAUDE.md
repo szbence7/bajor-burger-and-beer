@@ -160,8 +160,8 @@ reads the real environment).
   below 360 px), Footer.
 - `src/features/menu` — SpecialCard (Hónap ajánlata: compact cards, 1–5 per row by width,
   a part-filled last row centred; one dark tone with a gold price, no per-card booking button), MenuViewer: the menu PDF's pages as a
-  real booklet (**StPageFlip**, `page-flip`, MIT; every page is `data-density="hard"`, so each
-  turn swings the whole page over in 3D like the cover, user request 2026-11-03; loaded only when the
+  real booklet (**StPageFlip**, `page-flip`, MIT; every page, cover and back included, is set to
+  `soft` after loading, so each turn curls like a sheet of paper (user request 2026-11-03); loaded only when the
   section nears the screen; its pages are DOM nodes built outside React, mounted on an element
   the effect creates, because the library moves and removes them; types in
   `src/page-flip.d.ts`). Phones (< 640 px) show one page, wider screens an open booklet whose
