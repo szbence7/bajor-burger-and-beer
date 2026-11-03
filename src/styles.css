@@ -5,13 +5,18 @@
 @import "@fontsource-variable/oswald";
 @import "@fontsource/share/400.css";
 @import "@fontsource/share/700.css";
-@import "@fontsource/norican";
+/* TRIAL: Back to Black (Misti's Fonts) - the printed menu's script. Demo file, not licensed yet. */
+@font-face {
+  font-family: "Back to Black";
+  src: url("./assets/fonts/back-to-black.ttf") format("truetype");
+  font-display: swap;
+}
 
 @theme inline {
   --font-display: "Oswald Variable", "Oswald", "Arial Narrow", sans-serif;
   --font-impact: "Anton", "Archivo Black", Impact, sans-serif;
   --font-sans: "Share", "Arial Narrow", system-ui, sans-serif;
-  --font-script: "Norican", "Brush Script MT", cursive;
+  --font-script: "Back to Black", "Brush Script MT", cursive;
 
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
