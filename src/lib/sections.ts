@@ -2,7 +2,7 @@
 // subpages (/menu, /galeria, /rolunk, /foglalas) redirect to them.
 export const SECTIONS = {
   ajanlat: "Hónap ajánlata",
-  etlap: "Étlap",
+  etlap: "Étlapok",
   rolunk: "Rólunk",
   hely: "A hely",
   foglalas: "Asztalfoglalás",

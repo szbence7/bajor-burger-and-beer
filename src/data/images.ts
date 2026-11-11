@@ -3,6 +3,7 @@
 // change the paths below. The query string makes vite-imagetools emit AVIF + WebP in several
 // widths at build time, so originals can be large, full-quality exports.
 import type { ImageSource } from "@/components/Picture";
+import burgerHeroPhoto from "@/assets/burger-hero-photo.jpg?w=480;800;1200;1600&format=avif;webp&as=picture";
 import burgerHero from "@/assets/burger-hero.png?w=400;700;1024&format=avif;webp&as=picture";
 import burgerSpicy from "@/assets/burger-spicy.png?w=400;700;1024&format=avif;webp&as=picture";
 import burgerVeggie from "@/assets/burger-veggie.png?w=400;700;1024&format=avif;webp&as=picture";
@@ -14,6 +15,7 @@ import eventNight from "@/assets/event-night.jpg?w=480;800;1280&format=avif;webp
 
 export const images = {
   burgerHero,
+  burgerHeroPhoto,
   burgerSpicy,
   burgerVeggie,
   placeInterior,

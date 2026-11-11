@@ -79,7 +79,7 @@ function OpenBadge({ className }: { className?: string }) {
 }
 
 export function Header() {
-  const { name, menuPdf } = useSiteInfo();
+  const { name } = useSiteInfo();
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
@@ -92,9 +92,7 @@ export function Header() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const nav: SectionId[] = menuPdf
-    ? ["etlap", "rolunk", "hely", "kapcsolat"]
-    : ["rolunk", "hely", "kapcsolat"];
+  const nav: SectionId[] = ["etlap", "rolunk", "hely", "kapcsolat"];
   const active = useActiveSection(nav, pathname === "/");
 
   return (

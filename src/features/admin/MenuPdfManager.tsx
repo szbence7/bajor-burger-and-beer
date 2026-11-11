@@ -1,221 +1,429 @@
-import { useRef, useState } from "react";
+import { useState, type FormEvent } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { ExternalLink, FileText, Upload } from "lucide-react";
 import { z } from "zod";
-import { absoluteUrl } from "@/lib/site";
-import { menuPageRow, type MenuPageRow } from "@/lib/site-rows";
-import { setMenuPdfFn } from "./api";
-import { MenuPdfError, renderPdfPages } from "./pdf-pages";
-import { ADMIN_ERRORS, MENU_MAX_PAGES, MENU_PDF_MAX_BYTES } from "./schema";
+import { Plus, Upload } from "lucide-react";
+import {
+  MENU_LANGUAGES,
+  MENU_LANGUAGE_LABELS,
+  menuBookInput,
+  menuBookRow,
+  type MenuBookRow,
+  type MenuLanguage,
+  type MenuVersionRow,
+} from "@/lib/menu-schema";
+import { saveMenuBookFn, saveMenuVersionFn, deleteMenuBookFn, deleteMenuVersionFn } from "./api";
+import { prepareMenuFiles, validateMenuFiles } from "./menu-upload";
+import { MenuPdfError } from "./pdf-pages";
+import { ADMIN_ERRORS, MENU_MAX_PAGES, type AdminResult } from "./schema";
 import { adminSupabase } from "./supabase";
-import { useSmoothList } from "@/lib/motion";
-import { Button, Card, PageTitle, formatTimestamp, useToast } from "./ui";
+import { Button, Card, PageTitle, inputClass, labelClass, formatTimestamp, useToast } from "./ui";
 
-const QUERY_KEY = ["admin", "menu-pdf"];
-const PUBLIC_PATH = "/etlap.pdf";
+const QUERY_KEY = ["admin", "menu-books"];
+const imageUrl = (name: string) =>
+  name.startsWith("/menus/")
+    ? name
+    : adminSupabase().storage.from("menu").getPublicUrl(name).data.publicUrl;
 
-const pageUrl = (name: string) =>
-  adminSupabase().storage.from("menu").getPublicUrl(name).data.publicUrl;
-
-function useMenuPdf() {
-  return useQuery({
+export function MenuPdfManager() {
+  const queryClient = useQueryClient();
+  const toast = useToast();
+  const [busy, setBusy] = useState(false);
+  const query = useQuery({
     queryKey: QUERY_KEY,
     queryFn: async () => {
       const { data, error } = await adminSupabase()
-        .from("site_settings")
-        .select("menu_pdf_path, menu_pdf_updated_at, menu_pdf_pages")
-        .single();
+        .from("menu_books")
+        .select("*, menu_versions(*)")
+        .order("sort_order")
+        .order("created_at");
       if (error) throw error;
-      return z
-        .object({
-          menu_pdf_path: z.string().nullable(),
-          menu_pdf_updated_at: z.string().nullable(),
-          menu_pdf_pages: z.array(menuPageRow),
-        })
-        .parse(data);
+      return z.array(menuBookRow).parse(data);
     },
   });
-}
-
-export function MenuPdfManager() {
-  // Loading → current file → replaced file ease instead of jumping.
-  const stateRef = useSmoothList<HTMLDivElement>();
-  const query = useMenuPdf();
-  const queryClient = useQueryClient();
-  const toast = useToast();
-  const fileRef = useRef<HTMLInputElement>(null);
-  const [busy, setBusy] = useState<"upload" | "remove" | null>(null);
-  const [progress, setProgress] = useState("");
-  const current = query.data?.menu_pdf_path ? query.data : null;
-
-  const upload = async (file: File | undefined) => {
-    if (fileRef.current) fileRef.current.value = "";
-    if (!file) return;
-    if (file.type !== "application/pdf" && !file.name.toLowerCase().endsWith(".pdf")) {
-      toast("Csak PDF fájlt tölthetsz fel.", "warning");
-      return;
-    }
-    if (file.size > MENU_PDF_MAX_BYTES) {
-      toast("A PDF túl nagy (max. 15 MB). Mentsd el kisebb méretben.", "warning");
-      return;
-    }
-    setBusy("upload");
-    // Unique names, so browsers and CDNs may cache the files for good.
-    const stem = `etlap-${Date.now()}`;
-    const path = `${stem}.pdf`;
-    const storage = adminSupabase().storage.from("menu");
-    const uploaded: string[] = [];
-    const put = async (name: string, body: Blob, contentType: string, cacheControl: string) => {
-      const { error } = await storage.upload(name, body, { contentType, cacheControl });
-      if (error) throw error;
-      uploaded.push(name);
-    };
-    try {
-      // The site shows the pages as images: render them here, once, at upload time.
-      const rendered = await renderPdfPages(file, (done, total) =>
-        setProgress(`Oldalak előkészítése: ${done} / ${total}`),
-      );
-      setProgress("Feltöltés…");
-      const pages: MenuPageRow[] = [];
-      for (const [i, page] of rendered.entries()) {
-        const name = `${stem}-${i + 1}`;
-        await put(`${name}.webp`, page.large, "image/webp", "31536000");
-        await put(`${name}-sm.webp`, page.small, "image/webp", "31536000");
-        pages.push({
-          file: `${name}.webp`,
-          small: `${name}-sm.webp`,
-          width: page.width,
-          height: page.height,
-          text: page.text,
-        });
-      }
-      await put(path, file, "application/pdf", "60");
-      const result = await setMenuPdfFn({ data: { path, pages } });
-      if (!result.ok) {
-        await storage.remove(uploaded);
-        toast(ADMIN_ERRORS[result.error], "warning");
-        return;
-      }
-      toast("Az új étlap kint van a weboldalon.");
-    } catch (error) {
-      if (uploaded.length) await storage.remove(uploaded);
-      toast(
-        error instanceof MenuPdfError
-          ? error.reason === "too_many_pages"
-            ? `Legfeljebb ${MENU_MAX_PAGES} oldalas étlapot tölthetsz fel.`
-            : "Ezt a PDF-et nem sikerült megnyitni. Jelszavas vagy sérült?"
-          : "A feltöltés nem sikerült. Próbáld újra.",
-        "warning",
-      );
-    } finally {
-      setBusy(null);
-      setProgress("");
-      void queryClient.invalidateQueries({ queryKey: QUERY_KEY });
-    }
+  const refresh = () => {
+    void queryClient.invalidateQueries({ queryKey: QUERY_KEY });
   };
-
-  const remove = async () => {
-    if (!window.confirm("Biztosan leveszed az étlapot a weboldalról?")) return;
-    setBusy("remove");
+  const mutate = async (action: () => Promise<AdminResult>, message: string) => {
+    setBusy(true);
     try {
-      const result = await setMenuPdfFn({ data: { path: null, pages: [] } });
-      toast(
-        result.ok ? "Az étlap lekerült a weboldalról." : ADMIN_ERRORS[result.error],
-        result.ok ? "info" : "warning",
-      );
+      const result = await action();
+      toast(result.ok ? message : ADMIN_ERRORS[result.error], result.ok ? "info" : "warning");
+      return result.ok;
     } catch {
       toast(ADMIN_ERRORS.unknown, "warning");
+      return false;
     } finally {
-      setBusy(null);
-      void queryClient.invalidateQueries({ queryKey: QUERY_KEY });
+      setBusy(false);
+      refresh();
     }
   };
 
   return (
     <>
-      <PageTitle>Étlap PDF</PageTitle>
-      <p className="mb-6 max-w-2xl text-muted-foreground">
-        A főoldal Étlap része a legutóbb feltöltött PDF oldalait mutatja, lapozhatóan. A PDF
-        letölthető linkje nem változik, QR-kódhoz is használhatod:{" "}
-        <span className="font-bold text-foreground [overflow-wrap:anywhere]">
-          {absoluteUrl(PUBLIC_PATH)}
-        </span>
+      <PageTitle>Étlapok</PageTitle>
+      <p className="mb-6 max-w-3xl text-muted-foreground">
+        Hozz létre étlapokat, és töltsd fel a magyar és az angol változatot külön-külön. A
+        nyelvválasztó csak akkor jelenik meg, ha mindkét változat elérhető. Lapozni csak a
+        kiválasztott nyelv többoldalas étlapját lehet.
       </p>
-
       <Card className="mb-6">
-        <div ref={stateRef}>
-          {query.isPending ? (
-            <p className="text-muted-foreground">Betöltés…</p>
-          ) : query.isError ? (
-            <p>Nem sikerült betölteni.</p>
-          ) : current ? (
-            <div>
-              <div className="flex flex-wrap items-center gap-4">
-                <FileText className="h-12 w-12 shrink-0 text-primary" aria-hidden />
-                <div className="min-w-0 flex-1">
-                  <p className="font-bold">Jelenlegi étlap</p>
-                  <p className="text-sm text-muted-foreground">
-                    {current.menu_pdf_pages.length} oldal · Feltöltve:{" "}
-                    {current.menu_pdf_updated_at && formatTimestamp(current.menu_pdf_updated_at)}
-                  </p>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  <a
-                    href={PUBLIC_PATH}
-                    target="_blank"
-                    rel="noopener"
-                    className="inline-flex min-h-11 items-center gap-2 rounded-full border-2 border-border px-5 py-2.5 text-sm font-extrabold uppercase tracking-wider hover:border-primary"
-                  >
-                    <ExternalLink className="h-4 w-4" aria-hidden /> Megnyitás
-                  </a>
-                  <Button variant="ghost" disabled={busy !== null} onClick={() => void remove()}>
-                    {busy === "remove" ? "Levétel…" : "Levétel"}
-                  </Button>
-                </div>
-              </div>
-              <ul className="mt-5 flex gap-3 overflow-x-auto pb-1" aria-label="Oldalak">
-                {current.menu_pdf_pages.map((page, i) => (
-                  <li key={page.file} className="shrink-0">
-                    <img
-                      src={pageUrl(page.small)}
-                      alt={`${i + 1}. oldal`}
-                      width={page.width}
-                      height={page.height}
-                      loading="lazy"
-                      className="h-40 w-auto rounded-lg border border-border bg-white"
-                    />
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ) : (
-            <p className="text-muted-foreground">
-              Még nincs feltöltött étlap, a főoldalon nem látszik az Étlap rész.
-            </p>
-          )}
-        </div>
+        <h2 className="mb-4 font-display text-2xl">Új étlap</h2>
+        <MenuDetailsForm
+          busy={busy}
+          onSave={(title, description) =>
+            mutate(
+              () => saveMenuBookFn({ data: { id: null, title, description } }),
+              "Az étlap létrejött. Most feltöltheted a nyelvi változatokat.",
+            )
+          }
+        />
       </Card>
-
-      <input
-        ref={fileRef}
-        id="menu-pdf-file"
-        type="file"
-        accept="application/pdf,.pdf"
-        className="sr-only"
-        onChange={(e) => void upload(e.target.files?.[0])}
-      />
-      <Button disabled={busy !== null} onClick={() => fileRef.current?.click()}>
-        <Upload className="h-4 w-4" aria-hidden />
-        {busy === "upload"
-          ? progress || "Feltöltés…"
-          : current
-            ? "Új étlap feltöltése (csere)"
-            : "Étlap feltöltése"}
-      </Button>
-      <p className="mt-3 text-sm text-muted-foreground">
-        PDF, legfeljebb 15 MB és {MENU_MAX_PAGES} oldal. A feltöltés oldalanként pár másodperc, ne
-        zárd be közben az oldalt.
-      </p>
+      {query.isPending ? (
+        <p>Betöltés…</p>
+      ) : query.isError ? (
+        <Card>
+          <p>Nem sikerült betölteni az étlapokat.</p>
+          <Button className="mt-3" onClick={() => void query.refetch()}>
+            Újrapróbálás
+          </Button>
+        </Card>
+      ) : (
+        <div className="space-y-6">
+          {query.data.length === 0 && <p>Még nincs létrehozott étlap.</p>}
+          {query.data.map((book) => (
+            <MenuEditor
+              key={book.id}
+              book={book}
+              busy={busy}
+              setBusy={setBusy}
+              refresh={refresh}
+              mutate={mutate}
+            />
+          ))}
+        </div>
+      )}
     </>
+  );
+}
+
+function MenuDetailsForm({
+  book,
+  busy,
+  onSave,
+}: {
+  book?: MenuBookRow;
+  busy: boolean;
+  onSave: (title: string, description: string) => Promise<boolean>;
+}) {
+  const [title, setTitle] = useState(book?.title ?? "");
+  const [description, setDescription] = useState(book?.description ?? "");
+  const toast = useToast();
+  const submit = async (event: FormEvent) => {
+    event.preventDefault();
+    const result = menuBookInput.safeParse({ id: book?.id ?? null, title, description });
+    if (!result.success) {
+      toast(result.error.issues[0]?.message ?? "Ellenőrizd az adatokat.", "warning");
+      return;
+    }
+    if ((await onSave(result.data.title, result.data.description)) && !book) {
+      setTitle("");
+      setDescription("");
+    }
+  };
+  return (
+    <form onSubmit={(e) => void submit(e)} className="space-y-4">
+      <label className={labelClass}>
+        Étlap neve
+        <input
+          required
+          maxLength={80}
+          className={`${inputClass} mt-2`}
+          value={title}
+          disabled={busy}
+          onChange={(e) => setTitle(e.target.value)}
+        />
+      </label>
+      <label className={labelClass}>
+        Leírás
+        <textarea
+          maxLength={300}
+          className={`${inputClass} mt-2`}
+          value={description}
+          disabled={busy}
+          onChange={(e) => setDescription(e.target.value)}
+        />
+      </label>
+      <Button type="submit" disabled={busy}>
+        {!book && <Plus className="h-4 w-4" />}
+        {book ? "Adatok mentése" : "Étlap létrehozása"}
+      </Button>
+    </form>
+  );
+}
+
+type Mutate = (action: () => Promise<AdminResult>, message: string) => Promise<boolean>;
+function MenuEditor({
+  book,
+  busy,
+  setBusy,
+  refresh,
+  mutate,
+}: {
+  book: MenuBookRow;
+  busy: boolean;
+  setBusy: (busy: boolean) => void;
+  refresh: () => void;
+  mutate: Mutate;
+}) {
+  return (
+    <Card>
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+        <h2 className="font-display text-3xl">{book.title}</h2>
+        <Button
+          variant="ghost"
+          disabled={busy}
+          onClick={() => {
+            if (window.confirm(`Törlöd a(z) „${book.title}” étlapot és mindkét nyelvi változatát?`))
+              void mutate(() => deleteMenuBookFn({ data: { id: book.id } }), "Az étlap törölve.");
+          }}
+        >
+          Étlap törlése
+        </Button>
+      </div>
+      <details className="mb-6">
+        <summary className="mb-4 cursor-pointer font-bold text-primary">
+          Név és leírás szerkesztése
+        </summary>
+        <MenuDetailsForm
+          book={book}
+          busy={busy}
+          onSave={(title, description) =>
+            mutate(
+              () => saveMenuBookFn({ data: { id: book.id, title, description } }),
+              "Az étlap adatai mentve.",
+            )
+          }
+        />
+      </details>
+      {!book.menu_versions.length && (
+        <p className="mb-4 text-muted-foreground">
+          A weboldalon az első nyelvi változat feltöltése után jelenik meg.
+        </p>
+      )}
+      <div className="grid gap-5 lg:grid-cols-2">
+        {MENU_LANGUAGES.map((language) => (
+          <LanguageUpload
+            key={language}
+            book={book}
+            language={language}
+            version={book.menu_versions.find((v) => v.language === language)}
+            busy={busy}
+            setBusy={setBusy}
+            refresh={refresh}
+            mutate={mutate}
+          />
+        ))}
+      </div>
+    </Card>
+  );
+}
+
+function LanguageUpload({
+  book,
+  language,
+  version,
+  busy,
+  setBusy,
+  refresh,
+  mutate,
+}: {
+  book: MenuBookRow;
+  language: MenuLanguage;
+  version: MenuVersionRow | undefined;
+  busy: boolean;
+  setBusy: (busy: boolean) => void;
+  refresh: () => void;
+  mutate: Mutate;
+}) {
+  const [files, setFiles] = useState<File[]>([]);
+  const [progress, setProgress] = useState("");
+  const [inputKey, setInputKey] = useState(0);
+  const toast = useToast();
+  const upload = async () => {
+    const error = validateMenuFiles(files);
+    if (error) {
+      toast(error, "warning");
+      return;
+    }
+    setBusy(true);
+    setProgress("Előkészítés…");
+    const storage = adminSupabase().storage.from("menu");
+    const uploaded: string[] = [];
+    let committed = false;
+    let safeToRemove = true;
+    try {
+      const prepared = await prepareMenuFiles(files, (done, total) =>
+        setProgress(`Oldalak előkészítése: ${done} / ${total}`),
+      );
+      const stem = `menu-${crypto.randomUUID()}`;
+      const put = async (name: string, body: Blob, contentType: string) => {
+        const { error } = await storage.upload(name, body, {
+          contentType,
+          cacheControl: "31536000",
+        });
+        if (error) throw error;
+        uploaded.push(name);
+      };
+      const pages = [];
+      for (const [i, page] of prepared.pages.entries()) {
+        setProgress(`Feltöltés: ${i + 1} / ${prepared.pages.length}`);
+        const file = `${stem}-${i + 1}.webp`,
+          small = `${stem}-${i + 1}-sm.webp`;
+        await put(file, page.large, "image/webp");
+        await put(small, page.small, "image/webp");
+        pages.push({ file, small, width: page.width, height: page.height, text: page.text });
+      }
+      const pdfPath = prepared.pdf ? `${stem}.pdf` : null;
+      if (prepared.pdf && pdfPath) await put(pdfPath, prepared.pdf, "application/pdf");
+      // If the response is lost, the server may already have saved these files.
+      safeToRemove = false;
+      const result = await saveMenuVersionFn({
+        data: { menuId: book.id, language, pdfPath, pages },
+      });
+      if (!result.ok) {
+        safeToRemove = true;
+        toast(ADMIN_ERRORS[result.error], "warning");
+        return;
+      }
+      committed = true;
+      setFiles([]);
+      setInputKey((key) => key + 1);
+      toast(`A(z) ${MENU_LANGUAGE_LABELS[language]} változat feltöltve.`);
+    } catch (error) {
+      toast(
+        error instanceof MenuPdfError
+          ? error.reason === "too_many_pages"
+            ? `Legfeljebb ${MENU_MAX_PAGES} oldal tölthető fel.`
+            : "A PDF sérült vagy jelszóval védett."
+          : "A feltöltés nem sikerült. Próbáld újra.",
+        "warning",
+      );
+    } finally {
+      if (!committed && safeToRemove && uploaded.length) {
+        try {
+          await storage.remove(uploaded);
+        } catch {
+          /* Unreferenced files can be cleaned later. */
+        }
+      }
+      setBusy(false);
+      setProgress("");
+      refresh();
+    }
+  };
+  return (
+    <div className="min-w-0 rounded-2xl border border-border p-4">
+      <h3 className="mb-3 font-display text-2xl">{MENU_LANGUAGE_LABELS[language]}</h3>
+      {version ? (
+        <>
+          <p className="text-sm text-muted-foreground">
+            {version.pages.length} oldal · {formatTimestamp(version.updated_at)}
+          </p>
+          <ul
+            className="my-4 flex gap-3 overflow-x-auto pb-2"
+            aria-label={`${book.title} · ${MENU_LANGUAGE_LABELS[language]} oldalak`}
+          >
+            {version.pages.map((page, i) => (
+              <li key={page.file} className="shrink-0">
+                <a href={imageUrl(page.file)} target="_blank" rel="noopener">
+                  <img
+                    src={imageUrl(page.small)}
+                    alt={`${i + 1}. oldal megnyitása`}
+                    width={page.width}
+                    height={page.height}
+                    className="h-40 w-auto rounded-lg bg-white"
+                    loading="lazy"
+                  />
+                </a>
+              </li>
+            ))}
+          </ul>
+          <Button
+            variant="ghost"
+            disabled={busy}
+            className="mb-4"
+            onClick={() => {
+              if (
+                window.confirm(
+                  `Leveszed a(z) „${book.title}” ${MENU_LANGUAGE_LABELS[language]} változatát? A másik nyelv megmarad.`,
+                )
+              )
+                void mutate(
+                  () => deleteMenuVersionFn({ data: { menuId: book.id, language } }),
+                  "A nyelvi változat eltávolítva.",
+                );
+            }}
+          >
+            Nyelvi változat levétele
+          </Button>
+        </>
+      ) : (
+        <p className="mb-4 text-sm text-muted-foreground">
+          Még nincs feltöltött változat ezen a nyelven.
+        </p>
+      )}
+      <label className={labelClass}>
+        {version ? "Változat cseréje" : "Változat feltöltése"}
+        <input
+          key={inputKey}
+          type="file"
+          multiple
+          accept="application/pdf,image/jpeg,image/png,image/webp,.pdf,.jpg,.jpeg,.png,.webp"
+          disabled={busy}
+          className="mt-2 block w-full text-sm"
+          onChange={(e) => setFiles(Array.from(e.target.files ?? []))}
+        />
+      </label>
+      <p className="mb-3 text-sm text-muted-foreground">
+        Egy PDF vagy több JPG, PNG, WebP kép. Max. 15 MB/fájl, {MENU_MAX_PAGES} oldal. Több kép
+        esetén feltöltés előtt állítsd be a sorrendet.
+      </p>
+      {files.length > 1 && (
+        <ol className="mb-4 space-y-2">
+          {files.map((file, i) => (
+            <li key={`${file.name}-${i}`} className="flex items-center gap-2 text-sm">
+              <span className="min-w-0 flex-1 break-all">
+                {i + 1}. {file.name}
+              </span>
+              {([-1, 1] as const).map((direction) => (
+                <button
+                  key={direction}
+                  type="button"
+                  disabled={busy || i + direction < 0 || i + direction >= files.length}
+                  className="min-h-11 min-w-11 rounded border border-border disabled:opacity-30"
+                  aria-label={`${file.name} ${direction === -1 ? "előrébb" : "hátrébb"}`}
+                  onClick={() =>
+                    setFiles((current) => {
+                      const next = [...current];
+                      [next[i], next[i + direction]] = [next[i + direction]!, next[i]!];
+                      return next;
+                    })
+                  }
+                >
+                  {direction === -1 ? "↑" : "↓"}
+                </button>
+              ))}
+            </li>
+          ))}
+        </ol>
+      )}
+      <Button disabled={busy || !files.length} onClick={() => void upload()}>
+        <Upload className="h-4 w-4" />
+        {progress || (version ? "Csere feltöltése" : "Feltöltés")}
+      </Button>
+      <p role="status" className="sr-only">
+        {progress}
+      </p>
+    </div>
   );
 }

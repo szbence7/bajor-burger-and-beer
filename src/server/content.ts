@@ -44,10 +44,33 @@ export function getMonthlySpecials(): Promise<MonthlySpecial[]> {
   });
 }
 
-/** Object name of the current menu PDF in the "menu" bucket, or null. */
+/** First available menu PDF, preferring Hungarian within each menu (stable QR endpoint). */
 export function getMenuPdfPath(): Promise<string | null> {
   return cached("menu-pdf", TTL_MS, async () => {
-    const row = await getSupabase().from("site_settings").select("menu_pdf_path").single();
-    return parse(z.object({ menu_pdf_path: z.string().nullable() }), row).menu_pdf_path;
+    const result = await getSupabase()
+      .from("menu_books")
+      .select("menu_versions(pdf_path, language)")
+      .order("sort_order")
+      .order("created_at");
+    const rows = parse(
+      z.array(
+        z.object({
+          menu_versions: z.array(
+            z.object({
+              pdf_path: z.string().nullable(),
+              language: z.enum(["hu", "en"]),
+            }),
+          ),
+        }),
+      ),
+      result,
+    );
+    for (const row of rows) {
+      const path =
+        row.menu_versions.find((v) => v.language === "hu" && v.pdf_path)?.pdf_path ??
+        row.menu_versions.find((v) => v.pdf_path)?.pdf_path;
+      if (path) return path;
+    }
+    return null;
   });
 }

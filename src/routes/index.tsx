@@ -1,6 +1,5 @@
 import { createFileRoute, useLocation } from "@tanstack/react-router";
-import { Suspense, lazy, useEffect, useRef } from "react";
-import { FileText } from "lucide-react";
+import { Suspense, lazy, useEffect } from "react";
 import { images } from "@/data/images";
 import { Picture } from "@/components/Picture";
 import { Marquee } from "@/components/Marquee";
@@ -11,11 +10,9 @@ import { SectionHeader } from "@/components/SectionHeader";
 import { CtaLink } from "@/components/CtaButton";
 import { DirectionsLinks, HoursCard, MapCard } from "@/components/HoursAndMap";
 import { SpecialCard } from "@/features/menu/SpecialCard";
-import { MenuViewer } from "@/features/menu/MenuViewer";
+import { MenuCollection } from "@/features/menu/MenuCollection";
 import { PhotoCarousel } from "@/features/gallery/PhotoCarousel";
 import { RautenDivider, RautenPattern } from "@/components/RautenPattern";
-import { cn } from "@/lib/utils";
-import { ctaClass } from "@/lib/cta";
 import { seo } from "@/lib/seo";
 import { useSiteInfo } from "@/lib/site-info";
 import { getHomeContent } from "@/features/menu/api";
@@ -64,28 +61,6 @@ const placePhotos = [
   { src: images.placeTap, alt: "Csapolás a pultnál" },
 ];
 
-/** Slight upward parallax on the hero burger; disabled for reduced motion. */
-function useParallax<T extends HTMLElement>(factor: number) {
-  const ref = useRef<T>(null);
-  useEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    let frame = 0;
-    const update = () => {
-      frame = 0;
-      if (ref.current) ref.current.style.translate = `0 ${window.scrollY * factor}px`;
-    };
-    const onScroll = () => {
-      if (!frame) frame = requestAnimationFrame(update);
-    };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      cancelAnimationFrame(frame);
-    };
-  }, [factor]);
-  return ref;
-}
-
 /**
  * Arriving from another page at /#section, the router scrolls while the page is still
  * settling and stops short; aim again once the fonts are in and the layout is final.
@@ -106,75 +81,63 @@ function useSectionScroll() {
   }, [hash]);
 }
 
-function HeroBurger({ className }: { className?: string }) {
-  return (
-    <div className={cn("pointer-events-none", className)}>
-      <div className="glow-gold absolute inset-[-12%]" />
-      {/* Same sizes on both instances, so mobile and desktop share one download. */}
-      <Picture
-        image={images.burgerHero}
-        alt=""
-        loading="eager"
-        fetchPriority="high"
-        sizes="(min-width: 768px) 400px, 74vw"
-        className="relative w-full animate-float drop-shadow-2xl"
-      />
-    </div>
-  );
-}
-
 function Index() {
-  const parallaxRef = useParallax<HTMLSpanElement>(-0.08);
   useSectionScroll();
-  const { specials } = Route.useLoaderData();
-  const { name, contact, booking, menuPdf } = useSiteInfo();
+  const { specials, menus } = Route.useLoaderData();
+  const { name, contact, booking } = useSiteInfo();
 
   return (
     <>
-      {/* HERO — dark base, faded diamonds from the top right, golden glow behind the burger */}
-      <section className="relative flex min-h-[100svh] items-center overflow-hidden px-5 pb-16 pt-24 md:pb-20 md:pt-28">
-        {/* Bavarian diamonds fading in from the top right, behind the burger (user request). */}
+      {/* Editorial photo composition, retaining the site's gold, cream and diamonds. */}
+      <section className="home-hero relative isolate overflow-hidden">
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-0 [mask-image:radial-gradient(ellipse_at_top_right,black,transparent_65%)]"
+          className="pointer-events-none absolute inset-0 [mask-image:radial-gradient(ellipse_at_top_left,black,transparent_65%)]"
         >
-          <RautenPattern className="opacity-[0.09]" />
+          <RautenPattern className="opacity-[0.06]" />
         </div>
-        <Doodle kind="mug" className="left-[3%] top-24 h-32 w-32 -rotate-12 md:h-44 md:w-44" />
 
-        <div className="relative mx-auto w-full max-w-7xl">
-          {/* Mobile: burger sits above the stacked headline and only kisses the first line. */}
-          <HeroBurger className="relative z-10 -mb-[9vw] ml-auto mr-[-4%] w-[74vw] max-w-sm md:hidden" />
-
-          {/* md+: the burger lives in a slot right after line two, sized in em of the
-              headline so it tracks the text at every width. It rises into the free space
-              beside the short first line; the h1 reserves room above itself, so the burger
-              never reaches the fixed header. */}
-          <h1 className="relative font-impact text-[19vw] leading-[1.1] md:pt-[1.05em] md:leading-[0.94] md:text-[12vw] xl:text-[10.5rem]">
-            <span className="block">Prost,</span>
-            <span className="flex items-end">
-              <span className="text-primary md:whitespace-nowrap">Budapest!</span>
-              <span
-                ref={parallaxRef}
-                aria-hidden
-                className="relative hidden flex-1 self-stretch md:block"
-              >
-                <HeroBurger className="absolute bottom-0 left-[0.15em] z-10 w-[2.6em] xl:w-[2.2em]" />
-              </span>
-            </span>
-          </h1>
-          <p className="relative z-20 mt-6 max-w-xl text-lg text-muted-foreground md:text-xl">
-            Hideg sör csapról, smash burger forrón. Beugrasz egy korsóra, aztán itt ragadsz egész
-            estére.
-          </p>
-          <div className="relative z-20 mt-8 flex flex-wrap gap-4">
-            <CtaLink section="foglalas">Asztalfoglalás</CtaLink>
-            {menuPdf && (
-              <CtaLink section="etlap" variant="outline">
-                Étlap
-              </CtaLink>
-            )}
+        <div className="home-hero-inner relative mx-auto w-full max-w-7xl">
+          <div className="home-hero-copy relative z-10">
+            <p className="home-hero-eyebrow flex items-center gap-3 text-primary">
+              <span aria-hidden className="h-px w-8 bg-primary/60" />
+              Bajor Burger &amp; Beer
+            </p>
+            <h1 className="home-hero-title font-impact">
+              <span className="block">Prost,</span>
+              <span className="block text-primary">Budapest!</span>
+            </h1>
+            <p className="mt-7 max-w-md text-lg text-muted-foreground md:text-xl">
+              Hideg sör csapról, smash burger forrón. Beugrasz egy korsóra, aztán itt ragadsz egész
+              estére.
+            </p>
+            <div className="mt-8 flex flex-wrap gap-4">
+              <CtaLink section="foglalas">Asztalfoglalás</CtaLink>
+              {menus.length > 0 && (
+                <CtaLink section="etlap" variant="outline">
+                  Étlap
+                </CtaLink>
+              )}
+            </div>
           </div>
+
+          <figure className="home-hero-photo">
+            <div className="home-hero-photo-frame">
+              <Picture
+                image={images.burgerHeroPhoto}
+                alt="Bajor burger pirított hagymás buciban, olvadt sajttal és baconnel, palalapon tálalva"
+                loading="eager"
+                fetchPriority="high"
+                sizes="(min-width: 1280px) 900px, (min-width: 768px) 70vw, 100vw"
+                className="home-hero-image"
+              />
+            </div>
+            <figcaption className="home-hero-caption">
+              <span className="font-script text-primary">Jó helyen jársz.</span>
+              <span className="home-hero-caption-rule" aria-hidden />
+              <span className="home-hero-caption-label">Burger. Sör. Bajor.</span>
+            </figcaption>
+          </figure>
         </div>
       </section>
 
@@ -206,8 +169,8 @@ function Index() {
         </section>
       )}
 
-      {/* ÉTLAP — the PDF the staff uploaded, as a page-turner; hidden until there is one */}
-      {menuPdf && (
+      {/* Menus managed in the admin panel. */}
+      {menus.length > 0 && (
         <section
           id="etlap"
           className="relative scroll-mt-20 overflow-hidden px-5 pb-24 pt-12 md:pb-28 md:pt-16"
@@ -229,20 +192,11 @@ function Index() {
                 </>
               }
             >
-              Az egész étlap, ahogy az asztalon is kapod. Fogd meg a lap sarkát és lapozz, vagy
+              Válassz étlapot, és lapozz bele! Fogd meg a lap sarkát, használd a nyilakat, vagy
               nyisd meg nagyban.
             </SectionHeader>
 
-            {menuPdf.pages.length > 0 ? (
-              <MenuViewer pages={menuPdf.pages} />
-            ) : (
-              // A PDF uploaded before the pages were rendered: offer the file itself.
-              <div className="text-center">
-                <a href="/etlap.pdf" target="_blank" rel="noopener" className={ctaClass("gold")}>
-                  <FileText className="h-4 w-4" /> Étlap megnyitása
-                </a>
-              </div>
-            )}
+            <MenuCollection books={menus} />
           </div>
         </section>
       )}

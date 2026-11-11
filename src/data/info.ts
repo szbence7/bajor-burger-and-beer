@@ -58,11 +58,13 @@ export interface CompanyInfo {
   regNumber: string;
 }
 
-/** A page of the menu PDF as images (rendered when the staff uploaded it). */
+/** An original menu image or a page rendered from an uploaded PDF. */
 export interface MenuPage {
-  /** 1600 px wide WebP. */
+  label?: string;
+  language?: "hu" | "en";
+  /** Full-size image. Uploaded PDF pages use 1600 px WebP. */
   src: string;
-  /** 800 px wide WebP. */
+  /** Smaller image, or the original URL when no separate small version exists. */
   srcSmall: string;
   width: number;
   height: number;

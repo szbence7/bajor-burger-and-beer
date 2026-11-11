@@ -1,3 +1,5 @@
+import { menuBookInput, menuVersionInput, menuLanguageInput } from "@/lib/menu-schema";
+import { saveMenuBook, saveMenuVersion, deleteMenuVersion, deleteMenuBook } from "@/server/menus";
 import { createMiddleware, createServerFn } from "@tanstack/react-start";
 import {
   deleteSpecial,
@@ -118,4 +120,29 @@ export const saveSiteDetailsFn = createServerFn({ method: "POST" })
   .inputValidator(siteDetailsInput)
   .handler(({ data, context }) =>
     context.token ? saveSiteDetails(context.token, data) : unauthorized,
+  );
+
+export const saveMenuBookFn = createServerFn({ method: "POST" })
+  .middleware([adminAuth])
+  .inputValidator(menuBookInput)
+  .handler(({ data, context }) =>
+    context.token ? saveMenuBook(context.token, data) : unauthorized,
+  );
+export const saveMenuVersionFn = createServerFn({ method: "POST" })
+  .middleware([adminAuth])
+  .inputValidator(menuVersionInput)
+  .handler(({ data, context }) =>
+    context.token ? saveMenuVersion(context.token, data) : unauthorized,
+  );
+export const deleteMenuVersionFn = createServerFn({ method: "POST" })
+  .middleware([adminAuth])
+  .inputValidator(menuLanguageInput)
+  .handler(({ data, context }) =>
+    context.token ? deleteMenuVersion(context.token, data.menuId, data.language) : unauthorized,
+  );
+export const deleteMenuBookFn = createServerFn({ method: "POST" })
+  .middleware([adminAuth])
+  .inputValidator(idInput)
+  .handler(({ data, context }) =>
+    context.token ? deleteMenuBook(context.token, data.id) : unauthorized,
   );

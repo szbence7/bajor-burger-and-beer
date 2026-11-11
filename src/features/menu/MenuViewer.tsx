@@ -5,6 +5,7 @@ import {
   useRef,
   useState,
   type CSSProperties,
+  type ReactNode,
   type KeyboardEvent,
 } from "react";
 import type { FlippingState, Orientation, PageFlip } from "page-flip";
@@ -53,11 +54,12 @@ function pageElement(page: MenuPage, i: number): HTMLElement {
   );
   const img = document.createElement("img");
   img.src = page.src;
-  img.srcset = `${page.srcSmall} 800w, ${page.src} 1600w`;
+  if (page.srcSmall !== page.src) img.srcset = `${page.srcSmall} 800w, ${page.src} 1600w`;
   img.sizes = "(min-width: 640px) 48rem, 96vw";
-  img.alt = `Étlap, ${i + 1}. oldal`;
+  img.alt = page.label ?? `Étlap, ${i + 1}. oldal`;
+  if (page.language) img.lang = page.language;
   img.draggable = false;
-  img.className = "pointer-events-none h-full w-full select-none object-cover";
+  img.className = "pointer-events-none h-full w-full select-none object-contain";
   // The fold in the middle of an open booklet; hidden when one page is shown.
   const spine = document.createElement("div");
   spine.className = cn(
@@ -81,7 +83,15 @@ function pagesLabel(index: number, count: number, spread: boolean) {
  * "Nagyítás" opens every page full width for reading (pinch-zoom works on phones). No download
  * button here (user decision); /etlap.pdf stays for QR codes.
  */
-export function MenuViewer({ pages }: { pages: MenuPage[] }) {
+export function MenuViewer({
+  pages,
+  title = "Étlap",
+  children,
+}: {
+  pages: MenuPage[];
+  title?: string;
+  children?: ReactNode;
+}) {
   const count = pages.length;
   const ratio = (pages[0]?.width ?? 1) / (pages[0]?.height ?? 1.414);
   const [rootRef, near] = useNearViewport<HTMLDivElement>();
@@ -187,11 +197,16 @@ export function MenuViewer({ pages }: { pages: MenuPage[] }) {
     >
       <img
         src={pages[0].src}
-        srcSet={`${pages[0].srcSmall} 800w, ${pages[0].src} 1600w`}
+        srcSet={
+          pages[0].srcSmall !== pages[0].src
+            ? `${pages[0].srcSmall} 800w, ${pages[0].src} 1600w`
+            : undefined
+        }
         sizes="(min-width: 640px) 48rem, 96vw"
         width={pages[0].width}
         height={pages[0].height}
-        alt={count > 1 ? "" : "Étlap"}
+        alt={`${title} · ${pages[0].label ?? "1. oldal"}`}
+        lang={pages[0].language}
         className="h-full w-auto rounded-lg bg-white object-contain shadow-2xl shadow-black/60"
       />
     </div>
@@ -201,8 +216,8 @@ export function MenuViewer({ pages }: { pages: MenuPage[] }) {
     <div ref={rootRef}>
       <div
         role="region"
-        aria-roledescription="lapozható étlap"
-        aria-label="Étlap"
+        aria-roledescription={count > 1 ? "lapozható étlap" : "étlap"}
+        aria-label={title}
         tabIndex={count > 1 ? 0 : undefined}
         onKeyDown={count > 1 ? onKeyDown : undefined}
         className="relative -mx-3 rounded-3xl py-6 outline-none sm:mx-auto sm:max-w-7xl focus-visible:ring-2 focus-visible:ring-primary"
@@ -229,7 +244,7 @@ export function MenuViewer({ pages }: { pages: MenuPage[] }) {
         {/* What the pages say, for screen readers and search engines. */}
         <div className="sr-only">
           {pages.map((page, i) => (
-            <p key={page.src}>
+            <p key={page.src} lang={page.language}>
               {i + 1}. oldal: {page.text}
             </p>
           ))}
@@ -237,6 +252,7 @@ export function MenuViewer({ pages }: { pages: MenuPage[] }) {
       </div>
 
       <div className="mt-6 flex flex-col items-center gap-6">
+        {children}
         {count > 1 && (
           <div className="flex items-center gap-5">
             <button
@@ -275,7 +291,9 @@ export function MenuViewer({ pages }: { pages: MenuPage[] }) {
       </div>
 
       <AnimatePresence>
-        {reading !== null && <ReadingView pages={pages} start={reading} onClose={closeReading} />}
+        {reading !== null && (
+          <ReadingView pages={pages} title={title} start={reading} onClose={closeReading} />
+        )}
       </AnimatePresence>
     </div>
   );
@@ -284,10 +302,12 @@ export function MenuViewer({ pages }: { pages: MenuPage[] }) {
 /** Every page full width, one under the other: the easiest way to read the menu on a phone. */
 function ReadingView({
   pages,
+  title,
   start,
   onClose,
 }: {
   pages: MenuPage[];
+  title: string;
   start: number;
   onClose: () => void;
 }) {
@@ -316,7 +336,7 @@ function ReadingView({
     <m.div
       role="dialog"
       aria-modal="true"
-      aria-label="Étlap"
+      aria-label={title}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -325,7 +345,7 @@ function ReadingView({
     >
       <div className="flex items-center justify-between gap-4 border-b border-border px-5 py-3">
         <p className="font-display text-2xl">
-          <span className="text-primary">Étlap</span>
+          <span className="text-primary">{title}</span>
           {pages.length > 1 && (
             <span className="text-muted-foreground"> · {pages.length} oldal</span>
           )}
@@ -349,11 +369,14 @@ function ReadingView({
               key={page.src}
               data-page={i}
               src={page.src}
-              srcSet={`${page.srcSmall} 800w, ${page.src} 1600w`}
+              srcSet={
+                page.srcSmall !== page.src ? `${page.srcSmall} 800w, ${page.src} 1600w` : undefined
+              }
               sizes="(min-width: 1024px) 64rem, 100vw"
               width={page.width}
               height={page.height}
-              alt={`Étlap, ${i + 1}. oldal`}
+              alt={`${title} · ${page.label ?? `${i + 1}. oldal`}`}
+              lang={page.language}
               loading={Math.abs(i - start) <= 1 ? "eager" : "lazy"}
               className="h-auto w-full scroll-mt-6 rounded-lg bg-white"
             />

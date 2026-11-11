@@ -3,6 +3,9 @@
 Schema, Row Level Security, booking rules and the launch content for the self-hosted
 Supabase instance.
 
+See [DEPLOYMENT.md](./DEPLOYMENT.md) for the Coolify migration, verification and
+remaining production configuration.
+
 | Path                                        | What                                                                          |
 | ------------------------------------------- | ----------------------------------------------------------------------------- |
 | `migrations/0001_content.sql`               | Menu, beers, gallery, opening hours, site settings; RLS                       |

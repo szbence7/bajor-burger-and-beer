@@ -17,7 +17,7 @@ export function RautenPattern({ className }: { className?: string }) {
 export function RautenDivider({ className }: { className?: string }) {
   return (
     <div aria-hidden className={cn("px-5", className)}>
-      <div className="rauten h-4 text-primary opacity-[0.12] [mask-size:16px_16px]" />
+      <div className="rauten h-4 text-primary opacity-[0.12] [mask-size:16px_24px]" />
     </div>
   );
 }

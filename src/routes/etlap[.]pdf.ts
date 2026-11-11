@@ -9,7 +9,11 @@ export const Route = createFileRoute("/etlap.pdf")({
     handlers: {
       GET: async () => {
         const path = await getMenuPdfPath();
-        if (!path) return new Response("Nincs feltöltött étlap.", { status: 404 });
+        if (!path)
+          return new Response(null, {
+            status: 302,
+            headers: { location: "/#etlap", "cache-control": "no-store" },
+          });
         const base = process.env["SUPABASE_URL"]?.replace(/\/+$/, "");
         const upstream = await fetch(
           `${base}/storage/v1/object/public/menu/${encodeURIComponent(path)}`,
