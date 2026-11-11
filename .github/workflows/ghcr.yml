@@ -130,6 +130,6 @@ jobs:
           set -euo pipefail
           test -n "$COOLIFY_STAGING_DEPLOY_WEBHOOK"
           test -n "$COOLIFY_STAGING_API_TOKEN"
-          curl --fail --silent --show-error --output /dev/null \
+          curl --request POST --fail --silent --show-error --output /dev/null \
             --header "Authorization: Bearer $COOLIFY_STAGING_API_TOKEN" \
             "$COOLIFY_STAGING_DEPLOY_WEBHOOK"
