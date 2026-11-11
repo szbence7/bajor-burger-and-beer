@@ -1,6 +1,6 @@
 import { createFileRoute, useLocation } from "@tanstack/react-router";
 import { Suspense, lazy, useEffect } from "react";
-import { images } from "@/data/images";
+import { images, foodPhotos } from "@/data/images";
 import { Picture } from "@/components/Picture";
 import { Marquee } from "@/components/Marquee";
 import { Doodle, DoodleIcon, type DoodleKind } from "@/components/Doodle";
@@ -55,10 +55,8 @@ const values: { icon: DoodleKind; title: string; text: string }[] = [
 ];
 
 const placePhotos = [
-  { src: images.placePeople, alt: "Baráti koccintás a hosszú asztalnál" },
-  { src: images.placeInterior, alt: "A betonpult a Bajor felirattal és az asztalok" },
-  { src: images.eventNight, alt: "Élőzenés est a Bajorban" },
-  { src: images.placeTap, alt: "Csapolás a pultnál" },
+  { src: images.placeInterior, alt: "A Bajor pultja és asztalai" },
+  ...foodPhotos,
 ];
 
 /**
@@ -205,8 +203,8 @@ function Index() {
           background at both ends. */}
       <div id="sav" className="relative h-[55svh] max-h-[44rem] min-h-80 overflow-hidden">
         <Picture
-          image={images.foodTable}
-          alt="Burgerek, perec és sör az asztalon"
+          image={images.sorkorcsolyak}
+          alt="Sörkorcsolyák és egy pohár sör a Bajorban"
           sizes="100vw"
           className="h-full w-full object-cover"
         />
@@ -228,14 +226,14 @@ function Index() {
               image={images.placeInterior}
               alt="A Bajor pultja és asztalai"
               sizes="(min-width: 1280px) 480px, (min-width: 768px) 38vw, 78vw"
-              // The tap photo covers the right of this one: keep the "BAJOR BEER" lettering in view.
+              // The food photo covers the right of this one: keep the "BAJOR BEER" lettering in view.
               className="h-full w-full object-cover object-[20%_60%]"
             />
           </div>
           <div className="unveil absolute bottom-0 right-0 h-[62%] w-[52%] overflow-hidden rounded-3xl border-4 border-background shadow-2xl">
             <Picture
-              image={images.placeTap}
-              alt="Csapolás"
+              image={images.bajorKolbasz}
+              alt="Bajor kolbász sült édesburgonyával és káposztával"
               sizes="(min-width: 1280px) 320px, (min-width: 768px) 26vw, 52vw"
               className="h-full w-full object-cover"
             />
@@ -287,7 +285,7 @@ function Index() {
       <section id="hely" className="relative isolate scroll-mt-20 pb-16 pt-20 md:pb-20 md:pt-24">
         <Ambient side="left" />
         <div className="mx-auto max-w-7xl px-5">
-          <SectionHeader title="A hely" className="mb-2" />
+          <SectionHeader title="A hely és az ételek" className="mb-2" />
         </div>
         <PhotoCarousel photos={placePhotos} />
       </section>

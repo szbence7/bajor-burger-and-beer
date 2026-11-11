@@ -16,6 +16,6 @@ export interface MonthlySpecial {
   name: string;
   description: string;
   price: number;
-  image: ImageSource;
+  image: ImageSource | undefined;
   spice: SpiceLevel;
 }

@@ -31,7 +31,11 @@ export function PhotoCarousel({ photos }: { photos: CarouselPhoto[] }) {
   const next = useCallback(() => embla?.scrollNext(), [embla]);
 
   return (
-    <div role="region" aria-roledescription="carousel" aria-label="Képek a helyről">
+    <div
+      role="region"
+      aria-roledescription="carousel"
+      aria-label="Képek a Bajor helyszínéről és ételeiről"
+    >
       {/* vertical padding keeps the hover lift and shadow from being clipped */}
       <div ref={viewportRef} className="overflow-hidden px-5 py-10">
         <div className="-ml-6 flex touch-pan-y">
@@ -48,15 +52,16 @@ export function PhotoCarousel({ photos }: { photos: CarouselPhoto[] }) {
                   image={p.src}
                   alt={p.alt}
                   sizes="(min-width: 1536px) 24vw, (min-width: 1024px) 31vw, (min-width: 640px) 45vw, 78vw"
-                  className="aspect-[4/5] w-full object-cover"
+                  className="aspect-[3/2] w-full object-cover"
                 />
+                <figcaption className="bg-card px-5 py-3 font-display text-xl">{p.alt}</figcaption>
               </figure>
             </div>
           ))}
         </div>
       </div>
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-5">
-        <div className="flex gap-2" aria-hidden>
+        <div className="hidden gap-2 sm:flex" aria-hidden>
           {photos.map((p, i) => (
             <span
               key={`${p.src}-dot-${i}`}
@@ -67,6 +72,9 @@ export function PhotoCarousel({ photos }: { photos: CarouselPhoto[] }) {
             />
           ))}
         </div>
+        <p className="font-display text-xl text-muted-foreground sm:hidden">
+          {selected + 1} / {photos.length}
+        </p>
         <div className="flex gap-3">
           <button type="button" onClick={prev} className={arrowClass} aria-label="Előző kép">
             <ChevronLeft className="h-6 w-6" />

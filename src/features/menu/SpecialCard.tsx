@@ -25,18 +25,20 @@ export function SpecialCard({ special }: { special: MonthlySpecial }) {
         {special.name}
         {special.spice > 0 && <span className="sr-only"> ({SPICE_LABELS[special.spice]})</span>}
       </h3>
-      <div className="relative -mt-2 flex h-32 flex-1 items-end justify-end">
-        <Picture
-          image={special.image}
-          alt={special.name}
-          sizes="(min-width: 640px) 14rem, 70vw"
-          className="-mr-8 h-full max-h-32 w-[75%] object-contain drop-shadow-2xl transition-transform duration-500 group-hover:scale-105 motion-reduce:transition-none"
-        />
-      </div>
+      {special.image && (
+        <div className="relative mt-4 overflow-hidden rounded-xl">
+          <Picture
+            image={special.image}
+            alt={special.name}
+            sizes="(min-width: 640px) 14rem, 70vw"
+            className="aspect-[3/2] w-full object-cover transition-transform duration-500 group-hover:scale-105 motion-reduce:transition-none"
+          />
+        </div>
+      )}
       {special.description && (
         <p className="relative z-10 mt-3 line-clamp-3 text-sm opacity-85">{special.description}</p>
       )}
-      <p className="relative z-10 mt-4">
+      <p className="relative z-10 mt-auto pt-4">
         <Price value={special.price} className="font-display text-2xl text-primary" />
       </p>
     </article>

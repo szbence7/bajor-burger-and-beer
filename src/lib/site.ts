@@ -11,7 +11,7 @@ export const DEFAULT_OG_IMAGE = {
   path: "/og-image.jpg",
   width: 1200,
   height: 630,
-  alt: "Burgerek, perec és csapolt sör a Bajor Burger & Beer asztalán",
+  alt: "A Bajor Burger & Beer saját Brutal Smashed burgere",
 };
 
 export const absoluteUrl = (path: string) => new URL(path, `${SITE_URL}/`).toString();

@@ -1,7 +1,7 @@
 // Database rows → the app's content types. Rows are validated with zod, so a schema change
 // fails loudly here instead of rendering half-empty pages.
 import { z } from "zod";
-import { images, resolveImage } from "@/data/images";
+import { resolveDishImage } from "@/data/images";
 import type { OpeningHour, SiteInfo } from "@/data/info";
 import { openingHourRow, siteSettingsRow } from "@/lib/site-rows";
 import { publicFileUrl } from "./supabase";
@@ -70,8 +70,8 @@ export function toSpecial(r: z.infer<typeof specialRow>): MonthlySpecial {
     name: r.name,
     description: r.description,
     price: r.price,
-    // The cards always show a photo; fall back to the hero burger.
-    image: resolveImage(r.image) ?? images.burgerHero,
+    // No dummy or unrelated food photo when a special has no matching original.
+    image: resolveDishImage(r.image, r.name),
     spice: r.spice,
   };
 }

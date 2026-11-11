@@ -4,7 +4,7 @@ import { ArrowDown, ArrowUp, Eye, EyeOff, ImagePlus, Pencil, Plus, Trash2 } from
 import { z } from "zod";
 import { Picture } from "@/components/Picture";
 import { Price } from "@/components/Price";
-import { images, resolveImage } from "@/data/images";
+import { resolveDishImage } from "@/data/images";
 import { cn } from "@/lib/utils";
 import { deleteSpecialFn, reorderSpecialsFn, saveSpecialFn } from "./api";
 import {
@@ -41,12 +41,19 @@ function useSpecials() {
 }
 
 function Thumb({ image, name }: { image: string | null; name: string }) {
+  const photo = resolveDishImage(image, name);
+  if (!photo)
+    return (
+      <span className="grid h-20 w-20 shrink-0 place-items-center rounded-2xl bg-background text-center text-xs text-muted-foreground">
+        Nincs fotó
+      </span>
+    );
   return (
     <Picture
-      image={resolveImage(image) ?? images.burgerHero}
+      image={photo}
       alt={name}
       sizes="96px"
-      className="h-20 w-20 shrink-0 rounded-2xl bg-background object-contain p-1"
+      className="h-20 w-20 shrink-0 rounded-2xl bg-background object-cover"
     />
   );
 }

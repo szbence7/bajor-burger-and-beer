@@ -58,6 +58,17 @@ try {
       await page.getByRole("dialog").waitFor({ state: "detached" });
     }
   }
+  const gallery = page.getByRole("region", { name: "Képek a Bajor helyszínéről és ételeiről" });
+  await gallery.scrollIntoViewIfNeeded();
+  const galleryImages = gallery.locator("img");
+  assert.ok(await galleryImages.count(), "original restaurant photographs in gallery");
+  for (const img of await galleryImages.all()) {
+    await img.evaluate(async (image) => {
+      image.loading = "eager";
+      await image.decode();
+      if (!image.naturalWidth) throw new Error("Gallery photo failed to load");
+    });
+  }
   const legacy = await page.request.get(origin + "/menu", { maxRedirects: 0 });
   assert.equal(legacy.status(), 301, "legacy menu redirect");
   const pdf = await page.request.get(origin + "/etlap.pdf", { maxRedirects: 0 });
@@ -73,7 +84,7 @@ try {
   assert.match(await page.locator('meta[name="robots"]').getAttribute("content"), /noindex/);
   assert.deepEqual(errors, [], "no render, hydration or browser console errors");
   console.log(
-    "PASS: production SSR, hydration, all menu books/languages/images, enlargement, PDF endpoint, admin login and indexing",
+    "PASS: production SSR, hydration, menu books/languages, original photo gallery, PDF endpoint, admin login and indexing",
   );
 } finally {
   await browser.close();

@@ -1,10 +1,32 @@
 import { describe, expect, it } from "vitest";
-import { images, resolveImage } from "@/data/images";
+import { images, resolveImage, resolveDishImage } from "@/data/images";
 import { openingHourRow, siteSettingsRow, toSiteInfo } from "./mappers";
 
 describe("resolveImage", () => {
+  it("never renders retired dummy image keys, including existing database values", () => {
+    for (const key of [
+      "burgerHero",
+      "burgerSpicy",
+      "burgerVeggie",
+      "placePeople",
+      "placeTap",
+      "foodTable",
+      "eventNight",
+    ]) {
+      expect(resolveImage(key)).toBeUndefined();
+      expect(resolveDishImage(key, "Unknown monthly special")).toBeUndefined();
+    }
+  });
+  it("uses an exact original dish photo or a staff upload without inventing a fallback", () => {
+    expect(resolveDishImage(null, "LÁVA BURGER")).toBe(images.lavaBurger);
+    expect(resolveDishImage(null, "Chili Surf & Turf burger")).toBeUndefined();
+    expect(resolveDishImage("https://cdn.example.hu/staff.webp", "Classic Beef")).toBe(
+      "https://cdn.example.hu/staff.webp",
+    );
+  });
+
   it("maps bundled image keys, keeps absolute URLs, rejects the rest", () => {
-    expect(resolveImage("burgerSpicy")).toBe(images.burgerSpicy);
+    expect(resolveImage("classicBeef")).toBe(images.classicBeef);
     expect(resolveImage("https://cdn.example.hu/a.webp")).toBe("https://cdn.example.hu/a.webp");
     expect(resolveImage("toString")).toBeUndefined();
     expect(resolveImage("nope.png")).toBeUndefined();
