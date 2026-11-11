@@ -231,7 +231,7 @@ function Index() {
               image={images.brutalSmashed}
               alt="A Bajor Brutal Smashed burgere sajttal és baconnel"
               sizes="(min-width: 1280px) 320px, (min-width: 768px) 26vw, 52vw"
-              className="h-full w-full object-cover object-[35%_50%]"
+              className="absolute left-1/2 top-1/2 h-[140%] w-auto max-w-none -translate-x-[35%] -translate-y-[63.5%]"
             />
           </div>
         </div>
