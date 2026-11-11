@@ -97,10 +97,6 @@ function Index() {
 
         <div className="home-hero-inner relative mx-auto w-full max-w-7xl">
           <div className="home-hero-copy relative z-10">
-            <p className="home-hero-eyebrow flex items-center gap-3 text-primary">
-              <span aria-hidden className="h-px w-8 bg-primary/60" />
-              Bajor Burger &amp; Beer
-            </p>
             <h1 className="home-hero-title font-impact">
               <span className="block">Prost,</span>
               <span className="block text-primary">Budapest!</span>
@@ -232,10 +228,10 @@ function Index() {
           </div>
           <div className="unveil absolute bottom-0 right-0 h-[62%] w-[52%] overflow-hidden rounded-3xl border-4 border-background shadow-2xl">
             <Picture
-              image={images.bajorKolbasz}
-              alt="Bajor kolbász sült édesburgonyával és káposztával"
+              image={images.brutalSmashed}
+              alt="A Bajor Brutal Smashed burgere sajttal és baconnel"
               sizes="(min-width: 1280px) 320px, (min-width: 768px) 26vw, 52vw"
-              className="h-full w-full object-cover"
+              className="h-full w-full object-cover object-[35%_50%]"
             />
           </div>
         </div>
@@ -243,13 +239,10 @@ function Index() {
         <div>
           <SectionHeader title="Sörház, komoly burgerrel" />
           <div className="space-y-4 text-lg text-muted-foreground">
+            <p>A {name} jó sörökkel, szaftos hamburgerekkel és finom falatokkal vár.</p>
             <p>
-              A {name} egy hosszú müncheni éjszakán született: két barát, egy-egy maß, és a kérdés,
-              hogy miért nincs otthon egy hely, ahol a bajor sörkultúra találkozik a jó burgerrel.
-            </p>
-            <p>
-              Most van. Saját főzésű sörök, smash burgerek és hosszú asztalok, ahol mindenkinek jut
-              hely. A cél ma is ugyanaz: őszinte étel, friss sör, hangos este.
+              Ugorj be egy ebédre vagy vacsorára, és koccints egyet a barátokkal. Nézz bele az
+              étlapba, és térj be hozzánk!
             </p>
           </div>
         </div>
