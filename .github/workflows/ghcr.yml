@@ -110,7 +110,7 @@ jobs:
           echo "digest=$digest" >> "$GITHUB_OUTPUT"
           echo "Published $digest (linux/arm64)" >> "$GITHUB_STEP_SUMMARY"
 
-  # Dormant until the later Coolify image-source migration is explicitly completed.
+  # Staging deploys the verified GHCR image; the server does not build source.
   # No production webhook is defined or called by this workflow.
   deploy-staging:
     needs: image
@@ -121,7 +121,7 @@ jobs:
     environment: staging
     permissions: {}
     steps:
-      - name: Trigger later-configured staging deployment
+      - name: Trigger staging image deployment
         env:
           COOLIFY_STAGING_DEPLOY_WEBHOOK: ${{ secrets.COOLIFY_STAGING_DEPLOY_WEBHOOK }}
           COOLIFY_STAGING_API_TOKEN: ${{ secrets.COOLIFY_STAGING_API_TOKEN }}
