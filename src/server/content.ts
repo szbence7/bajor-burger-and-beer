@@ -14,7 +14,7 @@ function parse<T extends z.ZodTypeAny>(
   schema: T,
   { data, error }: { data: unknown; error: unknown },
 ): z.infer<T> {
-  if (error) throw error;
+  if (error) throw new Error("Public content query failed", { cause: error });
   return schema.parse(data);
 }
 

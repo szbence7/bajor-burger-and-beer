@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 # ---- deps: install with bun (lockfile is bun.lock) ----
-FROM oven/bun:1.4 AS deps
+FROM oven/bun:1.4.4 AS deps
 WORKDIR /app
 COPY package.json bun.lock bunfig.toml ./
 RUN bun install --frozen-lockfile
@@ -25,6 +25,6 @@ ENV NODE_ENV=production \
 COPY --from=build --chown=node:node /app/.output ./.output
 USER node
 EXPOSE 3000
-HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
-  CMD wget -qO- "http://127.0.0.1:${PORT}/api/health" > /dev/null || exit 1
+HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
+  CMD wget -T 9 -qO- "http://127.0.0.1:${PORT}/api/ready" > /dev/null || exit 1
 CMD ["node", ".output/server/index.mjs"]

@@ -42,7 +42,11 @@ export function getMenuBooks(): Promise<MenuBook[]> {
       .select("*, menu_versions(*)")
       .order("sort_order")
       .order("created_at");
-    if (error) throw error;
+    if (error) {
+      throw new Error("Menu books query failed (requires migration 0010_menu_books.sql)", {
+        cause: error,
+      });
+    }
     return z
       .array(menuBookRow)
       .parse(data)

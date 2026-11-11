@@ -9,6 +9,7 @@ import {
   Scripts,
   type ErrorComponentProps,
 } from "@tanstack/react-router";
+import { reportError } from "@/lib/errors";
 import type { ReactNode } from "react";
 
 import appCss from "../styles.css?url";
@@ -44,7 +45,7 @@ function NotFoundComponent() {
 }
 
 function ErrorComponent({ error, reset }: ErrorComponentProps) {
-  console.error(error);
+  if (import.meta.env.DEV) reportError("route-boundary", error);
   const router = useRouter();
 
   return (

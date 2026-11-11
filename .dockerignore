@@ -18,3 +18,10 @@ Dockerfile
 
 # Database migrations and tests are not part of the app image
 supabase
+
+# Local database backups and agent/editor state must never enter build layers or GH cache.
+.backups.local
+.claude
+.agents
+.codex
+.aws

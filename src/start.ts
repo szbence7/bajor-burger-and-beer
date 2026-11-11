@@ -1,5 +1,8 @@
 import { createStart, createCsrfMiddleware, createMiddleware } from "@tanstack/react-start";
 
+import { isRedirect, isNotFound } from "@tanstack/react-router";
+import { reportError } from "./lib/errors";
+
 import { renderErrorPage } from "./lib/error-page";
 
 const errorMiddleware = createMiddleware().server(async ({ next }) => {
@@ -9,11 +12,24 @@ const errorMiddleware = createMiddleware().server(async ({ next }) => {
     if (error != null && typeof error === "object" && "statusCode" in error) {
       throw error;
     }
-    console.error(error);
+    reportError("request", error);
     return new Response(renderErrorPage(), {
       status: 500,
       headers: { "content-type": "text/html; charset=utf-8" },
     });
+  }
+});
+
+// Log original server-function failures before production serialization. Plain PostgREST
+// objects otherwise bypass Error sanitization and expose database internals in SSR HTML.
+const functionErrors = createMiddleware({ type: "function" }).server(async ({ next }) => {
+  try {
+    return await next();
+  } catch (error) {
+    if (isRedirect(error) || isNotFound(error) || error instanceof Response) throw error;
+    reportError("server-function", error);
+    if (import.meta.env.DEV) throw error;
+    throw new Error("A kérés feldolgozása sikertelen.");
   }
 });
 
@@ -58,5 +74,6 @@ const csrfMiddleware = createCsrfMiddleware({
 });
 
 export const startInstance = createStart(() => ({
+  functionMiddleware: [functionErrors],
   requestMiddleware: [compressionMiddleware, errorMiddleware, csrfMiddleware],
 }));
