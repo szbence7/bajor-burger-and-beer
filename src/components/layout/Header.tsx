@@ -1,3 +1,4 @@
+import { scrollToBooking } from "@/lib/booking-scroll";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { Menu as MenuIcon, X } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -133,7 +134,12 @@ export function Header() {
               {SECTIONS[id]}
             </Link>
           ))}
-          <Link to="/" hash="foglalas" className={ctaClass("gold", "px-5 py-3")}>
+          <Link
+            to="/"
+            onClick={scrollToBooking}
+            hash="foglalas"
+            className={ctaClass("gold", "px-5 py-3")}
+          >
             Asztalfoglalás
           </Link>
         </nav>
@@ -155,7 +161,10 @@ export function Header() {
               key={id}
               to="/"
               hash={id}
-              onClick={() => setOpen(false)}
+              onClick={(event) => {
+                setOpen(false);
+                scrollToBooking(event);
+              }}
               className="font-display text-5xl text-foreground hover:text-primary"
             >
               {SECTIONS[id]}
@@ -164,7 +173,10 @@ export function Header() {
           <Link
             to="/"
             hash="foglalas"
-            onClick={() => setOpen(false)}
+            onClick={(event) => {
+              setOpen(false);
+              scrollToBooking(event);
+            }}
             className={ctaClass("gold", "mt-4")}
           >
             Asztalfoglalás

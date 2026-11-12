@@ -1,3 +1,4 @@
+import { scrollToBooking } from "@/lib/booking-scroll";
 import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 import { AnimatePresence, m } from "@/components/motion";
@@ -89,7 +90,15 @@ export function BookingNudge() {
           <p className="mt-2 text-muted-foreground">
             Hétvége van, és most nyitva vagyunk. Foglalj asztalt, hogy biztosan legyen helyed.
           </p>
-          <Link to="/" hash="foglalas" onClick={dismiss} className={ctaClass("gold", "mt-5")}>
+          <Link
+            to="/"
+            hash="foglalas"
+            onClick={(event) => {
+              dismiss();
+              scrollToBooking(event);
+            }}
+            className={ctaClass("gold", "mt-5")}
+          >
             Asztalt foglalok
           </Link>
         </m.div>

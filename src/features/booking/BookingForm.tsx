@@ -139,17 +139,42 @@ export function BookingForm() {
   // Loading → times → "no free time" swaps ease instead of jumping.
   const slotStateRef = useSmoothList<HTMLDivElement>();
 
-  // Every date selection brings the available times below the fixed header.
-  const slotsRef = useRef<HTMLDivElement>(null);
+  // The form is lazy-loaded: direct booking URLs scroll once it has mounted.
   useEffect(() => {
-    if (!f.date) return;
-    const frame = requestAnimationFrame(() => {
-      const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      slotsRef.current?.scrollIntoView({ block: "start", behavior: reduce ? "instant" : "smooth" });
-    });
-    return () => cancelAnimationFrame(frame);
-  }, [f.date]);
-  const pickDate = (date: string) => set("date", date);
+    if (window.location.hash !== "#foglalas") return;
+    let cancelled = false;
+    void document.fonts.ready.then(() =>
+      requestAnimationFrame(() => {
+        if (!cancelled) document.getElementById("foglalas")?.scrollIntoView();
+      }),
+    );
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // Wait for the new list and its layout animation before scrolling to the times.
+  const slotsRef = useRef<HTMLDivElement>(null);
+  const scrollToSlots = useRef(false);
+  useEffect(() => {
+    if (!f.date || availability.isFetching || !scrollToSlots.current) return;
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const timer = setTimeout(
+      () => {
+        scrollToSlots.current = false;
+        slotsRef.current?.scrollIntoView({
+          block: "start",
+          behavior: reduce ? "instant" : "smooth",
+        });
+      },
+      reduce ? 0 : 550,
+    );
+    return () => clearTimeout(timer);
+  }, [f.date, availability.isFetching]);
+  const pickDate = (date: string) => {
+    scrollToSlots.current = true;
+    set("date", date);
+  };
 
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();

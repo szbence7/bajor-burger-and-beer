@@ -77,23 +77,6 @@ function useSectionScroll() {
       cancelled = true;
     };
   }, [hash]);
-
-  // Repeated links to the current hash must scroll again, including from the footer.
-  useEffect(() => {
-    const onClick = (event: MouseEvent) => {
-      if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey)
-        return;
-      const link = event.target instanceof Element ? event.target.closest("a") : null;
-      if (!link || link.target === "_blank") return;
-      const url = new URL(link.href);
-      if (url.origin === location.origin && url.pathname === "/" && url.hash === "#foglalas") {
-        if (location.hash === "#foglalas") event.preventDefault();
-        requestAnimationFrame(() => document.getElementById("foglalas")?.scrollIntoView());
-      }
-    };
-    document.addEventListener("click", onClick, true);
-    return () => document.removeEventListener("click", onClick, true);
-  }, []);
 }
 
 function Index() {

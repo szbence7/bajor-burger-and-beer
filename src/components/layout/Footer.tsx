@@ -1,3 +1,4 @@
+import { scrollToBooking } from "@/lib/booking-scroll";
 import { Link } from "@tanstack/react-router";
 import { useSiteInfo } from "@/lib/site-info";
 import { formatHours } from "@/lib/format";
@@ -57,7 +58,12 @@ export function Footer() {
               </li>
             ))}
             <li className="pt-2">
-              <Link to="/" hash="foglalas" className={ctaClass("gold", "mt-2 px-5 py-3")}>
+              <Link
+                to="/"
+                onClick={scrollToBooking}
+                hash="foglalas"
+                className={ctaClass("gold", "mt-2 px-5 py-3")}
+              >
                 Asztalfoglalás
               </Link>
             </li>

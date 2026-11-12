@@ -1,3 +1,4 @@
+import { scrollToBooking } from "@/lib/booking-scroll";
 import { Link } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 import { ctaClass, type CtaVariant } from "@/lib/cta";
@@ -16,7 +17,12 @@ export function CtaLink({
   className?: string;
 }) {
   return (
-    <Link to="/" hash={section} className={ctaClass(variant, className)}>
+    <Link
+      to="/"
+      onClick={section === "foglalas" ? scrollToBooking : undefined}
+      hash={section}
+      className={ctaClass(variant, className)}
+    >
       {children}
     </Link>
   );
