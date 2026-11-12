@@ -275,6 +275,18 @@ _Last updated: clickable dish photos, 2026-11-12._
 
 Work happens directly on `main` (user decision 2026-11-12); the `claude/redesign-fixes` branch was merged and deleted.
 
+### Email integration follow-up (2026-11-12)
+
+- Completed the SMTP password guard and dev environment loading fix: `.env` values now
+  override stale shell exports, including Vite's own environment precedence.
+- Transport creation errors return a delivery result; each attempt reads current SMTP settings.
+  Notification log outages preserve the actual delivery status. Unexpected account-email
+  failures return `failed`, allowing the admin to hand over the temporary password.
+- Added SMTP and notification failure regression tests and documented runtime setup in README.
+- Verified: lint (0 errors, 4 existing warnings), TypeScript, all 56 tests, production build.
+- Live Rackhost delivery remains unverified: local `SMTP_USER` and `SMTP_PASS` are empty.
+  Fill them locally and configure the same runtime variables in Coolify before a live test.
+
 ### Dish photos (2026-11-12)
 
 - Client request: the food photos in "A hely és az ételek" open a small dialog with the dish
@@ -367,8 +379,9 @@ Work happens directly on `main` (user decision 2026-11-12); the `claude/redesign
   `public/og-image.jpg` is rendered from them; swap via `src/data/images.ts` and regenerate
   the OG image once real photos arrive. The home "A hely" carousel and the Rólunk photos
   are still fixed in code (candidates for admin control in Phase 4).
-- **SMTP provider for the booking emails**: needs the user's choice and credentials
-  (`SMTP_*` in Coolify). Until then the log shows every email as "Nem ment ki".
+- **SMTP credentials**: local configuration selects Rackhost (`smtp.rackhost.hu`, TLS port
+  465), but `SMTP_USER` and `SMTP_PASS` are empty. Fill them in and set `SMTP_*` runtime
+  variables in Coolify; real delivery still needs verification.
 - **Apply Phase 4 to the real instance**: migration 0004 + seed, Auth env
   (`GOTRUE_DISABLE_SIGNUP=true`, TOTP MFA enroll/verify on), Realtime + Storage running, then
   `bun run admin create` for the first admin (the rest are invited from the panel); set `SUPABASE_SERVICE_ROLE_KEY` (and

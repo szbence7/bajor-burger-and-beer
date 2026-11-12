@@ -26,10 +26,15 @@ async function log(
   status: NotificationStatus,
   error?: string,
 ) {
-  const { error: dbError } = await getServiceSupabase()
-    .from("notification_log")
-    .insert({ reservation_id: reservationId, kind, recipient, status, error: error ?? null });
-  if (dbError) console.error(`Could not log the ${kind} email of ${reservationId}:`, dbError);
+  try {
+    const { error: dbError } = await getServiceSupabase()
+      .from("notification_log")
+      .insert({ reservation_id: reservationId, kind, recipient, status, error: error ?? null });
+    if (dbError) console.error(`Could not log the ${kind} email of ${reservationId}:`, dbError);
+  } catch (error) {
+    // Logging must not turn a successfully sent email into a failed delivery.
+    console.error(`Could not log the ${kind} email of ${reservationId}:`, error);
+  }
 }
 
 /** Sends one notification and logs the outcome. Never throws. */
@@ -80,9 +85,15 @@ export async function deliverAccountEmail(
   to: string,
   temporaryPassword: string,
 ): Promise<NotificationStatus> {
-  const result = await sendMail(
-    buildAccountEmail(kind, await getSiteInfo(), to, temporaryPassword),
-  );
-  await log(null, kind, to, result.status, "error" in result ? result.error : undefined);
-  return result.status;
+  try {
+    const result = await sendMail(
+      buildAccountEmail(kind, await getSiteInfo(), to, temporaryPassword),
+    );
+    await log(null, kind, to, result.status, "error" in result ? result.error : undefined);
+    return result.status;
+  } catch {
+    // Do not log provider errors here: they may contain the temporary password.
+    await log(null, kind, to, "failed", "A fiókértesítő e-mail küldése nem sikerült.");
+    return "failed";
+  }
 }

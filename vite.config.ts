@@ -8,12 +8,19 @@ import { imagetools } from "vite-imagetools";
 
 export default defineConfig(({ command, mode }) => {
   // Runtime server vars (SUPABASE_*, SMTP_*, NOTIFY_*, NOINDEX) come from the environment in
-  // production. In dev, fill them from .env so `bun run dev` works without exporting them.
+  // production. In dev, .env wins over the shell: a stale export left in the terminal (e.g. an
+  // old SMTP_HOST) must not silently override what the developer just wrote in .env.
   if (command === "serve") {
-    for (const [key, value] of Object.entries(
-      loadEnv(mode, process.cwd(), ["SUPABASE_", "SMTP_", "NOTIFY_", "NOINDEX"]),
-    )) {
-      process.env[key] ??= value;
+    const prefixes = ["SUPABASE_", "SMTP_", "NOTIFY_", "NOINDEX"];
+    const shellValues = Object.fromEntries(
+      Object.entries(process.env).filter(([key]) => prefixes.some((p) => key.startsWith(p))),
+    );
+    // loadEnv itself prioritises process.env, so hide matching shell values while reading files.
+    for (const key of Object.keys(shellValues)) delete process.env[key];
+    try {
+      Object.assign(process.env, shellValues, loadEnv(mode, process.cwd(), prefixes));
+    } finally {
+      for (const [key, value] of Object.entries(shellValues)) process.env[key] ??= value;
     }
   }
   return config(command);

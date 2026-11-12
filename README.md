@@ -64,3 +64,32 @@ Responses are already gzip-compressed by the app, so the proxy's compression is 
 All images enter through `src/data/images.ts`. Replace files in `src/assets` with the
 restaurant's own photos (same filenames, or update the imports). AVIF and WebP variants in
 several widths are generated at build time by `vite-imagetools`.
+
+## Email delivery
+
+Reservation receipts, staff alerts, booking decisions and admin invitations use server-side
+SMTP via Nodemailer. Every attempt is recorded in the admin notification log; failed booking
+notifications can be retried there.
+
+For Rackhost, set these in `.env` locally and as **runtime variables** in Coolify:
+
+```dotenv
+SMTP_HOST=smtp.rackhost.hu
+SMTP_PORT=465
+SMTP_USER=your-full-mailbox-address
+SMTP_PASS=your-mailbox-password
+SMTP_FROM="Bajor Burger & Beer <your-full-mailbox-address>"
+NOTIFY_STAFF_EMAIL=your-staff-inbox
+```
+
+Use the mailbox password, not the hosting control panel password. Port 465 automatically
+uses TLS. For other providers, port 587 uses STARTTLS. Leave `SMTP_USER` and `SMTP_PASS`
+empty only for a local test server or a relay that explicitly supports unauthenticated mail.
+`NOTIFY_STAFF_EMAIL` defaults to the venue email in the site settings.
+Set `SUPABASE_SERVICE_ROLE_KEY` at runtime too, so delivery outcomes can be logged.
+Restart the dev server or the production app after changing settings. Production reads its
+runtime environment; it does not load the local `.env` file automatically.
+
+Check delivery by making a test reservation with your own email address: the guest should
+receive a receipt, the staff inbox an alert, and admin → Értesítések should show both attempts.
+Confirm the booking in admin to check the guest confirmation email as well.

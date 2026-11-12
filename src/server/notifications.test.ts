@@ -16,7 +16,7 @@ vi.mock("./content", () => ({
 const sendMail = vi.fn();
 vi.mock("./mailer", () => ({ sendMail }));
 
-const { deliver, onReservationCreated } = await import("./notifications");
+const { deliver, deliverAccountEmail, onReservationCreated } = await import("./notifications");
 
 const reservation: ReservationDetails = {
   id: "00000000-0000-4000-8000-000000000001",
@@ -71,4 +71,22 @@ describe("notifications", () => {
       expect.objectContaining({ kind: "guest_rejected", status: "failed", error: "boom" }),
     );
   });
+});
+
+it("preserves successful delivery when the notification log is unavailable", async () => {
+  vi.spyOn(console, "error").mockImplementation(() => {});
+  insert.mockRejectedValue(new Error("Database unavailable"));
+  await expect(deliver("guest_confirmed", reservation)).resolves.toBe("sent");
+  expect(sendMail).toHaveBeenCalledTimes(1);
+  expect(insert).toHaveBeenCalledTimes(1);
+});
+
+it("returns a failed account email so the admin can hand over the password", async () => {
+  sendMail.mockRejectedValueOnce(new Error("Unexpected provider failure"));
+  await expect(deliverAccountEmail("admin_invite", "staff@example.com", "temporary")).resolves.toBe(
+    "failed",
+  );
+  expect(insert).toHaveBeenCalledWith(
+    expect.objectContaining({ kind: "admin_invite", status: "failed" }),
+  );
 });

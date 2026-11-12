@@ -11,8 +11,6 @@ export interface Mail {
 export type SendResult =
   { status: "sent" } | { status: "skipped"; error: string } | { status: "failed"; error: string };
 
-let transport: Transporter | undefined;
-
 /**
  * SMTP settings from the runtime environment (any provider: the host's mailbox, Brevo,
  * Mailgun, …). Without SMTP_HOST and SMTP_FROM nothing is sent and every attempt is logged
@@ -21,27 +19,27 @@ let transport: Transporter | undefined;
 function getTransport(): Transporter | undefined {
   const host = process.env["SMTP_HOST"];
   if (!host || !process.env["SMTP_FROM"]) return undefined;
-  if (!transport) {
-    const port = Number(process.env["SMTP_PORT"] || 587);
-    const user = process.env["SMTP_USER"];
-    transport = nodemailer.createTransport({
-      host,
-      port,
-      // Port 465 speaks TLS from the start; 587/25 upgrade with STARTTLS.
-      secure: /^(1|true|yes)$/i.test(process.env["SMTP_SECURE"] ?? "") || port === 465,
-      ...(user && { auth: { user, pass: process.env["SMTP_PASS"] ?? "" } }),
-      connectionTimeout: 10_000,
-      greetingTimeout: 10_000,
-      socketTimeout: 20_000,
-    });
-  }
-  return transport;
+  const port = Number(process.env["SMTP_PORT"] || 587);
+  const user = process.env["SMTP_USER"];
+  return nodemailer.createTransport({
+    host,
+    port,
+    // Port 465 speaks TLS from the start; 587/25 upgrade with STARTTLS.
+    secure: /^(1|true|yes)$/i.test(process.env["SMTP_SECURE"] ?? "") || port === 465,
+    ...(user && { auth: { user, pass: process.env["SMTP_PASS"] ?? "" } }),
+    connectionTimeout: 10_000,
+    greetingTimeout: 10_000,
+    socketTimeout: 20_000,
+  });
 }
 
 export async function sendMail(mail: Mail): Promise<SendResult> {
-  const smtp = getTransport();
-  if (!smtp) return { status: "skipped", error: "Az e-mail-küldés nincs beállítva (SMTP)." };
+  if (process.env["SMTP_USER"] && !process.env["SMTP_PASS"]) {
+    return { status: "skipped", error: "Hiányzik az SMTP jelszó (SMTP_PASS)." };
+  }
   try {
+    const smtp = getTransport();
+    if (!smtp) return { status: "skipped", error: "Az e-mail-küldés nincs beállítva (SMTP)." };
     await smtp.sendMail({ from: process.env["SMTP_FROM"], ...mail });
     return { status: "sent" };
   } catch (error) {
