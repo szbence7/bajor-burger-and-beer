@@ -48,9 +48,9 @@ const values: { icon: DoodleKind; title: string; text: string }[] = [
     text: "Világos, búza, IPA. Hogy ma melyik folyik, azt a pultnál elárulják.",
   },
   {
-    icon: "pretzel",
+    icon: "burger",
     title: "Nincs hova sietni",
-    text: "Hosszú asztalok, laza tempó. Senki nem sürget, hogy fizess és menj.",
+    text: "Jó sörök, finom falatok, laza tempó. Térj be egy beszélgetésre a barátokkal.",
   },
 ];
 
@@ -297,8 +297,7 @@ function Index() {
             </Suspense>
             <aside className="space-y-6 text-lg">
               <p>
-                Hétvégén gyorsan betelnek a hosszú asztalok, érdemes előre szólni. A foglalást
-                e-mailben visszaigazoljuk.
+                Ha biztosra mennél, foglalj asztalt előre. A foglalást e-mailben visszaigazoljuk.
               </p>
               <p className="bg-concrete-texture rounded-3xl p-6 font-bold text-concrete-foreground">
                 Az asztalt {booking.holdMinutes} percig tartjuk. Kérdésed van? Hívj minket:{" "}

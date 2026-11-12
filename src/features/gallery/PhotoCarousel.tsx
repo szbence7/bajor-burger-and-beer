@@ -1,5 +1,6 @@
 import useEmblaCarousel from "embla-carousel-react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Pause, Play } from "lucide-react";
+import { useReducedMotion } from "motion/react";
 import { useCallback, useEffect, useState } from "react";
 import { Picture, type ImageSource } from "@/components/Picture";
 import { cn } from "@/lib/utils";
@@ -16,6 +17,17 @@ const arrowClass =
 export function PhotoCarousel({ photos }: { photos: CarouselPhoto[] }) {
   const [viewportRef, embla] = useEmblaCarousel({ align: "start", loop: true });
   const [selected, setSelected] = useState(0);
+  const reducedMotion = useReducedMotion();
+  const [paused, setPaused] = useState<boolean | null>(null);
+  const [hovered, setHovered] = useState(false);
+  const [focused, setFocused] = useState(false);
+  const isPaused = paused ?? Boolean(reducedMotion);
+
+  useEffect(() => {
+    if (!embla || isPaused || hovered || focused) return;
+    const timer = window.setInterval(() => embla.scrollNext(), 3500);
+    return () => window.clearInterval(timer);
+  }, [embla, isPaused, hovered, focused]);
 
   useEffect(() => {
     if (!embla) return;
@@ -32,6 +44,12 @@ export function PhotoCarousel({ photos }: { photos: CarouselPhoto[] }) {
 
   return (
     <div
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      onFocusCapture={() => setFocused(true)}
+      onBlurCapture={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget)) setFocused(false);
+      }}
       role="region"
       aria-roledescription="carousel"
       aria-label="Képek a Bajor helyszínéről és ételeiről"
@@ -54,7 +72,6 @@ export function PhotoCarousel({ photos }: { photos: CarouselPhoto[] }) {
                   sizes="(min-width: 1536px) 24vw, (min-width: 1024px) 31vw, (min-width: 640px) 45vw, 78vw"
                   className="aspect-[3/2] w-full object-cover"
                 />
-                <figcaption className="bg-card px-5 py-3 font-display text-xl">{p.alt}</figcaption>
               </figure>
             </div>
           ))}
@@ -76,6 +93,16 @@ export function PhotoCarousel({ photos }: { photos: CarouselPhoto[] }) {
           {selected + 1} / {photos.length}
         </p>
         <div className="flex gap-3">
+          <button
+            type="button"
+            onClick={() => setPaused(!isPaused)}
+            className={arrowClass}
+            aria-label={
+              isPaused ? "Automatikus lapozás indítása" : "Automatikus lapozás szüneteltetése"
+            }
+          >
+            {isPaused ? <Play className="h-6 w-6" /> : <Pause className="h-6 w-6" />}
+          </button>
           <button type="button" onClick={prev} className={arrowClass} aria-label="Előző kép">
             <ChevronLeft className="h-6 w-6" />
           </button>
