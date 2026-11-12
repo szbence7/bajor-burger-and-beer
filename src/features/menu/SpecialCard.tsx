@@ -36,7 +36,7 @@ export function SpecialCard({ special }: { special: MonthlySpecial }) {
         </div>
       )}
       {special.description && (
-        <p className="relative z-10 mt-3 line-clamp-3 text-sm opacity-85">{special.description}</p>
+        <p className="relative z-10 mt-3 text-sm opacity-85">{special.description}</p>
       )}
       <p className="relative z-10 mt-auto pt-4">
         <Price value={special.price} className="font-display text-2xl text-primary" />
