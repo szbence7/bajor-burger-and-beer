@@ -10,11 +10,10 @@ applies: never rewrite pushed history.
 
 ## Workflow
 
-- Work on branch `claude/redesign-fixes` (never directly on `main`), in phases.
-- After each phase: run the full verification (below), commit, **push the branch without
-  asking**, summarise, then **stop for the user's review** before the next phase.
-- Small, focused commits with clear English messages. Never force-push; never push to `main`
-  without asking.
+- Work **directly on `main`** (user decision 2026-11-12): no feature branches, no PRs.
+- After each change: run the full verification (below), commit, **push to `main` without
+  asking**, summarise, then **stop for the user's review**.
+- Small, focused commits with clear English messages. Never force-push.
 - Verification before every commit: `bun run lint` (0 errors), `bunx tsc --noEmit`,
   `bun run test`, `bun run build`. For UI changes also check screenshots at 375 / 768 / 1280 /
   1920 px (no horizontal scroll, no clipped headings) and compare against the previous look.

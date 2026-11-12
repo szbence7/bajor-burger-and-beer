@@ -273,7 +273,7 @@ _Last updated: clickable dish photos, 2026-11-12._
 | 4 — Admin panel (reduced scope, decision 22) | 🔍 Implemented and tested locally; awaiting review, **not yet applied to the real instance** |
 | One-page site, PDF menu viewer, fonts (decisions 33–35) | 🔍 Implemented and tested locally; awaiting review. Migration 0008 **not yet applied to the real instance** |
 
-Branch `claude/redesign-fixes`, pushed to `origin`.
+Work happens directly on `main` (user decision 2026-11-12); the `claude/redesign-fixes` branch was merged and deleted.
 
 ### Dish photos (2026-11-12)
 
