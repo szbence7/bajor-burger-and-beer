@@ -39,7 +39,7 @@ export function BookingNudge() {
       if (window.scrollY > window.innerHeight) setDue(true);
     };
     window.addEventListener("scroll", onScroll, { passive: true });
-    const booking = document.getElementById("foglalas");
+    const booking = document.getElementById("booking-section");
     const io = new IntersectionObserver(([e]) => setBookingInView(!!e?.isIntersecting));
     if (booking) io.observe(booking);
     return () => {

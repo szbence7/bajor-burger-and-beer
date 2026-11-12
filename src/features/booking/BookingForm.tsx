@@ -139,23 +139,17 @@ export function BookingForm() {
   // Loading → times → "no free time" swaps ease instead of jumping.
   const slotStateRef = useSmoothList<HTMLDivElement>();
 
-  // On phones the calendar fills the screen: after picking a day, bring the times into view.
+  // Every date selection brings the available times below the fixed header.
   const slotsRef = useRef<HTMLDivElement>(null);
-  const pickDate = (d: string) => {
-    const first = !f.date;
-    set("date", d);
-    if (!first) return;
-    setTimeout(() => {
-      const el = slotsRef.current;
-      if (!el) return;
-      const top = el.getBoundingClientRect().top;
-      if (top > window.innerHeight * 0.6) {
-        const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-        // 96 px clears the fixed header.
-        window.scrollBy({ top: top - 96, behavior: reduce ? "auto" : "smooth" });
-      }
-    }, 150);
-  };
+  useEffect(() => {
+    if (!f.date) return;
+    const frame = requestAnimationFrame(() => {
+      const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      slotsRef.current?.scrollIntoView({ block: "start", behavior: reduce ? "instant" : "smooth" });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [f.date]);
+  const pickDate = (date: string) => set("date", date);
 
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -235,7 +229,10 @@ export function BookingForm() {
   }
 
   return (
-    <div className="relative rounded-3xl border border-border bg-card p-5 sm:p-8">
+    <div
+      id={step !== 1 ? "foglalas" : undefined}
+      className="relative scroll-mt-24 rounded-3xl border border-border bg-card p-5 sm:p-8"
+    >
       {step < 3 && (
         <div className="mb-8 flex gap-3" aria-hidden>
           {[1, 2].map((s) => (
@@ -263,7 +260,12 @@ export function BookingForm() {
               <p id="booking-date-label" className={labelClass}>
                 Dátum
               </p>
-              <div role="group" aria-labelledby="booking-date-label">
+              <div
+                id="foglalas"
+                className="scroll-mt-24"
+                role="group"
+                aria-labelledby="booking-date-label"
+              >
                 <BookingCalendar
                   value={f.date}
                   min={today}
@@ -283,7 +285,7 @@ export function BookingForm() {
               ref={slotsRef}
               inert={!f.date}
               className={cn(
-                "grid transition-[grid-template-rows,opacity] duration-500 ease-out motion-reduce:transition-none",
+                "scroll-mt-24 grid transition-[grid-template-rows,opacity] duration-500 ease-out motion-reduce:transition-none",
                 f.date ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0",
               )}
             >
