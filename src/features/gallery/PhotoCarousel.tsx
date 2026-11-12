@@ -1,5 +1,5 @@
 import useEmblaCarousel from "embla-carousel-react";
-import { ChevronLeft, ChevronRight, Pause, Play, Plus } from "lucide-react";
+import { ChevronLeft, ChevronRight, Pause, Play } from "lucide-react";
 import { useReducedMotion } from "motion/react";
 import { useCallback, useEffect, useState } from "react";
 import { Picture, type ImageSource } from "@/components/Picture";
@@ -89,15 +89,9 @@ export function PhotoCarousel({ photos }: { photos: CarouselPhoto[] }) {
                     type="button"
                     aria-haspopup="dialog"
                     onClick={() => setDish({ src: p.src, alt: p.alt, description })}
-                    className="group relative block w-full cursor-pointer overflow-hidden rounded-3xl shadow-xl outline-none transition-all duration-500 hover:-translate-y-2 hover:shadow-gold focus-visible:-translate-y-2 focus-visible:ring-2 focus-visible:ring-primary motion-reduce:transition-none"
+                    className="block w-full cursor-pointer overflow-hidden rounded-3xl shadow-xl outline-none transition-all duration-500 hover:-translate-y-2 hover:shadow-gold focus-visible:-translate-y-2 focus-visible:ring-2 focus-visible:ring-primary motion-reduce:transition-none"
                   >
                     {photo}
-                    <span
-                      aria-hidden
-                      className="absolute bottom-3 right-3 grid h-10 w-10 place-items-center rounded-full bg-background/75 text-primary backdrop-blur transition-colors group-hover:bg-primary group-hover:text-primary-foreground"
-                    >
-                      <Plus className="h-5 w-5" />
-                    </span>
                   </button>
                 ) : (
                   <figure className="overflow-hidden rounded-3xl shadow-xl transition-all duration-500 hover:-translate-y-2 hover:shadow-gold motion-reduce:transition-none">
