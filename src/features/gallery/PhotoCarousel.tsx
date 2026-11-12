@@ -18,10 +18,14 @@ export function PhotoCarousel({ photos }: { photos: CarouselPhoto[] }) {
   const [viewportRef, embla] = useEmblaCarousel({ align: "start", loop: true });
   const [selected, setSelected] = useState(0);
   const reducedMotion = useReducedMotion();
-  const [paused, setPaused] = useState<boolean | null>(null);
+  const [paused, setPaused] = useState(false);
   const [hovered, setHovered] = useState(false);
   const [focused, setFocused] = useState(false);
-  const isPaused = paused ?? Boolean(reducedMotion);
+  const isPaused = paused;
+
+  useEffect(() => {
+    if (reducedMotion) setPaused(true);
+  }, [reducedMotion]);
 
   useEffect(() => {
     if (!embla || isPaused || hovered || focused) return;
