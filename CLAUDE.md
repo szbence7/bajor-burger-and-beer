@@ -175,7 +175,9 @@ reads the real environment).
   Sundays while open, after 10 s or past the hero, hidden while the booking form is on screen,
   gone for the session once closed or used), BookingForm (step 1: always-open month `Calendar` → time slots →
   party size 1…max; step 2: contact details; then confirmation). No "call us above N" branch.
-  `src/features/gallery` — PhotoCarousel (Embla, home "A hely"). Each
+  `src/features/gallery` — PhotoCarousel (Embla, home "A hely"; dish photos are buttons that
+  open `DishDialog`, a native `<dialog>` with the name in Back to Black, the photo and the
+  contents from the printed menu, kept in `foodPhotos` in `src/data/images.ts`). Each
   feature's `api.ts` holds its server functions (`getHomeContent`, `getAvailability`,
   `createReservation`); `booking/schema.ts` is the
   shared zod schema + error codes.

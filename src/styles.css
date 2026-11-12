@@ -257,6 +257,53 @@
   transform: none;
 }
 
+/* Dish dialog (photo carousel): rises and fades in over a dimmed, blurred page, and back out. */
+.dish-dialog {
+  opacity: 0;
+  translate: 0 1.25rem;
+  scale: 0.97;
+  transition:
+    opacity 0.3s ease,
+    translate 0.35s cubic-bezier(0.2, 0.8, 0.2, 1),
+    scale 0.35s cubic-bezier(0.2, 0.8, 0.2, 1),
+    overlay 0.35s allow-discrete,
+    display 0.35s allow-discrete;
+}
+.dish-dialog[open] {
+  opacity: 1;
+  translate: 0 0;
+  scale: 1;
+}
+@starting-style {
+  .dish-dialog[open] {
+    opacity: 0;
+    translate: 0 1.25rem;
+    scale: 0.97;
+  }
+}
+.dish-dialog::backdrop {
+  background-color: transparent;
+  backdrop-filter: blur(0);
+  transition:
+    background-color 0.3s ease,
+    backdrop-filter 0.3s ease,
+    overlay 0.35s allow-discrete,
+    display 0.35s allow-discrete;
+}
+.dish-dialog[open]::backdrop {
+  background-color: color-mix(in oklch, var(--background) 80%, transparent);
+  backdrop-filter: blur(6px);
+}
+@starting-style {
+  .dish-dialog[open]::backdrop {
+    background-color: transparent;
+    backdrop-filter: blur(0);
+  }
+}
+html:has(.dish-dialog[open]) {
+  overflow: hidden;
+}
+
 /* Page changes cross-fade (router defaultViewTransition). */
 ::view-transition-old(root),
 ::view-transition-new(root) {
@@ -286,6 +333,11 @@
   .lift,
   .lift:hover {
     transform: none;
+  }
+  .dish-dialog,
+  .dish-dialog[open] {
+    translate: none;
+    scale: none;
   }
 }
 

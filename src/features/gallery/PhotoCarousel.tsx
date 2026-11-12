@@ -1,19 +1,23 @@
 import useEmblaCarousel from "embla-carousel-react";
-import { ChevronLeft, ChevronRight, Pause, Play } from "lucide-react";
+import { ChevronLeft, ChevronRight, Pause, Play, Plus } from "lucide-react";
 import { useReducedMotion } from "motion/react";
 import { useCallback, useEffect, useState } from "react";
 import { Picture, type ImageSource } from "@/components/Picture";
 import { cn } from "@/lib/utils";
+import type { DishPhoto } from "@/data/images";
+import { DishDialog } from "./DishDialog";
 
 export interface CarouselPhoto {
   src: ImageSource;
   alt: string;
+  /** Dishes only: what is in it. Makes the photo open a dialog with the dish. */
+  description?: string;
 }
 
 const arrowClass =
   "grid h-12 w-12 place-items-center rounded-full border-2 border-primary text-primary transition-colors hover:bg-primary hover:text-primary-foreground disabled:opacity-30";
 
-/** Horizontal carousel of tilted photo cards that straighten on hover. */
+/** Horizontal carousel of photo cards; dish photos open a dialog with what is in the dish. */
 export function PhotoCarousel({ photos }: { photos: CarouselPhoto[] }) {
   const [viewportRef, embla] = useEmblaCarousel({ align: "start", loop: true });
   const [selected, setSelected] = useState(0);
@@ -21,6 +25,7 @@ export function PhotoCarousel({ photos }: { photos: CarouselPhoto[] }) {
   const [paused, setPaused] = useState(false);
   const [hovered, setHovered] = useState(false);
   const [focused, setFocused] = useState(false);
+  const [dish, setDish] = useState<DishPhoto | null>(null);
   const isPaused = paused;
 
   useEffect(() => {
@@ -28,10 +33,10 @@ export function PhotoCarousel({ photos }: { photos: CarouselPhoto[] }) {
   }, [reducedMotion]);
 
   useEffect(() => {
-    if (!embla || isPaused || hovered || focused) return;
+    if (!embla || isPaused || hovered || focused || dish) return;
     const timer = window.setInterval(() => embla.scrollNext(), 3500);
     return () => window.clearInterval(timer);
-  }, [embla, isPaused, hovered, focused]);
+  }, [embla, isPaused, hovered, focused, dish]);
 
   useEffect(() => {
     if (!embla) return;
@@ -61,24 +66,47 @@ export function PhotoCarousel({ photos }: { photos: CarouselPhoto[] }) {
       {/* vertical padding keeps the hover lift and shadow from being clipped */}
       <div ref={viewportRef} className="overflow-hidden px-5 py-10">
         <div className="-ml-6 flex touch-pan-y">
-          {photos.map((p, i) => (
-            <div
-              key={`${p.src}-${i}`}
-              role="group"
-              aria-roledescription="slide"
-              aria-label={`${i + 1} / ${photos.length}`}
-              className="min-w-0 shrink-0 grow-0 basis-[78%] pl-6 sm:basis-[45%] lg:basis-[31%] 2xl:basis-[24%]"
-            >
-              <figure className="overflow-hidden rounded-3xl shadow-xl transition-all duration-500 hover:-translate-y-2 hover:shadow-gold motion-reduce:transition-none">
-                <Picture
-                  image={p.src}
-                  alt={p.alt}
-                  sizes="(min-width: 1536px) 24vw, (min-width: 1024px) 31vw, (min-width: 640px) 45vw, 78vw"
-                  className="aspect-[3/2] w-full object-cover"
-                />
-              </figure>
-            </div>
-          ))}
+          {photos.map((p, i) => {
+            const { description } = p;
+            const photo = (
+              <Picture
+                image={p.src}
+                alt={p.alt}
+                sizes="(min-width: 1536px) 24vw, (min-width: 1024px) 31vw, (min-width: 640px) 45vw, 78vw"
+                className="aspect-[3/2] w-full object-cover"
+              />
+            );
+            return (
+              <div
+                key={`${p.src}-${i}`}
+                role="group"
+                aria-roledescription="slide"
+                aria-label={`${i + 1} / ${photos.length}`}
+                className="min-w-0 shrink-0 grow-0 basis-[78%] pl-6 sm:basis-[45%] lg:basis-[31%] 2xl:basis-[24%]"
+              >
+                {description ? (
+                  <button
+                    type="button"
+                    aria-haspopup="dialog"
+                    onClick={() => setDish({ src: p.src, alt: p.alt, description })}
+                    className="group relative block w-full cursor-pointer overflow-hidden rounded-3xl shadow-xl outline-none transition-all duration-500 hover:-translate-y-2 hover:shadow-gold focus-visible:-translate-y-2 focus-visible:ring-2 focus-visible:ring-primary motion-reduce:transition-none"
+                  >
+                    {photo}
+                    <span
+                      aria-hidden
+                      className="absolute bottom-3 right-3 grid h-10 w-10 place-items-center rounded-full bg-background/75 text-primary backdrop-blur transition-colors group-hover:bg-primary group-hover:text-primary-foreground"
+                    >
+                      <Plus className="h-5 w-5" />
+                    </span>
+                  </button>
+                ) : (
+                  <figure className="overflow-hidden rounded-3xl shadow-xl transition-all duration-500 hover:-translate-y-2 hover:shadow-gold motion-reduce:transition-none">
+                    {photo}
+                  </figure>
+                )}
+              </div>
+            );
+          })}
         </div>
       </div>
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-5">
@@ -115,6 +143,7 @@ export function PhotoCarousel({ photos }: { photos: CarouselPhoto[] }) {
           </button>
         </div>
       </div>
+      <DishDialog dish={dish} onClose={() => setDish(null)} />
     </div>
   );
 }

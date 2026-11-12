@@ -44,25 +44,111 @@ export const images = {
 
 export type ImageSlot = keyof typeof images;
 
-export const foodPhotos = [
-  { src: images.classicBeef, alt: "Classic Beef" },
-  { src: images.smokeyWorld, alt: "Smokey World" },
-  { src: images.louVega, alt: "Lou Vega" },
-  { src: images.classicChick, alt: "Classic Chick" },
-  { src: images.montereyJack, alt: "Monterey Jack" },
-  { src: images.saintTropez, alt: "Saint Tropez" },
-  { src: images.proteinBurger, alt: "Protein Burger" },
-  { src: images.lazacBurger, alt: "Lazac Burger" },
-  { src: images.pulledPorkBaguette, alt: "Pulled Pork baguette" },
-  { src: images.bajorCsulok, alt: "Bajor Csülök" },
-  { src: images.lavaBurger, alt: "Láva Burger" },
-  { src: images.brutalSmashed, alt: "Brutal Smashed" },
-  { src: images.bajorKolbasz, alt: "Bajor Kolbász" },
-  { src: images.cezarSalata, alt: "Cézár Saláta" },
-  { src: images.grillCsirkemell, alt: "Grill csirkemell" },
-  { src: images.sztrapacska, alt: "Sztrapacska" },
-  { src: images.sorkorcsolyak, alt: "Sörkorcsolyák" },
-] as const;
+/** A dish photo with its name and contents, as printed on the restaurant's menu. */
+export interface DishPhoto {
+  src: ImageSource;
+  alt: string;
+  description: string;
+}
+
+// Names and descriptions follow the printed Hungarian menu (public/menus/etlap-hu.jpg).
+export const foodPhotos: readonly DishPhoto[] = [
+  {
+    src: images.classicBeef,
+    alt: "Classic Beef",
+    description: "Buci, marhahúspogácsa, cheddar sajt, házi hamburger szósz, paradicsom, jégsaláta",
+  },
+  {
+    src: images.smokeyWorld,
+    alt: "Smokey World",
+    description:
+      "Buci, marhahúspogácsa, bacon, füstölt sajt, BBQ szósz, házi hamburger szósz, paradicsom, jégsaláta",
+  },
+  {
+    src: images.louVega,
+    alt: "Lou Vega",
+    description: "Buci, grill camembert, paradicsom, házi hamburger szósz, jégsaláta",
+  },
+  {
+    src: images.classicChick,
+    alt: "Classic Chick",
+    description:
+      "Buci, grill csirkemell, cheddar sajt, házi hamburger szósz, paradicsom, jégsaláta",
+  },
+  {
+    src: images.montereyJack,
+    alt: "Monterey Jack",
+    description:
+      "Buci, marhahúspogácsa, bacon, házi hamburger szósz, cheddar sajt, jalapeno paprika, paradicsom, jégsaláta",
+  },
+  {
+    src: images.saintTropez,
+    alt: "Saint-Tropez",
+    description:
+      "Buci, marhahúspogácsa, cheddar sajt, camembert, házi hamburger szósz, paradicsom, jégsaláta",
+  },
+  {
+    src: images.proteinBurger,
+    alt: "Protein Burger",
+    description:
+      "Marhahúspogácsa, bacon, cheddar sajt, pirított hagyma, házi hamburger szósz, paradicsom, extra jégsaláta, buci nélkül",
+  },
+  {
+    src: images.lazacBurger,
+    alt: "Lazacburger",
+    description: "Buci, grill lazac, caesar szósz, aszalt paradicsom, friss vegyes saláta",
+  },
+  {
+    src: images.pulledPorkBaguette,
+    alt: "Pulled pork baguette",
+    description:
+      "Pulled pork, cheddar sajt, bacon, BBQ szósz, fokhagymás mayo, aszalt paradicsom, savanyú uborka, pirított hagyma, jégsaláta",
+  },
+  {
+    src: images.bajorCsulok,
+    alt: "Bajor csülök",
+    description: "Sörben sült ropogós csülök, bajor káposzta, fűszeres, fokhagymás steak burgonya",
+  },
+  {
+    src: images.lavaBurger,
+    alt: "Láva Burger",
+    description:
+      "Buci, marhahúspogácsa, füstölt sajt, bacon, jalapeno, pirított hagyma, fokhagymás mayo, folyékony cheddar sajt, paradicsom, jégsaláta",
+  },
+  {
+    src: images.brutalSmashed,
+    alt: "Brutal Smashed Burger",
+    description:
+      "Buci, smashed marhahúspogácsa 2×110 g, cheddar sajt, pikáns cheddar sajtszósz, smashed szósz, bacon 2 db, sült lilahagyma, csemegeuborka, friss vegyes saláta",
+  },
+  {
+    src: images.bajorKolbasz,
+    alt: "Bajor kolbász",
+    description: "Grill bajor kolbász (3 db), sült édesburgonya, dijoni mustár, bajor káposzta",
+  },
+  {
+    src: images.cezarSalata,
+    alt: "Caesar saláta",
+    description:
+      "Grill csirkemell, parmezán sajt, caesar szósz, friss kevert saláta, pirított zsemlekocka",
+  },
+  {
+    src: images.grillCsirkemell,
+    alt: "Grill csirkemell",
+    description: "Fűszeres grill csirkemell sült édesburgonyával",
+  },
+  {
+    src: images.sztrapacska,
+    alt: "Sztrapacska",
+    description: "Juhtúrós sztrapacska, kapor, grill füstölt tarja, lilahagyma",
+  },
+  {
+    src: images.sorkorcsolyak,
+    alt: "Sörkorcsolyák",
+    description:
+      "Mozzarella rudacska, chili cheese nuggets, fekete sajtfalatok chilivel, sajtfalatok habanero chilivel (5 db), hagymakarika (6 db)",
+  },
+];
 
 /** Stored image keys or staff-uploaded URLs. Retired dummy keys no longer resolve. */
 export function resolveImage(value: string | null | undefined): ImageSource | undefined {
