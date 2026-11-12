@@ -37,6 +37,7 @@ interface Content {
   quote?: string;
   rows: [string, string][];
   outro: string[];
+  directions?: { href: string; label: string }[];
   link?: { href: string; label: string };
 }
 
@@ -48,6 +49,7 @@ function render(c: Content, siteName: string, to: string, replyTo?: string): Mai
     ...(c.quote ? ["", `„${c.quote}”`] : []),
     "",
     ...c.rows.map(([k, v]) => `${k}: ${v}`),
+    ...(c.directions ? ["", ...c.directions.map(({ label, href }) => `${label}: ${href}`)] : []),
     "",
     ...c.outro,
     ...(c.link ? ["", `${c.link.label}: ${c.link.href}`] : []),
@@ -72,6 +74,16 @@ ${c.rows
   )
   .join("\n")}
 </table>
+${
+  c.directions
+    ? `<table role="presentation" style="width:100%;table-layout:fixed;border-collapse:collapse;margin:0 0 18px"><tr>${c.directions
+        .map(
+          ({ href, label }) =>
+            `<td style="width:33.33%;padding:0 3px;text-align:center;vertical-align:middle"><a href="${escapeHtml(href)}" style="display:block;padding:12px 3px;border:1px solid #d2ac66;border-radius:10px;color:#d2ac66;font-size:12px;line-height:18px;font-weight:700;text-decoration:none;white-space:nowrap">${escapeHtml(label)}</a></td>`,
+        )
+        .join("")}</tr></table>`
+    : ""
+}
 ${c.outro.map(p).join("\n")}
 ${c.link ? `<p style="margin:20px 0 0"><a href="${escapeHtml(c.link.href)}" style="display:inline-block;padding:12px 22px;border-radius:999px;background:#d2ac66;color:#121110;font-weight:800;text-decoration:none;text-transform:uppercase;letter-spacing:.08em;font-size:13px">${escapeHtml(c.link.label)}</a></p>` : ""}
 </div>
@@ -124,6 +136,21 @@ export function buildEmail(
           intro: [`Kedves ${r.name}!`, "A foglalásodat visszaigazoltuk."],
           ...withQuote,
           rows: [...bookingRows(r), ["Cím", address]],
+          // HTTPS app links also work when the guest has no native navigation app installed.
+          directions: [
+            {
+              label: "Apple Maps",
+              href: `https://maps.apple.com/?daddr=${encodeURIComponent(address)}&dirflg=d`,
+            },
+            {
+              label: "Waze",
+              href: `https://waze.com/ul?q=${encodeURIComponent(address)}&navigate=yes`,
+            },
+            {
+              label: "Google Maps",
+              href: `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(address)}&travelmode=driving&dir_action=navigate`,
+            },
+          ],
           outro: [
             `Az asztalt ${site.booking.holdMinutes} percig tartjuk. Ha mégsem tudsz jönni, kérjük, szólj: ${phone}.`,
           ],

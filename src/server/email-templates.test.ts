@@ -43,6 +43,44 @@ describe("buildEmail", () => {
     expect(mail.replyTo).toBe("vendeg@example.com");
   });
 
+  it("places three navigation buttons after the address using the current site settings", () => {
+    const address = '9022 Győr, Árvíz utca 3. & udvar "B"';
+    const mail = buildEmail(
+      "guest_confirmed",
+      reservation,
+      { ...site, contact: { ...site.contact, address } },
+      reservation.email,
+    );
+    const doc = new DOMParser().parseFromString(mail.html, "text/html");
+    const buttons = [...doc.querySelectorAll("a")];
+    expect(buttons.map((a) => a.textContent)).toEqual(["Apple Maps", "Waze", "Google Maps"]);
+    const urls = buttons.map((a) => new URL(a.href));
+    expect(urls[0]?.searchParams.get("daddr")).toBe(address);
+    expect(urls[1]?.searchParams.get("q")).toBe(address);
+    expect(urls[1]?.searchParams.get("navigate")).toBe("yes");
+    expect(urls[2]?.searchParams.get("destination")).toBe(address);
+    expect(urls[2]?.searchParams.get("api")).toBe("1");
+    expect(urls[2]?.searchParams.get("dir_action")).toBe("navigate");
+    const row = buttons[0]?.closest("tr");
+    expect(row?.querySelectorAll("a")).toHaveLength(3);
+    expect(row?.closest("table")?.previousElementSibling?.textContent).toContain(address);
+    for (const button of buttons) expect(mail.text).toContain(button.href);
+  });
+
+  it("does not add navigation buttons to other reservation emails", () => {
+    for (const kind of [
+      "guest_received",
+      "guest_rejected",
+      "guest_cancelled",
+      "staff_new",
+    ] as const) {
+      const mail = buildEmail(kind, reservation, site, reservation.email);
+      expect(mail.html).not.toContain("maps.apple.com");
+      expect(mail.html).not.toContain("waze.com");
+      expect(mail.html).not.toContain("google.com/maps");
+    }
+  });
+
   it("quotes the staff's message with a decision", () => {
     const mail = buildEmail(
       "guest_rejected",

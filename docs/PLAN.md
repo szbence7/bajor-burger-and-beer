@@ -275,6 +275,16 @@ _Last updated: clickable dish photos, 2026-11-12._
 
 Work happens directly on `main` (user decision 2026-11-12); the `claude/redesign-fixes` branch was merged and deleted.
 
+### Confirmation email navigation (2026-11-12)
+
+- Added Apple Maps, Waze and Google Maps buttons in one row immediately after the address
+  in the guest confirmation email. All destinations use the current `site.contact.address`
+  from admin settings; HTTPS links include driving directions/navigation parameters.
+- Included equivalent links in the plain-text email. Other notification templates are unchanged.
+- Verified: lint (0 errors, 4 existing warnings), TypeScript, 58 tests, production build;
+  Chrome screenshots at 375 / 768 / 1280 / 1920 px show all three buttons on one row without
+  clipping or horizontal overflow. Native app handoff needs testing on the guest's device.
+
 ### Email integration follow-up (2026-11-12)
 
 - Completed the SMTP password guard and dev environment loading fix: `.env` values now
@@ -284,8 +294,8 @@ Work happens directly on `main` (user decision 2026-11-12); the `claude/redesign
   failures return `failed`, allowing the admin to hand over the temporary password.
 - Added SMTP and notification failure regression tests and documented runtime setup in README.
 - Verified: lint (0 errors, 4 existing warnings), TypeScript, all 56 tests, production build.
-- Live Rackhost delivery remains unverified: local `SMTP_USER` and `SMTP_PASS` are empty.
-  Fill them locally and configure the same runtime variables in Coolify before a live test.
+- The user filled local SMTP credentials; connection and authentication to Rackhost were
+  verified successfully. End-to-end delivery is being tested by the user.
 
 ### Dish photos (2026-11-12)
 
@@ -379,9 +389,8 @@ Work happens directly on `main` (user decision 2026-11-12); the `claude/redesign
   `public/og-image.jpg` is rendered from them; swap via `src/data/images.ts` and regenerate
   the OG image once real photos arrive. The home "A hely" carousel and the Rólunk photos
   are still fixed in code (candidates for admin control in Phase 4).
-- **SMTP credentials**: local configuration selects Rackhost (`smtp.rackhost.hu`, TLS port
-  465), but `SMTP_USER` and `SMTP_PASS` are empty. Fill them in and set `SMTP_*` runtime
-  variables in Coolify; real delivery still needs verification.
+- **SMTP production setup**: local Rackhost connection and authentication work. Configure
+  the same `SMTP_*` runtime variables in Coolify; end-to-end delivery is being tested by the user.
 - **Apply Phase 4 to the real instance**: migration 0004 + seed, Auth env
   (`GOTRUE_DISABLE_SIGNUP=true`, TOTP MFA enroll/verify on), Realtime + Storage running, then
   `bun run admin create` for the first admin (the rest are invited from the panel); set `SUPABASE_SERVICE_ROLE_KEY` (and
