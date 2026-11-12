@@ -273,7 +273,8 @@ export function BookingForm() {
       )}
       <Swap id={step}>
         {step === 1 && (
-          <div className="space-y-6">
+          // Booking links land on "Mikor jössz?", so the heading shows above the calendar.
+          <div id="foglalas" className="scroll-mt-28 space-y-6">
             <h3
               ref={headingRef}
               tabIndex={-1}
@@ -285,12 +286,7 @@ export function BookingForm() {
               <p id="booking-date-label" className={labelClass}>
                 Dátum
               </p>
-              <div
-                id="foglalas"
-                className="scroll-mt-24"
-                role="group"
-                aria-labelledby="booking-date-label"
-              >
+              <div role="group" aria-labelledby="booking-date-label">
                 <BookingCalendar
                   value={f.date}
                   min={today}
