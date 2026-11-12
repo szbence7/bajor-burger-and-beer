@@ -262,7 +262,7 @@ Agreed with the user during Phases 1–2. These override the original prompt whe
 
 ## Status
 
-_Last updated: copy and design pass, 2026-11-03._
+_Last updated: clickable dish photos, 2026-11-12._
 
 | Phase | State |
 | --- | --- |
@@ -274,6 +274,15 @@ _Last updated: copy and design pass, 2026-11-03._
 | One-page site, PDF menu viewer, fonts (decisions 33–35) | 🔍 Implemented and tested locally; awaiting review. Migration 0008 **not yet applied to the real instance** |
 
 Branch `claude/redesign-fixes`, pushed to `origin`.
+
+### Dish photos (2026-11-12)
+
+- Client request: the food photos in "A hely és az ételek" open a small dialog with the dish
+  name in the menu script (Back to Black), the photo and its contents. Names and descriptions
+  are copied from the printed Hungarian menu into `foodPhotos` (`src/data/images.ts`); the
+  venue photo stays a plain image. Native `<dialog>` (focus trap, Escape, backdrop click,
+  focus returns to the photo), CSS fade/rise, autoplay pauses while open. Checked at 320 /
+  375 / 768 / 1280 / 1920 px.
 
 ### Phase 3 summary
 
